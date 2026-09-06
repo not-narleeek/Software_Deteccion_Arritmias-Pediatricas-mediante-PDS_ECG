@@ -1,0 +1,245 @@
+registro,simbolo,descripcion,conteo
+x001,/,Latido marcapasos,1238
+x001,A,PAC,40
+x001,J,PJC,50
+x001,N,Latido normal,10345
+x001,Q,Latido no clasificable,53
+x001,V,PVC,24
+x001,X,Latido en ritmo arrítmico (AVNRT/AVRT/AFL/AF/IVR/VT/EAT),4239
+x001,b,?,1
+x002,/,Latido marcapasos,755
+x002,A,PAC,260
+x002,J,PJC,234
+x002,N,Latido normal,6047
+x002,Q,Latido no clasificable,324
+x002,V,PVC,52
+x002,X,Latido en ritmo arrítmico (AVNRT/AVRT/AFL/AF/IVR/VT/EAT),2925
+x002,a,PAC aberrado (aPAC),7
+x003,/,Latido marcapasos,1477
+x003,A,PAC,189
+x003,F,Fusión (FB),2
+x003,J,PJC,13
+x003,N,Latido normal,12679
+x003,Q,Latido no clasificable,185
+x003,V,PVC,120
+x003,X,Latido en ritmo arrítmico (AVNRT/AVRT/AFL/AF/IVR/VT/EAT),579
+x003,a,PAC aberrado (aPAC),2
+x003,j,?,2
+x004,/,Latido marcapasos,3269
+x004,A,PAC,2606
+x004,J,PJC,129
+x004,N,Latido normal,5101
+x004,Q,Latido no clasificable,391
+x004,V,PVC,331
+x004,X,Latido en ritmo arrítmico (AVNRT/AVRT/AFL/AF/IVR/VT/EAT),2689
+x005,N,Latido normal,2254
+x006,/,Latido marcapasos,2284
+x006,A,PAC,167
+x006,J,PJC,1268
+x006,L,BRI completo (cLBBBB),8
+x006,N,Latido normal,9166
+x006,Q,Latido no clasificable,313
+x006,V,PVC,35
+x006,X,Latido en ritmo arrítmico (AVNRT/AVRT/AFL/AF/IVR/VT/EAT),1655
+x006,a,PAC aberrado (aPAC),25
+x006,b,?,3
+x006,j,?,1
+x007,A,PAC,4
+x007,N,Latido normal,179
+x007,Q,Latido no clasificable,10
+x007,V,PVC,2
+x007,X,Latido en ritmo arrítmico (AVNRT/AVRT/AFL/AF/IVR/VT/EAT),155
+x008,/,Latido marcapasos,223
+x008,A,PAC,11
+x008,N,Latido normal,228
+x008,Q,Latido no clasificable,17
+x008,X,Latido en ritmo arrítmico (AVNRT/AVRT/AFL/AF/IVR/VT/EAT),316
+x009,/,Latido marcapasos,178
+x009,A,PAC,1
+x009,N,Latido normal,38
+x009,V,PVC,2
+x009,X,Latido en ritmo arrítmico (AVNRT/AVRT/AFL/AF/IVR/VT/EAT),2790
+x0010,/,Latido marcapasos,104
+x0010,N,Latido normal,20
+x0010,Q,Latido no clasificable,14
+x0010,V,PVC,3
+x0010,X,Latido en ritmo arrítmico (AVNRT/AVRT/AFL/AF/IVR/VT/EAT),762
+x0011,/,Latido marcapasos,37
+x0011,A,PAC,1
+x0011,N,Latido normal,11
+x0011,Q,Latido no clasificable,11
+x0011,V,PVC,2
+x0011,X,Latido en ritmo arrítmico (AVNRT/AVRT/AFL/AF/IVR/VT/EAT),2429
+x0012,/,Latido marcapasos,19
+x0012,A,PAC,39
+x0012,N,Latido normal,867
+x0012,Q,Latido no clasificable,2
+x0012,X,Latido en ritmo arrítmico (AVNRT/AVRT/AFL/AF/IVR/VT/EAT),428
+x0012,a,PAC aberrado (aPAC),3
+x0013,/,Latido marcapasos,4
+x0013,A,PAC,3
+x0013,J,PJC,1
+x0013,N,Latido normal,221
+x0013,Q,Latido no clasificable,13
+x0013,V,PVC,1
+x0013,X,Latido en ritmo arrítmico (AVNRT/AVRT/AFL/AF/IVR/VT/EAT),127
+x0014,/,Latido marcapasos,82
+x0014,A,PAC,1
+x0014,N,Latido normal,2
+x0014,Q,Latido no clasificable,8
+x0014,X,Latido en ritmo arrítmico (AVNRT/AVRT/AFL/AF/IVR/VT/EAT),510
+x0015,/,Latido marcapasos,72
+x0015,N,Latido normal,104
+x0015,Q,Latido no clasificable,13
+x0015,V,PVC,8
+x0015,X,Latido en ritmo arrítmico (AVNRT/AVRT/AFL/AF/IVR/VT/EAT),219
+x0015,a,PAC aberrado (aPAC),2
+x0016,/,Latido marcapasos,457
+x0016,A,PAC,6
+x0016,N,Latido normal,728
+x0016,Q,Latido no clasificable,54
+x0016,V,PVC,42
+x0016,X,Latido en ritmo arrítmico (AVNRT/AVRT/AFL/AF/IVR/VT/EAT),367
+x0016,a,PAC aberrado (aPAC),3
+x0017,/,Latido marcapasos,29
+x0017,A,PAC,75
+x0017,N,Latido normal,15
+x0017,Q,Latido no clasificable,4
+x0017,V,PVC,4
+x0017,X,Latido en ritmo arrítmico (AVNRT/AVRT/AFL/AF/IVR/VT/EAT),446
+x0018,/,Latido marcapasos,90
+x0018,A,PAC,3
+x0018,N,Latido normal,211
+x0018,Q,Latido no clasificable,10
+x0018,X,Latido en ritmo arrítmico (AVNRT/AVRT/AFL/AF/IVR/VT/EAT),586
+x0019,/,Latido marcapasos,34
+x0019,A,PAC,4
+x0019,N,Latido normal,245
+x0019,Q,Latido no clasificable,12
+x0019,R,BRD completo (cRBBBB),2
+x0019,X,Latido en ritmo arrítmico (AVNRT/AVRT/AFL/AF/IVR/VT/EAT),273
+x0020,/,Latido marcapasos,92
+x0020,A,PAC,10
+x0020,N,Latido normal,116
+x0020,Q,Latido no clasificable,27
+x0020,X,Latido en ritmo arrítmico (AVNRT/AVRT/AFL/AF/IVR/VT/EAT),1317
+x0021,/,Latido marcapasos,89
+x0021,A,PAC,2
+x0021,J,PJC,6
+x0021,N,Latido normal,509
+x0021,Q,Latido no clasificable,69
+x0021,V,PVC,1
+x0021,X,Latido en ritmo arrítmico (AVNRT/AVRT/AFL/AF/IVR/VT/EAT),993
+x0022,A,PAC,1
+x0022,J,PJC,1
+x0022,N,Latido normal,296
+x0022,V,PVC,1
+x0022,X,Latido en ritmo arrítmico (AVNRT/AVRT/AFL/AF/IVR/VT/EAT),42
+x0023,/,Latido marcapasos,111
+x0023,A,PAC,10
+x0023,N,Latido normal,160
+x0023,Q,Latido no clasificable,8
+x0023,X,Latido en ritmo arrítmico (AVNRT/AVRT/AFL/AF/IVR/VT/EAT),456
+x0024,/,Latido marcapasos,440
+x0024,A,PAC,18
+x0024,J,PJC,4
+x0024,N,Latido normal,390
+x0024,Q,Latido no clasificable,24
+x0024,V,PVC,15
+x0024,X,Latido en ritmo arrítmico (AVNRT/AVRT/AFL/AF/IVR/VT/EAT),660
+x0024,a,PAC aberrado (aPAC),1
+x0024,f,Fusión VPB+NB,1
+x0025,/,Latido marcapasos,302
+x0025,A,PAC,7
+x0025,N,Latido normal,233
+x0025,Q,Latido no clasificable,44
+x0025,V,PVC,6
+x0025,X,Latido en ritmo arrítmico (AVNRT/AVRT/AFL/AF/IVR/VT/EAT),1169
+x0025,a,PAC aberrado (aPAC),1
+x0026,A,PAC,8
+x0026,F,Fusión (FB),1
+x0026,J,PJC,3
+x0026,N,Latido normal,233
+x0026,Q,Latido no clasificable,6
+x0026,V,PVC,1
+x0026,X,Latido en ritmo arrítmico (AVNRT/AVRT/AFL/AF/IVR/VT/EAT),130
+x0026,a,PAC aberrado (aPAC),2
+x0027,/,Latido marcapasos,16
+x0027,N,Latido normal,97
+x0027,X,Latido en ritmo arrítmico (AVNRT/AVRT/AFL/AF/IVR/VT/EAT),23
+x0028,/,Latido marcapasos,17
+x0028,N,Latido normal,35
+x0028,X,Latido en ritmo arrítmico (AVNRT/AVRT/AFL/AF/IVR/VT/EAT),569
+x0029,/,Latido marcapasos,266
+x0029,A,PAC,3
+x0029,J,PJC,1
+x0029,N,Latido normal,443
+x0029,Q,Latido no clasificable,15
+x0029,V,PVC,1
+x0029,X,Latido en ritmo arrítmico (AVNRT/AVRT/AFL/AF/IVR/VT/EAT),745
+x0029,a,PAC aberrado (aPAC),3
+x0029,f,Fusión VPB+NB,1
+x100,/,Latido marcapasos,85
+x100,Q,Latido no clasificable,17
+x100,R,BRD completo (cRBBBB),625
+x100,V,PVC,24
+x100,X,Latido en ritmo arrítmico (AVNRT/AVRT/AFL/AF/IVR/VT/EAT),34
+x101,/,Latido marcapasos,170
+x101,F,Fusión (FB),2
+x101,Q,Latido no clasificable,28
+x101,R,BRD completo (cRBBBB),962
+x101,V,PVC,58
+x101,X,Latido en ritmo arrítmico (AVNRT/AVRT/AFL/AF/IVR/VT/EAT),41
+x101,f,Fusión VPB+NB,1
+x102,R,BRD completo (cRBBBB),1930
+x102,V,PVC,74
+x102,X,Latido en ritmo arrítmico (AVNRT/AVRT/AFL/AF/IVR/VT/EAT),21
+x103,/,Latido marcapasos,807
+x103,F,Fusión (FB),2
+x103,R,BRD completo (cRBBBB),805
+x103,V,PVC,49
+x103,X,Latido en ritmo arrítmico (AVNRT/AVRT/AFL/AF/IVR/VT/EAT),20
+x104,/,Latido marcapasos,672
+x104,F,Fusión (FB),44
+x104,Q,Latido no clasificable,56
+x104,R,BRD completo (cRBBBB),2953
+x104,V,PVC,277
+x104,X,Latido en ritmo arrítmico (AVNRT/AVRT/AFL/AF/IVR/VT/EAT),131
+x104,a,PAC aberrado (aPAC),27
+x104,f,Fusión VPB+NB,7
+x105,/,Latido marcapasos,75
+x105,F,Fusión (FB),22
+x105,R,BRD completo (cRBBBB),1074
+x105,V,PVC,213
+x105,X,Latido en ritmo arrítmico (AVNRT/AVRT/AFL/AF/IVR/VT/EAT),297
+x105,a,PAC aberrado (aPAC),37
+x105,f,Fusión VPB+NB,1
+x106,/,Latido marcapasos,31
+x106,F,Fusión (FB),10
+x106,Q,Latido no clasificable,1
+x106,R,BRD completo (cRBBBB),808
+x106,V,PVC,274
+x106,X,Latido en ritmo arrítmico (AVNRT/AVRT/AFL/AF/IVR/VT/EAT),181
+x106,a,PAC aberrado (aPAC),18
+x106,f,Fusión VPB+NB,1
+x107,/,Latido marcapasos,76
+x107,F,Fusión (FB),13
+x107,R,BRD completo (cRBBBB),1152
+x107,V,PVC,127
+x107,X,Latido en ritmo arrítmico (AVNRT/AVRT/AFL/AF/IVR/VT/EAT),110
+x107,f,Fusión VPB+NB,15
+x108,/,Latido marcapasos,105
+x108,F,Fusión (FB),8
+x108,Q,Latido no clasificable,72
+x108,R,BRD completo (cRBBBB),1529
+x108,V,PVC,58
+x108,X,Latido en ritmo arrítmico (AVNRT/AVRT/AFL/AF/IVR/VT/EAT),883
+x108,f,Fusión VPB+NB,3
+x109,/,Latido marcapasos,73
+x109,F,Fusión (FB),56
+x109,Q,Latido no clasificable,23
+x109,R,BRD completo (cRBBBB),183
+x109,V,PVC,328
+x109,X,Latido en ritmo arrítmico (AVNRT/AVRT/AFL/AF/IVR/VT/EAT),160
+x109,a,PAC aberrado (aPAC),15
+x109,f,Fusión VPB+NB,9
