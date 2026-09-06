@@ -38,15 +38,22 @@ Formato: [AP-n] tema | contexto | dónde se resuelve | estado
     pediátricos + 17.963 adultos), todos los símbolos de latido incluidos
     (N, X, /, A, V, J, Q, etc.). La cifra del acta posiblemente excluye
     algún símbolo o cita solo un subconjunto.
+    EVIDENCIA F3: la página oficial de PhysioNet (klehs2025leipzig) declara
+    exactamente "113924 annotated beats" -> el acta cita la cifra oficial;
+    la diferencia (1.824) está en cómo se cuentan símbolos auxiliares
+    (b, Q, fusiones, etc.) o anotaciones de rango rellenadas por algoritmo.
     Dónde se resuelve: F5 (footnote metodológica en el documento PPS).
-    Estado: ABIERTO — menor.
+    Estado: IDENTIFICADA — redactar nota metodológica en F5.
 
 [AP-5] DURACIÓN TOTAL: ACTA (1075 min) VS MEDIDO (1107.0 min)
     Contexto: headers WFDB y CSVs oficiales del dataset coinciden entre sí
-    (1107.0 vs 1107.1 min, redondeo). Pediátricos solos ~870 min. La cifra
-    1075 del acta no cuadra con ninguna partición obvia.
+    (1107.0 vs 1107.1 min, redondeo). Pediátricos solos ~870 min.
+    EVIDENCIA F3: la página oficial declara "1075.85 minutes" -> el acta
+    cita la cifra oficial; los archivos suman 1107.0. La descripción del
+    dataset quedó desactualizada respecto de los archivos (31.2 min de
+    diferencia) o excluye algún registro/tramo.
     Dónde se resuelve: F5 (footnote metodológica).
-    Estado: ABIERTO — menor.
+    Estado: IDENTIFICADA — redactar nota metodológica en F5.
 
 [AP-6] ANOTACIONES DE CALIDAD DE SEÑAL (~)
     Contexto: 228 anotaciones "~" en 10 de 39 registros (sin aux string).
