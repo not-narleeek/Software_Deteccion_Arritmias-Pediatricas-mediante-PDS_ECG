@@ -60,7 +60,15 @@ Diagnóstico de ritmo + porcentaje de certeza
 
 ## Stack
 
-Software libre exclusivamente (presupuesto $0): **Python 3**, `wfdb`, **NumPy**, **SciPy**, **scikit-learn**, **Matplotlib**. Dependencias fijadas en `requirements.txt` y entorno virtual (`venv`/`conda`) para reproducibilidad.
+Software libre exclusivamente (presupuesto $0): **Python 3.11**, `wfdb`, **NumPy**, **SciPy**, **pandas**, **scikit-learn**, **Matplotlib**. El entorno se gestiona con [uv](https://docs.astral.sh/uv/):
+
+```bash
+uv sync                      # crea .venv e instala dependencias desde uv.lock
+uv run python script.py      # ejecuta cualquier comando dentro del entorno
+uv run jupyter lab           # notebooks de exploración
+```
+
+Las versiones exactas quedan fijadas en `uv.lock` (comprometido al repo). Para generar un `requirements.txt` si la cátedra lo exige: `uv export --format requirements-txt`.
 
 ## Etapas del proyecto
 

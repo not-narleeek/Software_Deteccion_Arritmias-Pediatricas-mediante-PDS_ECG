@@ -1,0 +1,22 @@
+[project]
+name = "deteccion-arritmias-pediatricas-ecg"
+version = "0.1.0"
+description = "Software de Detección de Arritmias Pediátricas mediante Procesamiento Digital de Señales ECG — Proyectos TICS II, UDP"
+requires-python = ">=3.11,<3.12"
+dependencies = [
+    "wfdb>=4.1",
+    "numpy>=1.26",
+    "scipy>=1.11",
+    "pandas>=2.1",
+    "scikit-learn>=1.4",
+    "matplotlib>=3.8",
+]
+
+[dependency-groups]
+dev = [
+    "jupyter>=1.0",
+    "ipykernel>=6.29",
+]
+
+[tool.uv]
+package = false
