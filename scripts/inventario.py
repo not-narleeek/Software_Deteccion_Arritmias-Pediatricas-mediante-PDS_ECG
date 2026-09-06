@@ -48,6 +48,22 @@ CLASE = {
     '(B': 'Otro',
 }
 
+# Descripción de símbolos de latido según dataset_info.csv (dataset_symbol).
+SIMBOLOS = {
+    'N': 'Latido normal',
+    'L': 'BRI completo (cLBBBB)',
+    'R': 'BRD completo (cRBBBB)',
+    'a': 'PAC aberrado (aPAC)',
+    'A': 'PAC', 'A-Prex': 'PAC preexcitado (pPAC)',
+    'J': 'PJC',
+    'V': 'PVC',
+    'F': 'Fusión (FB)',
+    'f': 'Fusión VPB+NB',
+    'X': 'Latido en ritmo arrítmico (AVNRT/AVRT/AFL/AF/IVR/VT/EAT)',
+    '/': 'Latido marcapasos', '/A': 'Marcapasos auricular (APB)', '/V': 'Marcapasos ventricular (VPB)',
+    'Q': 'Latido no clasificable',
+}
+
 
 def segmentos_ritmo(ann, sig_len, fs):
     """Duración en minutos de cada segmento de ritmo (anotaciones '+')."""
@@ -78,7 +94,8 @@ def main():
         filas_reg.append({
             'registro': name,
             'grupo': d.grupo,
-            'edad_anos': d.age,
+            # x007 trae '.14.3' (dato corrupto del CSV oficial) -> NaN; ver AP-10
+            'edad_anos': pd.to_numeric(d.age, errors='coerce'),
             'sexo': d.gender,
             'diagnostico': d.diagnosis,
             'fs_hz': header.fs,
@@ -90,7 +107,8 @@ def main():
 
         latidos = Counter(s for s in ann.symbol if s not in ('+', '~'))
         for simbolo, n in sorted(latidos.items()):
-            filas_lat.append({'registro': name, 'simbolo': simbolo, 'descripcion': SIMBOLOS.get(simbolo, '?'), 'conteo': n})
+            filas_lat.append({'registro': name, 'simbolo': simbolo,
+                              'descripcion': SIMBOLOS.get(simbolo, '?'), 'conteo': n})
 
         for ritmo, minutos in segmentos_ritmo(ann, header.sig_len, header.fs):
             filas_rit.append({'registro': name, 'grupo': d.grupo, 'ritmo': ritmo,
@@ -99,6 +117,10 @@ def main():
     registros = pd.DataFrame(filas_reg)
     latidos = pd.DataFrame(filas_lat)
     ritmos = pd.DataFrame(filas_rit)
+
+    if registros.edad_anos.isna().any():
+        malos = registros.loc[registros.edad_anos.isna(), ['registro']].values.ravel().tolist()
+        print(f'ADVERTENCIA: edad no numérica en {malos} -> NaN (AP-10)')
 
     registros.to_csv(OUT / 'registros.csv', index=False)
     latidos.to_csv(OUT / 'latidos.csv', index=False)
@@ -124,23 +146,6 @@ def main():
     print('\n== Minutos por clase objetivo (adultos, comparativo) ==')
     adu = ritmos[ritmos.grupo == 'adulto']
     print(adu.groupby('clase')['minutos'].sum().round(1).sort_values(ascending=False).to_string())
-
-
-# Descripción de símbolos de latido según dataset_info.csv (dataset_symbol).
-SIMBOLOS = {
-    'N': 'Latido normal',
-    'L': 'BRI completo (cLBBBB)',
-    'R': 'BRD completo (cRBBBB)',
-    'a': 'PAC aberrado (aPAC)',
-    'A': 'PAC', 'A-Prex': 'PAC preexcitado (pPAC)',
-    'J': 'PJC',
-    'V': 'PVC',
-    'F': 'Fusión (FB)',
-    'f': 'Fusión VPB+NB',
-    'X': 'Latido en ritmo arrítmico (AVNRT/AVRT/AFL/AF/IVR/VT/EAT)',
-    '/': 'Latido marcapasos', '/A': 'Marcapasos auricular (APB)', '/V': 'Marcapasos ventricular (VPB)',
-    'Q': 'Latido no clasificable',
-}
 
 
 if __name__ == '__main__':

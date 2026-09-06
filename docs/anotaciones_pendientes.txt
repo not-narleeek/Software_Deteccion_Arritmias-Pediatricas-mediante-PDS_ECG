@@ -1,0 +1,84 @@
+ANOTACIONES PENDIENTES — Software de Detección de Arritmias Pediátricas mediante PDS ECG
+=========================================================================================
+Creado: 2026-09-06 (post F1 — inventario del dataset)
+Formato: [AP-n] tema | contexto | dónde se resuelve | estado
+
+[AP-1] CONJUNTO DE CLASES DEL ACTA NO SOPORTADO POR LOS DATOS PEDIÁTRICOS
+    Contexto: acta define 5 clases (Sinusal, SVT, VT, AFL, Paced) con KPI
+    "F1-score por clase >= 0.80". Inventario F1 (results/inventario/) mide
+    en los 29 registros pediátricos: VT = 0.9 min (5 registros, episodios
+    no sostenidos) y AFL = 0.6 min (1 registro). Sinusal/SVT/Paced sí son
+    viables (617.5 / 132.0 / 117.2 min). En adultos VT suma 34.3 min.
+    Opciones:
+      (1) Clasificador de 3 clases + VT/AFL como estudios de caso.
+      (2) Mantener 5 clases usando los 10 adultos para VT (requiere
+          enmendar el alcance del acta: EX3 permite adultos solo
+          comparativos).
+      (3) Fusionar VT+IVR y tratar AFL dentro de SVT (discutible
+          clínicamente).
+    Dónde se resuelve: validación de Diego Maureira -> F4 (diseño) y F5
+    (documento PPS). Afecta KPI del acta.
+    Estado: ABIERTO — bloqueante para F4.
+
+[AP-2] MAPEO AFIB -> SVT
+    Contexto: dataset_info.csv lista 16 ritmos; el mapeo del inventario
+    (scripts/inventario.py) agrupa (AVRT (AVNRT (EAT (A (J (AFIB) bajo
+    "SVT". AFIB pediátrico = 8.2 min en total (todos los grupos).
+    Dónde se resuelve: validación del experto (F4).
+    Estado: ABIERTO — propuesta del equipo, no validada.
+
+[AP-3] EXCLUSIÓN DE (B (BIGEMINISMO VENTRICULAR)
+    Contexto: 0.2 min en 2 registros pediátricos; clasificado "Otro".
+    Es un patrón ectópico, no un ritmo sostenido (EX2).
+    Dónde se resuelve: F4.
+    Estado: ABIERTO — propuesta del equipo, no validada.
+
+[AP-4] CONTEO DE LATIDOS: ACTA (113.924) VS MEDIDO (115.748)
+    Contexto: inventario F1 cuenta 115.748 latidos anotados (97.785
+    pediátricos + 17.963 adultos), todos los símbolos de latido incluidos
+    (N, X, /, A, V, J, Q, etc.). La cifra del acta posiblemente excluye
+    algún símbolo o cita solo un subconjunto.
+    Dónde se resuelve: F5 (footnote metodológica en el documento PPS).
+    Estado: ABIERTO — menor.
+
+[AP-5] DURACIÓN TOTAL: ACTA (1075 min) VS MEDIDO (1107.0 min)
+    Contexto: headers WFDB y CSVs oficiales del dataset coinciden entre sí
+    (1107.0 vs 1107.1 min, redondeo). Pediátricos solos ~870 min. La cifra
+    1075 del acta no cuadra con ninguna partición obvia.
+    Dónde se resuelve: F5 (footnote metodológica).
+    Estado: ABIERTO — menor.
+
+[AP-6] ANOTACIONES DE CALIDAD DE SEÑAL (~)
+    Contexto: 228 anotaciones "~" en 10 de 39 registros (sin aux string).
+    Revisar qué marcan (ruido, pérdida de señal, artefacto) y si deben
+    excluirse ventanas del entrenamiento (riesgo RS1 del acta).
+    Dónde se resuelve: F2 notebook 03 (calidad de señal) + F4.
+    Estado: ABIERTO.
+
+[AP-8] INTERFERENCIA DE RED ELÉCTRICA (50 Hz)
+    Contexto: Chile usa 50 Hz. El notch IIR a 50 Hz está en el acta (RF2)
+    pero falta evidencia de magnitud real de la interferencia en el
+    dataset. F2 notebook 03 la cuantifica vía PSD (Welch) en 49-51 Hz.
+    Dónde se resuelve: F2 notebook 03 -> F4 (justificación del filtro).
+    Estado: EVIDENCIA F2 — pico 50 Hz confirmado en 3/4 registros
+    analizados (x001 sobresale ~6 órdenes de magnitud; x100 sin pico).
+    Notch justificado; parámetros exactos pendientes en F4.
+
+
+[AP-9] RESOLUCIÓN ESPACIAL / GANANCIA POR CANAL
+    Contexto: revisar por registro si alguna derivación tiene ganancia o
+    resolución digital insuficiente (ej. canales con pocos bits efectivos
+    o saturación de conversor) antes de diseñar filtros.
+    Dónde se resuelve: F2 notebook 03.
+    Estado: ABIERTO.
+
+[AP-10] EDAD CORRUPTA DE x007 EN CSV OFICIAL ('.14.3')
+    Contexto: children-subject-info.csv trae '.14.3' para x007 (doble
+    punto). El inventario la deja como NaN (pd.to_numeric coerce) para no
+    inventar el valor. Probablemente '14.3' pero requiere confirmación.
+    Dónde se resuelve: consultar errata/fuente PhysioNet -> F5.
+    Estado: ABIERTO — menor.
+
+---
+Bitácora de cierre (llenar al resolver):
+    [AP-n] resuelto el YYYY-MM-DD por <quién> — decisión: <texto>
