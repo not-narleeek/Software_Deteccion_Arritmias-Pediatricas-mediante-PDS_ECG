@@ -18,7 +18,10 @@ Formato: [AP-n] tema | contexto | dónde se resuelve | estado
           clínicamente).
     Dónde se resuelve: validación de Diego Maureira -> F4 (diseño) y F5
     (documento PPS). Afecta KPI del acta.
-    Estado: ABIERTO — bloqueante para F4.
+    Estado: PROPUESTA F4 (docs/diseno_pipeline.md §1/§5.3): clasificador
+    primario de 3 clases (ventanas pediátricas: 1971/320/186) + VT/AFL
+    como estudios de caso (VT binario solo-adultos bajo EX3). Pendiente
+    validación de D. Maureira antes de la implementación de Etapa II.
 
 [AP-2] MAPEO AFIB -> SVT
     Contexto: dataset_info.csv lista 16 ritmos; el mapeo del inventario
@@ -60,7 +63,8 @@ Formato: [AP-n] tema | contexto | dónde se resuelve | estado
     Revisar qué marcan (ruido, pérdida de señal, artefacto) y si deben
     excluirse ventanas del entrenamiento (riesgo RS1 del acta).
     Dónde se resuelve: F2 notebook 03 (calidad de señal) + F4.
-    Estado: ABIERTO.
+    Estado: PROPUESTA F4 (§5.1): marcar ventanas como calidad_dudosa y
+    reportarlas aparte, sin excluirlas del baseline.
 
 [AP-8] INTERFERENCIA DE RED ELÉCTRICA (50 Hz)
     Contexto: Chile usa 50 Hz. El notch IIR a 50 Hz está en el acta (RF2)
