@@ -9,7 +9,7 @@ Proyecto académico de la asignatura **Proyectos en TICS II** (Facultad de Ingen
 | Código de proyecto | `TICS-II-2026-ECG-PED` |
 | Duración | 16 semanas (1 septiembre – 20 diciembre 2026) |
 | Experto asesor clínico | Diego Maureira |
-| Estado | Etapa I — Propuesta (PPS) |
+| Estado | Etapa I completa — PPS redactado ([docs/PPS.md](docs/PPS.md)); pendiente validación del experto (AP-1/2/3) |
 
 ## Motivación
 
