@@ -1,0 +1,13 @@
+# Dataset Leipzig Heart Center ECG (PhysioNet) — demasiado pesado para el repo.
+# Descargar manualmente desde: https://physionet.org/content/leipzig-heart-center-ecg-database-arrhythmias-in-children-and-patients-with-congenital-heart-disease/
+data/
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# Notebooks
+.ipynb_checkpoints/
+
