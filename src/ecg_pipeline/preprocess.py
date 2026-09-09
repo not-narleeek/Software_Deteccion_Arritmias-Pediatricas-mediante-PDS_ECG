@@ -159,7 +159,7 @@ def referencia_morfologica(x: np.ndarray, fs: int = FS) -> np.ndarray:
     return y.astype(np.float32)
 
 
-def _duracion_qrs(x: np.ndarray, pico_r: int, fs: int) -> float:
+def duracion_qrs(x: np.ndarray, pico_r: int, fs: int) -> float:
     """Duración del QRS (ms) por umbral sobre la derivada, en R±60 ms (§3.4).
 
     Operador de medición idéntico para señal cruda y filtrada: suavizado
@@ -218,7 +218,7 @@ def distortion_qrs(
         if nx <= 0:
             continue
         d_vals.append(100.0 * np.linalg.norm(yw - xw) / nx)
-        delta_dur.append(abs(_duracion_qrs(x, r, fs) - _duracion_qrs(y, r, fs)))
+        delta_dur.append(abs(duracion_qrs(x, r, fs) - duracion_qrs(y, r, fs)))
     if not d_vals:
         raise ValueError('sin latidos válidos para medir distorsión')
     return {

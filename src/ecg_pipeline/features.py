@@ -15,6 +15,7 @@ import numpy as np
 import pandas as pd
 from scipy import fftpack, signal
 
+from . import preprocess
 from .preprocess import FS
 
 # ---------------------------------------------------------------------------
@@ -154,6 +155,297 @@ def detectar_picos_r_fusion(
     return np.asarray(out, dtype=int)
 
 
+FEATURE_NAMES: tuple[str, ...] = (
+    # RR (10)
+    'rr_media_s', 'rr_mediana_s', 'rr_sdnn_s', 'rr_rmssd_s', 'rr_pnn50',
+    'rr_min_s', 'rr_max_s', 'rr_cv', 'rr_pendiente_ms_s', 'rr_n_picos',
+    # QRS (9)
+    'qrs_dur_ms', 'qrs_dur_cv', 'qrs_r_ii_mv', 'qrs_s_ii_mv',
+    'qrs_r_v2_mv', 'qrs_s_v2_mv', 'qrs_rs_ii', 'qrs_rs_v2', 'qrs_fwhm_ms',
+    # Onda P (3)
+    'p_presencia', 'p_amp_mv', 'p_r_rel',
+    # Espículas (2)
+    'esp_n', 'esp_por_min',
+    # Espectrales (10) — energía relativa por banda (0.5–4, 4–8, 8–16, 16–25, 25–40 Hz)
+    'esp_b1_ii', 'esp_b2_ii', 'esp_b3_ii', 'esp_b4_ii', 'esp_b5_ii',
+    'esp_b1_v2', 'esp_b2_v2', 'esp_b3_v2', 'esp_b4_v2', 'esp_b5_v2',
+    # DCT (8) — coeficientes 1–8 del latido promedio (II); cláusula F3-1
+    'dct_c1', 'dct_c2', 'dct_c3', 'dct_c4', 'dct_c5', 'dct_c6', 'dct_c7', 'dct_c8',
+    # Calidad (2)
+    'cal_flat_frac', 'cal_rms_gt100_uv',
+    # Demográficas (2)
+    'edad', 'sexo',
+)
+
+NOMBRES_WAVELET: tuple[str, ...] = tuple(f'wav_c{i}' for i in range(1, 9))
+
+
+def _seguro(valor: float) -> float:
+    return float(valor) if np.isfinite(valor) else float('nan')
+
+
+def _feat_rr(picos: np.ndarray, fs: int, dur_s: float) -> dict[str, float]:
+    rr = np.diff(picos) / fs  # s
+    n = float(picos.size)
+    out = {
+        'rr_n_picos': n,
+        'rr_media_s': _seguro(rr.mean()) if rr.size else np.nan,
+        'rr_mediana_s': _seguro(np.median(rr)) if rr.size else np.nan,
+        'rr_min_s': _seguro(rr.min()) if rr.size else np.nan,
+        'rr_max_s': _seguro(rr.max()) if rr.size else np.nan,
+    }
+    if rr.size >= 2:
+        d = np.diff(rr) * 1000.0  # ms
+        out['rr_sdnn_s'] = _seguro(rr.std(ddof=1))
+        out['rr_rmssd_s'] = _seguro(np.sqrt(np.mean(d**2)) / 1000.0)
+        out['rr_pnn50'] = _seguro(np.mean(np.abs(d) > 50.0))
+        out['rr_cv'] = _seguro(rr.std(ddof=1) / rr.mean()) if rr.mean() > 0 else np.nan
+    else:
+        out.update(rr_sdnn_s=np.nan, rr_rmssd_s=np.nan, rr_pnn50=np.nan, rr_cv=np.nan)
+    if rr.size >= 3:
+        t = picos[1:] / fs
+        pend = np.polyfit(t, rr, 1)[0] * 1000.0  # ms de RR por s
+        out['rr_pendiente_ms_s'] = _seguro(pend)
+    else:
+        out['rr_pendiente_ms_s'] = np.nan
+    _ = dur_s
+    return out
+
+
+def _feat_qrs(ventana: np.ndarray, picos: np.ndarray, fs: int) -> dict[str, float]:
+    ii, v2 = ventana[:, 1].astype(float), ventana[:, 7].astype(float)
+    dur, r_ii, s_ii, r_v2, s_v2, fwhm = [], [], [], [], [], []
+    for p in picos:
+        dur.append(preprocess.duracion_qrs(ii, int(p), fs))
+        r_ii.append(ii[max(0, p - int(0.04 * fs)) : p + int(0.04 * fs)].max())
+        s_ii.append(ii[p : p + int(0.07 * fs)].min())
+        r_v2.append(v2[max(0, p - int(0.04 * fs)) : p + int(0.04 * fs)].max())
+        s_v2.append(v2[p : p + int(0.07 * fs)].min())
+        # FWHM de la onda R sobre la base local (mediana de R±90..±60 ms)
+        i0 = max(0, p - int(0.090 * fs))
+        i1 = min(ii.size, p + int(0.090 * fs))
+        base = np.median(np.r_[ii[i0 : max(i0, p - int(0.060 * fs))],
+                               ii[min(i1, p + int(0.060 * fs)) : i1]])
+        seg = ii[i0:i1] - base
+        pico = int(np.argmax(seg)) + i0
+        h = seg[pico - i0]
+        if h <= 0:
+            continue
+        izq = pico
+        while izq > i0 and seg[izq - i0] > h / 2:
+            izq -= 1
+        der = pico
+        while der < i1 - 1 and seg[der - i0] > h / 2:
+            der += 1
+        fwhm.append((der - izq) / fs * 1000.0)
+    out = {
+        'qrs_dur_ms': _seguro(np.median(dur)) if dur else np.nan,
+        'qrs_dur_cv': _seguro(np.std(dur) / np.mean(dur)) if dur and np.mean(dur) > 0 else np.nan,
+        'qrs_r_ii_mv': _seguro(np.median(r_ii)) if r_ii else np.nan,
+        'qrs_s_ii_mv': _seguro(np.median(s_ii)) if s_ii else np.nan,
+        'qrs_r_v2_mv': _seguro(np.median(r_v2)) if r_v2 else np.nan,
+        'qrs_s_v2_mv': _seguro(np.median(s_v2)) if s_v2 else np.nan,
+        'qrs_fwhm_ms': _seguro(np.median(fwhm)) if fwhm else np.nan,
+    }
+    for clave, num, den in (('qrs_rs_ii', out['qrs_r_ii_mv'], abs(out['qrs_s_ii_mv'])),
+                            ('qrs_rs_v2', out['qrs_r_v2_mv'], abs(out['qrs_s_v2_mv']))):
+        out[clave] = _seguro(num / den) if np.isfinite(num) and den and den > 1e-6 else np.nan
+    return out
+
+
+def _feat_p(ventana: np.ndarray, picos: np.ndarray, fs: int) -> dict[str, float]:
+    ii = ventana[:, 1].astype(float)
+    presentes, amps, r_amps = [], [], []
+    for p in picos:
+        i0, i1 = int(p) - int(0.160 * fs), int(p) - int(0.040 * fs)
+        if i0 < 0 or i1 >= ii.size:
+            continue
+        seg = ii[i0:i1]
+        base = np.median(np.r_[seg[: int(0.02 * fs)], seg[-int(0.02 * fs) :]])
+        pico = np.abs(seg - base).max()
+        r_amps.append(ii[max(0, p - int(0.04 * fs)) : p + int(0.04 * fs)].max() - base)
+        ok = pico > 0.04 and pico > 3.0 * (np.median(np.abs(seg - base)) * 1.4826 + 1e-9)
+        presentes.append(bool(ok))
+        if ok:
+            amps.append(pico)
+    if presentes:
+        pres = float(np.mean(presentes))
+        amp = _seguro(np.mean(amps)) if amps else np.nan
+        r_med = float(np.mean(r_amps)) if r_amps else np.nan
+        rel = _seguro(amp / r_med) if np.isfinite(amp) and r_med and r_med > 1e-6 else np.nan
+        return {'p_presencia': pres, 'p_amp_mv': amp, 'p_r_rel': rel}
+    return {'p_presencia': np.nan, 'p_amp_mv': np.nan, 'p_r_rel': np.nan}
+
+
+def _feat_espectrales(ventana: np.ndarray, fs: int) -> dict[str, float]:
+    bandas = [(0.5, 4.0), (4.0, 8.0), (8.0, 16.0), (16.0, 25.0), (25.0, 40.0)]
+    out = {}
+    for sufijo, col in (('ii', 1), ('v2', 7)):
+        f, p = signal.welch(ventana[:, col].astype(float), fs=fs, nperseg=2048)
+        total = p[(f >= 0.5) & (f <= 40.0)].sum()
+        for j, (b0, b1) in enumerate(bandas, start=1):
+            frac = p[(f >= b0) & (f < b1)].sum() / total if total > 0 else np.nan
+            out[f'esp_b{j}_{sufijo}'] = _seguro(frac)
+    return out
+
+
+def _latido_promedio(x: np.ndarray, picos: np.ndarray, fs: int) -> np.ndarray | None:
+    pre, post = int(0.120 * fs), int(0.200 * fs)
+    latidos = [x[p - pre : p + post] for p in picos if p - pre >= 0 and p + post <= x.size]
+    if len(latidos) < 3:
+        return None
+    return np.mean(np.asarray(latidos, dtype=float), axis=0)
+
+
+def _feat_dct_wavelet(ventana: np.ndarray, picos: np.ndarray, fs: int) -> dict[str, float]:
+    ii = ventana[:, 1].astype(float)
+    out = {f'dct_c{i}': np.nan for i in range(1, 9)}
+    out.update({f'wav_c{i}': np.nan for i in range(1, 9)})
+    prom = _latido_promedio(ii, picos, fs)
+    if prom is None:
+        return out
+    c = fftpack.dct(prom, type=2, norm='ortho')[1:9]
+    for i in range(8):
+        out[f'dct_c{i + 1}'] = _seguro(c[i])
+    import pywt
+
+    _, _, _, _, cA4 = pywt.wavedec(prom, 'db4', level=4)
+    for i in range(min(8, cA4.size)):
+        out[f'wav_c{i + 1}'] = _seguro(cA4[i])
+    return out
+
+
+def _feat_calidad(ventana: np.ndarray, ventana_raw: np.ndarray | None, fs: int) -> dict[str, float]:
+    if ventana_raw is not None:
+        ii_raw = ventana_raw[:, 1].astype(float)
+    else:
+        ii_raw = ventana[:, 1].astype(float)
+    d = np.abs(np.diff(ii_raw))
+    flat = float(np.mean(d < 1e-4))
+    if ventana_raw is not None:
+        sos = signal.butter(3, 100.0, btype='highpass', fs=fs, output='sos')
+        residuo = signal.sosfiltfilt(sos, ventana_raw[:, 1].astype(float))
+        rms = float(np.sqrt(np.mean(residuo**2))) * 1000.0  # µV
+    else:
+        rms = np.nan
+    return {'cal_flat_frac': flat, 'cal_rms_gt100_uv': _seguro(rms)}
+
+
+def vector_caracteristicas(
+    ventana: np.ndarray,
+    picos_r: np.ndarray,
+    espiculas: np.ndarray,
+    edad: float,
+    sexo: int,
+    fs: int = FS,
+    ventana_raw: np.ndarray | None = None,
+) -> dict[str, float]:
+    """Calcula el vector §6 para una ventana.
+
+    Args: ventana [n x 12] preprocesada; picos/espiculas en muestras LOCALES
+    a la ventana; edad en años (NaN si desconocida, AP-10); sexo 0/1;
+    ventana_raw [n x 12] opcional para las features de calidad (RMS > 100 Hz
+    exige contenido fuera de banda; si se omite, cal_rms_gt100_uv = NaN).
+    Returns: dict nombre→valor con las 46 de FEATURE_NAMES más wav_c1..8
+    (grupo alternativo de la cláusula DCT-vs-wavelet F3-1).
+    """
+    ventana = np.asarray(ventana)
+    picos = np.asarray(picos_r, dtype=int)
+    out: dict[str, float] = {}
+    out.update(_feat_rr(picos, fs, ventana.shape[0] / fs))
+    out.update(_feat_qrs(ventana, picos, fs))
+    out.update(_feat_p(ventana, picos, fs))
+    n_esp = float(np.asarray(espiculas).size)
+    out['esp_n'] = n_esp
+    out['esp_por_min'] = _seguro(n_esp / (ventana.shape[0] / fs / 60.0))
+    out.update(_feat_espectrales(ventana, fs))
+    out.update(_feat_dct_wavelet(ventana, picos, fs))
+    out.update(_feat_calidad(ventana, ventana_raw, fs))
+    out['edad'] = _seguro(edad)
+    out['sexo'] = float(sexo)
+    return out
+
+
+def construir_dataset(
+    registros: list,
+    spec: 'io.WindowSpec' = None,  # type: ignore[assignment]
+    cache: Path | None = None,
+) -> pd.DataFrame:
+    """Dataset de ventanas con features (una fila por ventana del índice).
+
+    Pipeline por registro: cargar crudo → preprocesar completo → detectar R
+    (fusión II+V2 §4) y espículas (§3.2) sobre la señal completa → rebanar
+    ventanas y calcular vector_caracteristicas. `cache` serializa el
+    resultado (CSV) para no recomputar entre experimentos.
+    """
+    from pathlib import Path as _P
+
+    from . import io as _io
+
+    if cache is not None and _P(cache).exists():
+        return pd.read_csv(cache)
+    spec = spec or _io.WindowSpec()
+    idx = _io.construir_indice_ventanas(registros, spec)
+    filas = []
+    for ruta in registros:
+        nombre = ruta.name
+        filas_idx = idx[idx['registro'] == nombre]
+        if filas_idx.empty:
+            continue
+        x, fs, _ = _io.cargar_registro(ruta)
+        y = preprocess.preprocesar(x)
+        picos = detectar_picos_r_fusion(y.astype(np.float64), fs)
+        espiculas = preprocess.detectar_espiculas(x[:, 1].astype(np.float64), fs)
+        edad, sexo = _io.demografia(ruta)
+        for _, fila in filas_idx.iterrows():
+            i0, i1 = int(fila['inicio_muestra']), int(fila['fin_muestra'])
+            loc = picos[(picos >= i0) & (picos < i1)] - i0
+            esp = espiculas[(espiculas >= i0) & (espiculas < i1)] - i0
+            fv = vector_caracteristicas(
+                y[i0:i1], loc, esp, edad, sexo, fs, ventana_raw=x[i0:i1]
+            )
+            fv.update(
+                registro=nombre, ritmo=fila['ritmo'], clase=fila['clase'],
+                calidad_dudosa=bool(fila['calidad_dudosa']),
+                inicio_muestra=i0, fin_muestra=i1,
+            )
+            filas.append(fv)
+        print(f'    {nombre}: {len(filas_idx)} ventanas', flush=True)
+    df = pd.DataFrame(filas)
+    if cache is not None:
+        _P(cache).parent.mkdir(parents=True, exist_ok=True)
+        df.to_csv(cache, index=False)
+    return df
+
+
+def separabilidad(X: pd.DataFrame, y: pd.Series) -> pd.DataFrame:
+    """ANOVA univariada + índice de Fisher por feature (objetivo 2 del acta).
+
+    Returns: DataFrame [feature, F, p_valor, fisher] ordenado por Fisher.
+    Regla de descarte (§6): p > 0.05 y Fisher nulo (< 1e-6).
+    """
+    from sklearn.feature_selection import f_classif
+
+    filas = []
+    clases = np.unique(y)
+    for col in X.columns:
+        m = X[col].notna()
+        if m.sum() < 10:
+            filas.append({'feature': col, 'F': np.nan, 'p_valor': np.nan, 'fisher': np.nan})
+            continue
+        xi, yi = X.loc[m, col].to_numpy(float), y.loc[m].to_numpy()
+        F, p = f_classif(xi.reshape(-1, 1), yi)
+        mu = xi.mean()
+        entre, intra = 0.0, 0.0
+        for c in clases:
+            xc = xi[yi == c]
+            if xc.size == 0:
+                continue
+            entre += xc.size * (xc.mean() - mu) ** 2
+            intra += xc.size * (xc.var(ddof=1) if xc.size > 1 else 0.0)
+        fisher = entre / intra if intra > 0 else 0.0
+        filas.append({'feature': col, 'F': float(F[0]), 'p_valor': float(p[0]), 'fisher': float(fisher)})
+    return pd.DataFrame(filas).sort_values('fisher', ascending=False, ignore_index=True)
 def detectar_picos_r(
     x_filtrada: np.ndarray, fs: int = FS, metodo: str = 'kathirvel'
 ) -> np.ndarray:
@@ -210,9 +502,3 @@ def evaluar_detector(
     return {'sensibilidad': se, 'precision_positiva': pp, 'tp': tp,
             'n_anotados': int(anotadas.size), 'n_detectados': int(picos.size)}
 
-
-# ---------------------------------------------------------------------------
-# Vector de características (RF4, §6)
-# ---------------------------------------------------------------------------
-
-FEATURE_NAMES: tuple[str, ...] = ()  # se fija en la implementación; orden estable
