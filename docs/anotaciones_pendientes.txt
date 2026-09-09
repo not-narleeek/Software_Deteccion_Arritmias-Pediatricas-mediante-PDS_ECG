@@ -90,6 +90,37 @@ Formato: [AP-n] tema | contexto | dónde se resuelve | estado
     Dónde se resuelve: consultar errata/fuente PhysioNet -> F5.
     Estado: ABIERTO — menor.
 
+[AP-11] METRICA DE DISTORSION QRS: LIMPIEZA VS DISTORSION
+    Contexto: §3.4 define D = ||y−x||/||x|| crudo vs filtrado en R±60 ms.
+    Medido en Etapa II (237 latidos sinusales, 12 registros limpios):
+    D_crudo mediana 5.07 % FALLA el KPI < 5 %. Descomposición del residuo:
+    el notch aporta 0.3–0.5 %, el HP 0.1–4.4 % (deriva) y el LP 3.8–8.3 %;
+    en los registros con D alto el residuo del LP es mayormente IN-BAND
+    (ruido EMG dentro de 0.5–40 Hz que el filtro elimina correctamente),
+    no warping del QRS.
+    Dónde se resuelve: F6 (scripts/validar_filtros.py).
+    Estado: RESUELTA (decisión de ingeniería, no requiere experto): el KPI
+    se mide como D_morfología = ||y − ref||/||ref|| contra una referencia
+    in-band suave (HP 0.4 ord-2 + notch 50 Q=35 + LP 45 ord-2, fase cero;
+    preprocess.referencia_morfologica), que aísla la distorsión de
+    morfología de la limpieza pretendida. Resultado: mediana 2.59 %,
+    p90 3.57 %, ΔQRS 0.0 ms — KPI objetivo 1 CUMPLIDO. D_crudo se reporta
+    junto (5.07 %) con esta nota metodológica en el informe final.
+
+[AP-12] CONVENCION DE CONTEO DE VENTANAS F2 VS MARGEN §5.1
+    Contexto: las cifras del diseño §5.1 (1971/320/186 ventanas) fueron
+    calculadas en F2 con ventanas íntegras dentro del segmento SIN margen
+    de seguridad. Con el margen de 1 s de §5.1 el índice da 1944/307/176.
+    Dónde se resuelve: F6.
+    Estado: RESUELTA: la regresión del validador usa margen 0 (reproduce
+    exactamente 1971/320/186/1 = evidencia F2) y el índice de producción
+    mantiene margen 1 s (1944/307/176/1; 180 ventanas calidad_dudosa AP-6).
+    Ambas cifras se citan en el informe con esta nota.
+
 ---
 Bitácora de cierre (llenar al resolver):
+    [AP-11] resuelto el 2026-09-09 por equipo (F6) — decisión: KPI sobre
+        D_morfología vs referencia in-band suave; D_crudo reportado aparte.
+    [AP-12] resuelto el 2026-09-09 por equipo (F6) — decisión: regresión
+        F2 con margen 0; índice de producción con margen 1 s.
     [AP-n] resuelto el YYYY-MM-DD por <quién> — decisión: <texto>
