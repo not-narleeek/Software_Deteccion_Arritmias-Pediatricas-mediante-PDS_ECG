@@ -60,11 +60,16 @@ def preprocesar(x: np.ndarray, spec: FilterSpec = FilterSpec()) -> np.ndarray:
     return y.astype(np.float32)
 
 
-def detectar_espiculas(x_crudo: np.ndarray, fs: int = FS) -> np.ndarray:
+def detectar_espiculas(x_crudo: np.ndarray, fs: int = FS, slew_k: float = 2.5) -> np.ndarray:
     """Detecta espículas de marcapasos sobre copia sin filtrar (§3.2).
 
-    Banda 80–250 Hz + umbral adaptativo (mediana + 10·MAD del enrollado);
-    eventos de duración < 10 ms; a lo sumo un pico por 100 ms.
+    Banda 80–250 Hz + umbral adaptativo (mediana + 10·MAD del enrollado),
+    transientes < 10 ms, y PUERTA DE PENDIENTE: la pendiente del crudo en
+    el evento debe superar slew_k·p99.5(|Δx|) — la pendiente típica del QRS.
+    Sin esa puerta, el ringing de alta frecuencia del propio QRS pediátrico
+    (contenido 5–25 Hz extendido, F3-B) produce un artefacto estrecho por
+    latido en todos los ritmos y `esp_n` degrada a proxy de frecuencia
+    cardíaca (evidencia F9: acoplamiento 0.98 en ventanas sinusales).
 
     Args: x_crudo [n] o [n x 12] (usa derivación II, índice 1).
     Returns: muestras (índices) de eventos espícula.
@@ -78,9 +83,7 @@ def detectar_espiculas(x_crudo: np.ndarray, fs: int = FS) -> np.ndarray:
     mad = np.median(np.abs(b - med)) * 1.4826
     if mad <= 0:
         return np.array([], dtype=int)
-    umbral = med + 10.0 * mad
-    sobre = b > umbral
-    # Rotular eventos contiguos
+    sobre = b > med + 10.0 * mad
     flancos = np.diff(sobre.astype(np.int8))
     inicios = np.flatnonzero(flancos == 1) + 1
     fines = np.flatnonzero(flancos == -1) + 1
@@ -88,17 +91,45 @@ def detectar_espiculas(x_crudo: np.ndarray, fs: int = FS) -> np.ndarray:
         inicios = np.r_[0, inicios]
     if sobre[-1]:
         fines = np.r_[fines, b.size]
-    max_ms = int(round(0.010 * fs))  # transiente < 10 ms
+    max_ms = int(round(0.010 * fs))
     refract = int(round(0.100 * fs))
+    d = np.abs(np.diff(x))
+    escala = float(np.percentile(d, 99.5)) + 1e-12
     picos: list[int] = []
     for ini, fin in zip(inicios, fines):
         if fin - ini > max_ms:
             continue  # demasiado largo para ser espícula
         pico = ini + int(np.argmax(b[ini:fin]))
+        if d[max(0, pico - 2) : pico + 3].max() < slew_k * escala:
+            continue  # pendiente propia de QRS/ruido, no de espícula
         if picos and pico - picos[-1] < refract:
             continue
         picos.append(int(pico))
     return np.asarray(picos, dtype=int)
+
+def detectar_espiculas_multiderivacion(
+    x_crudo: np.ndarray, fs: int = FS, slew_k: float = 2.5
+) -> np.ndarray:
+    """Espículas detectadas por derivación y fusionadas (§3.2, F9).
+
+    La espícula de marcapasos auricular puede ser subvisual en II pero
+    evidente en I/aVL/V1 (medido en x009: 161 eventos en I con 0 en II).
+    Detecta por derivación con su propia escala de pendiente y fusiona
+    eventos de distintas derivaciones a < 30 ms en uno.
+    """
+    x = np.asarray(x_crudo, dtype=np.float64)
+    if x.ndim != 2:
+        raise ValueError('detectar_espiculas_multiderivacion requiere [n x 12]')
+    todos = np.concatenate([detectar_espiculas(x[:, j], fs, slew_k) for j in range(x.shape[1])])
+    if todos.size == 0:
+        return np.array([], dtype=int)
+    todos = np.sort(todos)
+    fusion = [int(todos[0])]
+    sep = int(0.030 * fs)
+    for p in todos[1:]:
+        if int(p) - fusion[-1] > sep:
+            fusion.append(int(p))
+    return np.asarray(fusion, dtype=int)
 
 
 def documentar_respuesta(spec: FilterSpec = FilterSpec(), salida: str = 'results/figuras') -> None:

@@ -156,10 +156,10 @@ def detectar_picos_r_fusion(
 
 
 FEATURE_NAMES: tuple[str, ...] = (
-    # RR (10)
+    # RR (12): intervalos + frecuencia normalizada por edad (Davignon, F3-B)
     'rr_media_s', 'rr_mediana_s', 'rr_sdnn_s', 'rr_rmssd_s', 'rr_pnn50',
-    'rr_min_s', 'rr_max_s', 'rr_cv', 'rr_pendiente_ms_s', 'rr_n_picos',
-    # QRS (9)
+    'rr_cv', 'rr_pendiente_ms_s', 'rr_n_picos',
+    'fc_norm_media', 'fc_norm_max',
     'qrs_dur_ms', 'qrs_dur_cv', 'qrs_r_ii_mv', 'qrs_s_ii_mv',
     'qrs_r_v2_mv', 'qrs_s_v2_mv', 'qrs_rs_ii', 'qrs_rs_v2', 'qrs_fwhm_ms',
     # Onda P (3)
@@ -182,6 +182,32 @@ NOMBRES_WAVELET: tuple[str, ...] = tuple(f'wav_c{i}' for i in range(1, 9))
 
 def _seguro(valor: float) -> float:
     return float(valor) if np.isfinite(valor) else float('nan')
+
+
+# Vector final de 46 features (decisión F8 / cláusula F3-1: wavelet db4
+# sustituye a la DCT; results/features/decision_dct_wavelet.txt).
+FEATURES_FINALES: tuple[str, ...] = tuple(
+    c for c in FEATURE_NAMES if not c.startswith('dct_')
+) + NOMBRES_WAVELET
+
+_HR_NORM_EDAD = ((0.0, 127.0), (1.0, 123.0), (3.0, 116.0), (5.0, 112.0),
+                 (8.0, 104.0), (12.0, 100.0), (16.0, 90.0), (18.1, 80.0))
+
+
+def fc_normalizada(edad: float, rr_s: float) -> float:
+    """FC media de la ventana normalizada por la FC media esperada a esa
+    edad (Davignon 1979, promedios por grupo etario interpolados; F3-B:
+    límites normales edad-dependientes).
+
+    >1 ≈ taquicardia para la edad; separa un AVRT de 130 bpm a los 14 años
+    (≈1.4) de un sinusal de 130 bpm en un lactante (≈1.0).
+    """
+    if not np.isfinite(edad) or not np.isfinite(rr_s) or rr_s <= 0 or edad < 0:
+        return float('nan')
+    edades = np.array([e for e, _ in _HR_NORM_EDAD])
+    fcs = np.array([f for _, f in _HR_NORM_EDAD])
+    ref = float(np.interp(min(edad, edades[-1]), edades, fcs))
+    return (60.0 / rr_s) / ref
 
 
 def _feat_rr(picos: np.ndarray, fs: int, dur_s: float) -> dict[str, float]:
@@ -361,6 +387,8 @@ def vector_caracteristicas(
     out.update(_feat_espectrales(ventana, fs))
     out.update(_feat_dct_wavelet(ventana, picos, fs))
     out.update(_feat_calidad(ventana, ventana_raw, fs))
+    out['fc_norm_media'] = fc_normalizada(edad, out.get('rr_media_s', float('nan')))
+    out['fc_norm_max'] = fc_normalizada(edad, out.get('rr_min_s', float('nan')))
     out['edad'] = _seguro(edad)
     out['sexo'] = float(sexo)
     return out
@@ -395,7 +423,7 @@ def construir_dataset(
         x, fs, _ = _io.cargar_registro(ruta)
         y = preprocess.preprocesar(x)
         picos = detectar_picos_r_fusion(y.astype(np.float64), fs)
-        espiculas = preprocess.detectar_espiculas(x[:, 1].astype(np.float64), fs)
+        espiculas = preprocess.detectar_espiculas_multiderivacion(x.astype(np.float64), fs)
         edad, sexo = _io.demografia(ruta)
         for _, fila in filas_idx.iterrows():
             i0, i1 = int(fila['inicio_muestra']), int(fila['fin_muestra'])
@@ -416,7 +444,6 @@ def construir_dataset(
         _P(cache).parent.mkdir(parents=True, exist_ok=True)
         df.to_csv(cache, index=False)
     return df
-
 
 def separabilidad(X: pd.DataFrame, y: pd.Series) -> pd.DataFrame:
     """ANOVA univariada + índice de Fisher por feature (objetivo 2 del acta).
