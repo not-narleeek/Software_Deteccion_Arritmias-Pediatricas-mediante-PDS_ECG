@@ -117,6 +117,20 @@ Formato: [AP-n] tema | contexto | dónde se resuelve | estado
     mantiene margen 1 s (1944/307/176/1; 180 ventanas calidad_dudosa AP-6).
     Ambas cifras se citan en el informe con esta nota.
 
+[AP-13] DATASET INSUFICIENTE (29 REGISTROS) — AMPLIAR A >5000 ESTUDIOS
+    Contexto: reunión con D. Maureira (sep-2026; registrada 2026-09-13):
+    "exámenes mal tomados, filtrar"; "buscar más datos"; contactar a Isatec;
+    modelo entrenado en población 'x' no suele funcionar en población 'y'
+    (domain shift); combinaciones de canales pueden identificar patologías;
+    serie de tiempo→imágenes da resultados similares. La reunión NO abordó
+    AP-1/2/3 (siguen pendientes de validación escrita). TL;DR del equipo:
+    se requieren >5000 estudios, limpios y correctamente clasificados, antes
+    de continuar con pre-procesamiento y modelado.
+    Dónde se resuelve: rama `busqueda-datos` — docs/busqueda_datos.md
+    (fuentes candidatas, criterios de aceptación, protocolo de ingesta).
+    Estado: EN CURSO — F9 en pausa en `desarrollo` (commit WIP 4d52c10:
+    SVM Se 67.9 %, Paced Se 24.4 %; KPI no cumplido).
+
 ---
 Bitácora de cierre (llenar al resolver):
     [AP-11] resuelto el 2026-09-09 por equipo (F6) — decisión: KPI sobre

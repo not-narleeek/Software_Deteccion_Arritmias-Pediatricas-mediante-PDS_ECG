@@ -13,6 +13,7 @@ feedback de D. Maureira).
 | I — Propuesta (PPS, E1) | Exploración dataset, literatura, diseño pipeline | **Completa** (F1–F5); PPS v0.1 pendiente de validación del experto (AP-1/2/3) |
 | II — Avance + Prototipo (APS) | Implementación del pipeline completo en Python | **Por desarrollar** — desde hoy |
 | III — Informe Final + Defensa (FPS/DPS) | Sistema completo, métricas, casos clínicos, demo | Por desarrollar |
+| II-B — Ampliación de datos (rama `busqueda-datos`) | Buscar >5000 estudios pediátricos limpios y bien clasificados; filtrar exámenes mal tomados | **En curso** desde 13-sep (feedback D. Maureira); F9 en pausa |
 
 Insumos listos: dataset verificado en `data/` (126/126 SHA256), inventario automatizado
 (`results/inventario/`), diseño formal con contratos tipados (`src/ecg_pipeline/` —
@@ -137,3 +138,7 @@ del acta).
 - `main` no recibe nada hasta cierre validado de Etapa II (fallback del acta original).
 - Toda decisión nueva que surja se registra como AP-n nueva en
   `docs/anotaciones_pendientes.txt` (no solo en el mensaje de commit).
+- La ampliación de datos (AP-13) vive en la rama `busqueda-datos`: cada
+  fuente ingesta = un commit con evidencia de verificación
+  (docs/busqueda_datos.md §4); la serie F6–F10 retoma después del cierre
+  de la búsqueda.
