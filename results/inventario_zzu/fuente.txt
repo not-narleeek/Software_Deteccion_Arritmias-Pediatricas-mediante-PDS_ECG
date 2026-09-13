@@ -11,6 +11,14 @@ de Figshare (api.figshare.com/v2/articles/27078763):
   Child_ecg.z01             2.15 GB  4782e8c17b478745853db85210ce46aa
   Child_ecg.zip             1.91 GB  d7bb207d0f559c5f697bd7e442975718
 
+
+URLs completas (metodología y acceso: docs/metodologia_zzu_pecg.md):
+  Paper:      https://www.nature.com/articles/s41597-025-05225-z
+  Dataset:    https://doi.org/10.6084/m9.figshare.27078763
+  Manifiesto: https://api.figshare.com/v2/articles/27078763
+  Descarga:   https://ndownloader.figshare.com/files/<id> con id por archivo:
+              ECGCode=53512538 DiseaseCode=53512544 AttrDict=53580632
+              Notebook=53581268 z01=53524583 zip=53523902
 Extracción: 7-Zip 26.02 sobre el zip multipartito -> data/zzu_pecg/Child_ecg/
 (14.190 .hea + 14.190 .dat, 4,3 GB). data/ no se versiona (gitignore);
 este archivo es el registro de reproducibilidad.

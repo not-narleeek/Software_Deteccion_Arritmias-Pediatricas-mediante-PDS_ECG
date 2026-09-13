@@ -61,6 +61,8 @@ anonimización, Ley 19.628).
 Procedencia y checksums: `results/inventario_zzu/fuente.txt` (Figshare
 10.6084/m9.figshare.27078763 v1, CC BY 4.0; 6/6 MD5 verificados; extracción
 7z → `data/zzu_pecg/Child_ecg/`, 4,3 GB, no versionado).
+Metodología completa de procesamiento y comprobación (con URLs de
+procedencia): `docs/metodologia_zzu_pecg.md`.
 
 Inventario automatizado: `scripts/inventario_zzu.py` →
 `results/inventario_zzu/` (registros.csv, aha.csv, clases.csv, calidad.csv,
