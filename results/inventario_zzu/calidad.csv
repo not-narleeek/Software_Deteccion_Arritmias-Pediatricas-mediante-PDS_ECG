@@ -1,0 +1,16 @@
+clase,sqi,p05,mediana,p90
+Otro,psqi_min,0.226,0.338,0.422
+Otro,bassqi_min,0.812,0.956,0.987
+Otro,bsqi_min,0.953,0.984,1.0
+Paced,psqi_min,0.285,0.409,0.493
+Paced,bassqi_min,0.856,0.969,0.99
+Paced,bsqi_min,0.916,0.985,0.991
+SVT,psqi_min,0.221,0.328,0.43
+SVT,bassqi_min,0.802,0.946,0.983
+SVT,bsqi_min,0.941,0.988,1.0
+Sinusal,psqi_min,0.221,0.326,0.41
+Sinusal,bassqi_min,0.808,0.951,0.986
+Sinusal,bsqi_min,0.955,0.985,1.0
+VT,psqi_min,0.324,0.429,0.542
+VT,bassqi_min,0.781,0.949,0.983
+VT,bsqi_min,0.912,0.98,1.0

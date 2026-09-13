@@ -130,11 +130,13 @@ Formato: [AP-n] tema | contexto | dónde se resuelve | estado
     (fuentes chilenas, criterios de aceptación, protocolo de ingesta) y
     docs/reserva_datos_internacionales.md (hallazgo internacional
     preservado para uso posterior).
-    Estado: EN CURSO — alcance acotado a CHILE desde 2026-09-13 (domain
-    shift: población de origen ≠ población objetivo, ej. "taquicardia en
-    Inglaterra no es igual que en Chile"); Leipzig queda como insumo de
-    desarrollo del método, no de entrenamiento final. F9 en pausa en
-    `desarrollo` (commit WIP 4d52c10: SVM Se 67.9 %, Paced Se 24.4 %).
+    Estado: INGESTA ZZU-pECG COMPLETA (2026-09-13, results/inventario_zzu/):
+    14.190 registros WFDB verificados (MD5, 0 inconsistencias); mapeo AHA
+    propuesto → Sinusal 7.708 / SVT 348 / VT 103 / Paced 23 / Otro 6.008
+    registros (~33.4k/1.65k/489/107 ventanas). Quedan pendientes: filtro de
+    calidad definitivo (bsqi<0.95 marca 537, confunde con arritmia),
+    justificación formal de la limitación de población (FPS) y gestiones
+    chilenas en paralelo. F9 en pausa en `desarrollo` (WIP 4d52c10).
 
 ---
 Bitácora de cierre (llenar al resolver):
