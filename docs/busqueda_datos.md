@@ -1,120 +1,146 @@
-# Búsqueda y ampliación de datos — rama `busqueda-datos`
+# Búsqueda de datos — rama `busqueda-datos` (foco CHILE)
 
 Creado: 2026-09-13, tras reunión con D. Maureira (AP-13).
-Objetivo: pasar de 29 registros pediátricos a **>5000 estudios limpios y
-correctamente clasificados** antes de reanudar pre-procesamiento y modelado.
-F6–F8 ya verificados se re-ejecutan sobre el dataset ampliado; F9 (en pausa,
-commit WIP 4d52c10 en `desarrollo`) se retoma con los datos nuevos.
+Revisado: 2026-09-13 — alcance acotado exclusivamente a Chile.
+
+## 0. Objetivo y alcance
+
+**>5000 estudios ECG pediátricos chilenos, limpios y correctamente
+clasificados**, antes de reanudar pre-procesamiento y modelado. F6–F8 ya
+verificados se re-ejecutan sobre el dataset ampliado; F9 (en pausa, commit
+WIP 4d52c10 en `desarrollo`) se retoma con los datos nuevos.
+
+**Decisión de alcance (2026-09-13, equipo, en línea con el experto):**
+un modelo entrenado en población 'x' no suele funcionar en población 'y'
+("la taquicardia en Inglaterra no es igual que en Chile"). Consecuencias:
+- Leipzig (`data/`, alemán) queda como insumo de **desarrollo del método**
+  (protocolo, scripts, verificación F1–F8) y comparación — no población de
+  entrenamiento del sistema final.
+- Fuentes internacionales (ZZU-pECG, PTB-XL, CPSC, MIMIC-IV-ECG) pasan a
+  **reserva**: `docs/reserva_datos_internacionales.md`.
 
 ## 1. Feedback del experto (D. Maureira, sep-2026)
 
-Relevante para **datos** (esta rama):
+Para **datos** (esta rama):
 - "Exámenes mal tomados, filtrar" → criterio de calidad obligatorio en la
-  ingesta; los excluidos se listan y contabilizan, no se descartan en silencio.
+  ingesta; los excluidos se listan y contabilizan, no se descartan en
+  silencio.
 - "Buscar más datos" → meta >5000 estudios (este documento).
-- Contactar a Isatec → acción externa del equipo (posible fuente chilena).
-- "Un modelo entrenado con población 'x' no suele funcionar con población
-  'y'" → estratificar por población; corpus adultos solo con rol comparativo
-  o de pre-entrenamiento (misma lógica que EX3 del acta).
+- Contactar a Isatec → acción externa del equipo (§3, prioridad 1).
+- Domain shift (población 'x' → 'y') → alcance Chile; corpus no-chilenos
+  solo con rol comparativo/pre-entrenamiento declarado (§0, EX3).
 
-Relevante para **modelado** (se retoma al volver a F8/F9, registrado aquí
-para no perderlo):
-- Combinaciones de canales pueden identificar patologías → explorar features
-  por derivación y combinadas (p. ej. II+V1/V2) en el hito de features.
-- Serie de tiempo → imágenes y vuelta: "suelen dar resultados similares" →
-  línea opcional de comparación, no prioritaria.
-- Ver por canales individuales o combinar → ídem, decisión con evidencia.
+Para **modelado** (retomar en F8/F9, registrado para no perderlo):
+- Combinaciones de canales pueden identificar patologías → features por
+  derivación y combinadas.
+- "Ver por canales o combinar" → ídem, decisión con evidencia.
+- Serie de tiempo → imágenes: resultados suelen ser similares → línea
+  opcional, no prioritaria.
 
-No aplicable al desarrollo: dimensionamiento de precio/valor para la empresa.
+No aplicable al desarrollo: precio/valor para la empresa.
 
 ## 2. Criterios de aceptación (un estudio entra solo si)
 
-1. **Población pediátrica identificable** (edad por registro) — o rol
-   explícito comparativo/pre-entrenamiento (adultos, EX3), nunca mezclados
-   sin control (§5).
-2. **Derivaciones suficientes**: 12 derivaciones ideal; mínimo I/II y al
-   menos una precordial (el detector F7 fusiona II+V2; sin V2 hay fallback a
-   II-only — verificar impacto con `validar_detector_r.py`).
-3. **Etiqueta mapeable** a la taxonomía del proyecto (Sinusal/SVT/Paced u
-   "Otro", AP-1): etiqueta de ritmo por segmento (ideal, tipo Leipzig) o
-   diagnóstico por registro si el mapeo es defendible y queda documentado.
-4. **Calidad**: SQI del propio dataset si existe + nuestro vector de calidad
-   (AP-6); exámenes mal tomados excluidos con lista explícita (feedback §1).
-5. **Duración** ≥ 10 s para generar al menos una ventana de 10 s.
-6. **Licencia** abierta verificada (CC BY 4.0, ODbL, etc.) o convenio formal
-   (Isatec/hospital); se registra con el inventario.
+1. **Procedencia chilena** con institución identificable (población
+   objetivo); datos no-chilenos solo vía reserva (§0).
+2. **Trazo crudo** — señal digital reutilizable, no PDF/imagen: formatos
+   aceptables SCP-ECG, DICOM-ECG, XML (Philips/GE/Mortara/MUSE), WFDB,
+   MAT/CSV exportado por el equipo adquirente.
+3. **Derivaciones**: 12 ideal; mínimo I/II + al menos una precordial (el
+   detector F7 fusiona II+V2; sin V2 hay fallback II-only — medir
+   degradación antes de aceptar subconjuntos sin V2).
+4. **Etiqueta mapeable** a la taxonomía del proyecto (Sinusal/SVT/Paced u
+   "Otro", AP-1): informe de cardiólogo pediatra por estudio (ideal con
+   segmentación por ritmo) o etiqueta de egreso mapeable y documentada.
+5. **Calidad**: SQI propio si existe + nuestro vector (AP-6); exámenes mal
+   tomados excluidos con lista explícita y causa.
+6. **Duración** ≥ 10 s por ventana usable (ventanas 10 s / hop 5 s).
+7. **Marco legal**: convenio + CEC + anonimización verificada (§4).
 
-## 3. Fuentes candidatas (verificadas 2026-09-13 vía web)
+## 3. Fuentes chilenas (verificadas 2026-09-13)
 
-| Fuente | Registros | Edad | Señal | Etiquetas | Licencia | Rol |
-|---|---|---|---|---|---|---|
-| **ZZU-pECG** (Zhengzhou Univ.; Figshare; DOI 10.1038/s41597-025-05225-z) | 14.190 (12.334 × 12-deriv; 1.856 × 9-deriv **sin V2/V4/V6**) de 11.643 niños | 0–14 (mediana ~8,6 a) | 500 Hz, 5–120 s | ICD-10 de alta; 3.716 con CVD en 19 categorías pediátricas; incluye pSQI/basSQI/bSQI | CC BY 4.0 | **Candidato primario** |
-| Leipzig Heart Center (actual, `data/`) | 39 (29 pediátricos) | ped + adultos comparativos | 12 deriv + IEGM, WFDB | ritmo por segmento (`.atr` experto) | abierta | En uso (insumo F1–F8) |
-| PTB-XL (PhysioNet) | 21.837 (18.885 pacientes) | predominantemente adulto | 12 deriv, 10 s | diagnóstico SNOMED | CC BY 4.0 | Comparativo/pre-entrenamiento (EX3) |
-| CPSC 2018 (ICBEB) | 6.877 (11 hospitales) | adulto (algunas edades NaN) | 12 deriv, 6–60 s, 500 Hz | 9 clases (Normal, AF, I-AVB, LBBB, RBBB, PAC, PVC, STD, STE) | abierta | Comparativo (EX3) |
-| MIMIC-IV-ECG (PhysioNet) | ~800.000 (~160.000 pacientes) | **18+** | 12 deriv, 10 s, 500 Hz | diagnóstico | credencial DUA | Comparativo (EX3); requiere tramitación |
-| CinC Challenge 2020 (PhysioNet) | agregado multi-fuente (incluye CPSC/PTB-XL; tamaño por verificar) | predominantemente adulto | 12 deriv | multi-etiqueta SNOMED | abierta | Evaluar aporte marginal vs fuentes ya listadas |
-| **Isatec** / hospitales locales | ? | ? | ? | ? | convenio | **Acción externa del equipo** — contactar (única vía plausible de más ritmo-anotado pediátrico SVT/Paced) |
+**Hecho verificado: en Chile NO existe repositorio público de trazos ECG
+individuales.** DEIS/MINSAL/datos.gob.cl publican solo estadísticas
+agregadas (series REM: nº de exámenes por establecimiento; egresos y
+mortalidad), sin registros individuales, por Ley 19.628 y secreto
+estadístico. El camino a >5000 estudios es necesariamente institucional
+(convenio + CEC) o industrial (Isatec).
 
-Advertencias específicas de ZZU-pECG (verificar en la ingesta, no asumir):
-- La etiqueta es **diagnóstico ICD-10 de alta**, no anotación de ritmo por
-  segmento → mapear las 19 categorías a la taxonomía AP-1 y verificar
-  presencia real de taquicardias/marcapasos; los registros "sin CVD"
-  (~10.474) asumirlos sinusales solo tras spot-check del equipo.
-- 1.856 registros de 9 derivaciones **carecen de V2** → fallback II-only del
-  detector F7 en ese subconjunto; medir degradación antes de incluirlos.
-- Duraciones 5–120 s: los registros < 10 s no generan ventanas; contabilizar.
-- Formato Figshare ≠ WFDB → extender `io.py` con lector propio + tests.
-- Hospital chino 0–14 años: población distinta de Leipzig/chilena → §5.
+| Fuente | Qué tiene | Vía de acceso | Estado |
+|---|---|---|---|
+| **Isatec** (Instituto de Salud y Tecnología de Chile Ltda., desde 2009) | Plataformas de tele-informe ECG reposo 12 deriv + Holter de ritmo en decenas de establecimientos de todo el país; **decenas de miles de pacientes/mes**; proyecto propio de IA (CardIA-ECG, Corfo); ISO 9001 | Contacto/convenio directo (sugerido por D. Maureira) | **Prioridad 1 — contactar (equipo)** |
+| **Hospital Luis Calvo Mackenna** (pediátrico, RM) | Ficha clínica electrónica con ECG digitales; Centro Cardiovascular; Unidad de Investigación con protocolo formal de registros/bases de datos + CEC | Protocolo a Unidad de Investigación / CEC | Prioridad 2 |
+| **Hospital Roberto del Río** (pediátrico, RM) | Policlínico de cardiología pediátrica de referencia; registros en ficha electrónica | Ídem | Prioridad 2 |
+| Red UC Christus / Hospital Clínico U. de Chile | Registros ECG académicos | CEC institucional + convenio | Prioridad 3 |
+| Registro Nacional de Cardiopatías Congénitas (iniciativa: Calvo Mackenna + Roberto del Río + Instituto Nacional del Tórax) | Variables clínicas, imagenográficas y electrocardiográficas | Gestionar adhesión vía contactos clínicos | Explorar |
+| datos.gob.cl / DEIS-MINSAL | SOLO estadísticas agregadas (REM, egresos, mortalidad) | Descarga pública | Uso: dimensionar oferta (justificación del protocolo), NO entrenamiento |
 
-## 4. Protocolo de ingesta por fuente (reusar el método F1)
+Nota Isatec: son la única fuente con volumen ya agregado a escala nacional
+(decenas de miles/mes). Preguntar explícitamente por: pediátricos con
+informe de especialista, trazo crudo (no solo informe), derivaciones
+disponibles, fs, y condiciones de uso/anonimización; evaluar NDA/convenio
+de colaboración (también posible socio tecnológico — tienen su propio
+proyecto de IA cardiológica).
 
-1. **Descarga y fijado**: snapshot de versión + SHA256 de todos los archivos
-   (`results/inventario_<fuente>/`), igual que F1.
-2. **Inventario automatizado**: extender `scripts/inventario.py` — edad, sexo,
-   derivaciones, fs, duración, etiqueta cruda, etiqueta mapeada, distribución
-   por clase y por fuente.
-3. **Filtro de calidad** ("exámenes mal tomados"): SQI del dataset si existe
-   (pSQI/basSQI/bSQI en ZZU-pECG) + nuestro vector (AP-6) → lista explícita
-   de excluidos con causa y conteo en `results/`.
-4. **Criterio de cierre**: ≥5000 estudios pediátricos aceptados tras §4.3.
-   La distribución por clase primaria (Sinusal/SVT/Paced) se reporta al
-   cierre; si SVT/Paced pediátricos etiquetados quedan muy por debajo de
-   Sinusal en fuentes abiertas, se registra la limitación y se priorizan las
-   gestiones con Isatec/hospitales (la meta numérica no puede relajar la
-   validez clínica de las etiquetas).
-5. **Decisión de reanudación**: con el dataset ampliado fijado, re-ejecutar
-   F6 (filtros), F7 (detector) y F8 (features) sobre los datos nuevos y
-   retomar F9 — los scripts de verificación ya existen y son re-ejecutables.
+## 4. Requisitos legales y éticos (Ley 19.628)
 
-## 5. Riesgo domain shift (advertencia explícita del experto)
+- Protocolo de investigación aprobado por el CEC del establecimiento.
+- Disociación/anonimización estricta (sin identificadores directos;
+   fechas desplazadas; sin datos re-identificables).
+- Convenio de uso de datos institución-equipo, con formato de entrega
+  definido (crudo convertible, §2.2).
+- Checklist operativa a completar cuando exista el primer contacto formal.
 
-- Pediátrico es la población objetivo; corpus adultos (PTB-XL, CPSC,
-  MIMIC-IV-ECG) solo comparativos o pre-entrenamiento, bajo cláusula EX3.
-- Al combinar ZZU-pECG (China) + Leipzig (Alemania) + eventuales datos
-  chilenos: LORO estratificado por fuente/institución; reportar métricas por
-  estrato además de la global. Nunca entrenar en una población y reportar
-  KPI en otra sin declararlo.
+## 5. Protocolo de ingesta (reusa el método F1)
 
-## 6. Acciones (checklist de la rama)
+1. **Fijado**: snapshot de versión + SHA256 de todo lo entregado
+   (`results/inventario_<fuente>/`).
+2. **Conversión**: SCP-ECG/DICOM-ECG/XML → representación interna WFDB o
+   equivalente; extender `io.py` con lector propio + verificación de
+   round-trip (amplitudes/fs).
+3. **Inventario automatizado**: extender `scripts/inventario.py` — edad,
+   sexo, derivaciones, fs, duración, etiqueta cruda, etiqueta mapeada
+   (AP-1), distribución por clase y por institución.
+4. **Filtro de calidad** ("exámenes mal tomados"): SQI del proveedor si
+   existe + nuestro vector (AP-6) → lista explícita de excluidos con causa
+   y conteo en `results/`.
+5. **Criterio de cierre**: ≥5000 estudios chilenos aceptados tras §5.4,
+   con distribución por clase reportada. Si tras las gestiones la realidad
+   institucional no permite alcanzar >5000 chilenos dentro del horizonte
+   del proyecto, la decisión (relajar la meta, extender plazos, enmendar
+   alcance con respaldo del experto) se documenta en AP-13 — **no se
+   resuelve en silencio ni mezclando poblaciones**.
+6. **Reanudación**: dataset ampliado fijado → re-ejecutar F6/F7/F8 sobre
+   datos nuevos y retomar F9.
 
-- [ ] **Ingesta ZZU-pECG**: descarga, SHA256, lector `io.py`, inventario,
-      mapeo de etiquetas, filtro de calidad (§4) — candidato primario.
-- [ ] Verificar mapeo 19 categorías ICD-10 → taxonomía AP-1; spot-check de
-      registros "sin CVD" como sinusales.
-- [ ] Medir degradación del detector F7 sin V2 (subconjunto 9-deriv).
-- [ ] Contactar Isatec (equipo; preguntar por datos pediátricos chilenos).
-- [ ] Consultar a PhysioNet errata edad x007 (AP-10) en el mismo hilo.
-- [ ] Evaluar aporte marginal de CinC-2020 vs CPSC/PTB-XL ya listadas.
-- [ ] Al cierre: actualizar AP-13 en `anotaciones_pendientes.txt` con cifras
-      finales (aceptados/excluidos/por clase) y decisión de reanudación.
+## 6. Riesgo domain shift (advertencia explícita del experto)
 
-## Referencias
+- Población objetivo: pediátrico chileno. Corpus no-chilenos solo
+  comparativos/pre-entrenamiento declarado (reserva).
+- Si se combinan fuentes chilenas (Isatec + hospitales): LORO estratificado
+  por institución; reportar métricas por estrato además de la global.
+- Nunca entrenar en una población y reportar KPI en otra sin declararlo.
 
-- ZZU-pECG — Scientific Data: https://doi.org/10.1038/s41597-025-05225-z
-  (dataset en Figshare, búsqueda "ZZU pECG Zhengzhou University Pediatric
-  ECG Database").
-- Leipzig Heart Center: https://physionet.org/content/leipzig-heart-center-ecg/
-- PTB-XL: https://physionet.org/content/ptb-xl/
-- CPSC 2018: http://2018.icbeb.org/Challenge.html
-- MIMIC-IV-ECG: https://physionet.org/content/mimic-iv-ecg/
+## 7. Acciones (checklist de la rama)
+
+- [ ] **Contactar Isatec** (equipo; pedir pediátricos con trazo crudo +
+      informe; condiciones de uso) — prioridad 1.
+- [ ] Preparar protocolo CEC Calvo Mackenna / Roberto del Río (equipo +
+      tutor clínico; usar tutor de la universidad como puerta de entrada).
+- [ ] Dimensionar oferta con DEIS (ECG/mes por establecimiento, egresos
+      por arritmia pediátrica) para justificar el protocolo.
+- [ ] Conversor de formatos (SCP-ECG/DICOM-ECG/XML) en `io.py` cuando
+      llegue la primera entrega.
+- [ ] Consultar errata edad x007 a PhysioNet (AP-10).
+- [ ] Al cierre: actualizar AP-13 con cifras finales (aceptados/excluidos/
+      por clase) y decisión de reanudación.
+
+## Referencias (verificación 2026-09-13)
+
+- Isatec: https://www.isatec.cl/ (secciones quienes-somos, innovación,
+  clientes) y https://www.isatec.cl/innovachile/ (CardIA-ECG, Corfo).
+- Calvo Mackenna, Unidad de Investigación:
+  https://www.calvomackenna.cl/informacion_academica/unidad_investigacion
+- Roberto del Río: https://www.hrrio.cl/
+- DEIS: https://deis.minsal.cl — datos abiertos: https://datos.gob.cl
+- Ley 19.628 (protección de datos personales) — condiciona todo el acceso.

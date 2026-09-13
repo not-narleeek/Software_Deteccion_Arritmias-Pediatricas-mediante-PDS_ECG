@@ -127,9 +127,14 @@ Formato: [AP-n] tema | contexto | dónde se resuelve | estado
     se requieren >5000 estudios, limpios y correctamente clasificados, antes
     de continuar con pre-procesamiento y modelado.
     Dónde se resuelve: rama `busqueda-datos` — docs/busqueda_datos.md
-    (fuentes candidatas, criterios de aceptación, protocolo de ingesta).
-    Estado: EN CURSO — F9 en pausa en `desarrollo` (commit WIP 4d52c10:
-    SVM Se 67.9 %, Paced Se 24.4 %; KPI no cumplido).
+    (fuentes chilenas, criterios de aceptación, protocolo de ingesta) y
+    docs/reserva_datos_internacionales.md (hallazgo internacional
+    preservado para uso posterior).
+    Estado: EN CURSO — alcance acotado a CHILE desde 2026-09-13 (domain
+    shift: población de origen ≠ población objetivo, ej. "taquicardia en
+    Inglaterra no es igual que en Chile"); Leipzig queda como insumo de
+    desarrollo del método, no de entrenamiento final. F9 en pausa en
+    `desarrollo` (commit WIP 4d52c10: SVM Se 67.9 %, Paced Se 24.4 %).
 
 ---
 Bitácora de cierre (llenar al resolver):
