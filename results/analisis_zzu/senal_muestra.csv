@@ -1,0 +1,6 @@
+clase,rango_mv,frac_flat,pico_50hz_x,p_pot_lt_05hz
+Otro,1.26,0.0,0.0,0.001
+Paced,1.75,0.0,0.3,0.0
+SVT,1.215,0.0,0.1,0.001
+Sinusal,1.275,0.0,0.0,0.001
+VT,1.33,0.0,0.2,0.0

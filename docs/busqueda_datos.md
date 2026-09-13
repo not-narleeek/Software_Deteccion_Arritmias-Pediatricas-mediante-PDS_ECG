@@ -114,9 +114,11 @@ mayor parte de Paced (117 min). AFL = 43 registros dentro de SVT.
   Paced (7/23) y VT (16/103): bajo bSQI puede ser arritmia, no mala toma
   (confound calidad↔patología).
 - **Regla provisional (doctrina AP-6):** excluir solo los 7 registros <10 s
-  (estructural); MARCAR calidad_dudosa bsqi_min<0,95 (537) y reportar
-  aparte, sin excluir del baseline. Umbral definitivo: decisión del equipo
-  con esta evidencia al construir el índice de ventanas.
+  (estructural) y los rango_mv>5 mV (tomas defectuosas, 0,8 % de la
+  muestra — docs/analisis_zzu_pecg.md §2.C/§3.1); MARCAR calidad_dudosa
+  bsqi_min<0,95 (537) y reportar aparte, sin excluir del baseline.
+- Análisis exploratorio completo (demografía, etiquetas, validación por
+  FC, señal): `docs/analisis_zzu_pecg.md`, datos en `results/analisis_zzu/`.
 
 ## 4. Acciones
 
