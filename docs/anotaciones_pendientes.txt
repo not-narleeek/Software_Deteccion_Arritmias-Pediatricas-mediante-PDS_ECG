@@ -130,13 +130,15 @@ Formato: [AP-n] tema | contexto | dónde se resuelve | estado
     (fuentes chilenas, criterios de aceptación, protocolo de ingesta) y
     docs/reserva_datos_internacionales.md (hallazgo internacional
     preservado para uso posterior).
-    Estado: INGESTA ZZU-pECG COMPLETA (2026-09-13, results/inventario_zzu/):
-    14.190 registros WFDB verificados (MD5, 0 inconsistencias); mapeo AHA
-    propuesto → Sinusal 7.708 / SVT 348 / VT 103 / Paced 23 / Otro 6.008
-    registros (~33.4k/1.65k/489/107 ventanas). Quedan pendientes: filtro de
-    calidad definitivo (bsqi<0.95 marca 537, confunde con arritmia),
-    justificación formal de la limitación de población (FPS) y gestiones
-    chilenas en paralelo. F9 en pausa en `desarrollo` (WIP 4d52c10).
+    Estado: ETAPA I (PPS) SOBRE ZZU COMPLETA (2026-09-13,
+    docs/etapa1_zzu_pecg.md, entregable E1-bis): ingesta verificada
+    (14.190, MD5+WFDB), análisis exploratorio y validación fisiológica de
+    etiquetas, QC del 100 % del corpus → 754 excluidos con causa (5,3 %),
+    13.436 supervivientes (>>5.000 del experto), literatura F3-B y diseño
+    del pipeline actualizado (4 clases primarias: VT asciende a clase).
+    Pendientes: validación del experto (mapeo, 'Otro', Paced escaso) y
+    Etapa II sobre corpus combinado. F9 en pausa en `desarrollo` (WIP
+    4d52c10).
 
 ---
 Bitácora de cierre (llenar al resolver):

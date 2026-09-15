@@ -120,11 +120,12 @@ mayor parte de Paced (117 min). AFL = 43 registros dentro de SVT.
 - Análisis exploratorio completo (demografía, etiquetas, validación por
   FC, señal): `docs/analisis_zzu_pecg.md`, datos en `results/analisis_zzu/`.
 
-## 4. Acciones
-
 - [x] Manifiesto, descarga, MD5, extracción, verificación WFDB (§3.1).
 - [x] Inventario + mapeo AHA (§3.2/§3.3).
 - [x] Análisis de calidad + regla provisional (§3.4).
+- [x] Etapa I sobre ZZU (E1-bis): exploración + QC 100 % del corpus
+      (754 excluidos con causa) + literatura F3-B + diseño actualizado —
+      docs/etapa1_zzu_pecg.md (2026-09-13).
 - [ ] Validación del mapeo con D. Maureira (junto con AP-1/2/3; incluir
       qué hacer con 'Otro' y Paced escaso).
 - [ ] Integrar ZZU en `io.py` (leads mayúsculas, sin `.atr` — etiquetas de
