@@ -10,29 +10,30 @@ Diseño (docs/etapa1_zzu_pecg.md §4.1/§4.7):
   B. Transferencia por población (cuantifica el domain shift advertido por
      el experto): entrenar en ZZU → evaluar en Leipzig pediátrico (ventanas
      10 s), y el reverso. Nunca se mezclan poblaciones en un mismo fold.
+  KPI (acta §5, enmienda AP-1 'por clase primaria'): Se/Sp global >= 85 %,
+  F1 >= 0.80 por clase primaria, Brier < 0.2 — experimento A. B se reporta
+  como evidencia de limitación.
 
-KPI (acta §5, enmienda AP-1 'por clase primaria'): Se/Sp global ≥ 85 %,
-F1 ≥ 0.80 por clase primaria, Brier < 0.2 — se evalúan en el experimento A
-(dentro de ZZU); B se reporta como evidencia de limitación.
-
-Salidas: results/experimento_corpus/{svm,rf}/ + transferencia/ + resumen.
-
-Uso:  uv run python scripts/ejecutar_experimento_corpus.py
+F14-bis: submuestreo de la clase mayoritaria (ratio 3x segunda clase) SOLO
+en entrenamiento (diagnóstico F14: colapso a Sinusal con 95 % de mayoría).
 """
 
 import json
 import sys
+import warnings
 from pathlib import Path
 
 import numpy as np
 import pandas as pd
 
+warnings.filterwarnings('ignore', category=FutureWarning)
+
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / 'src'))
 
 from ecg_pipeline.models import (  # noqa: E402
-    ExperimentSpec, curvas_confiabilidad, entrenar_calibrado,
-    validacion_grupos,
+    ExperimentSpec, _resultado, curvas_confiabilidad, entrenar_calibrado,
+    submuestrear_mayoria, validacion_grupos,
 )
 
 FEAT = ROOT / 'results' / 'corpus' / 'ventanas_features.csv'
@@ -71,27 +72,27 @@ def main() -> None:
     m_zzu = fuente == 'zzu'
     resumen = {}
     for modelo in ('svm', 'rf'):
-        print(f'== A: {modelo} (ZZU, GroupKFold-5 por paciente) ==', flush=True)
+        print(f'== A: {modelo} (ZZU, GroupKFold-5 por paciente, equilibrar 3x) ==', flush=True)
         res = validacion_grupos(X[m_zzu], y[m_zzu], pac[m_zzu], k=5,
-                                spec=ExperimentSpec(modelo=modelo))
+                                spec=ExperimentSpec(modelo=modelo), equilibrar=3.0)
         resumen[modelo] = exportar(res, modelo, OUT / modelo)
         mc = resumen[modelo]
         print(f"   Se {mc['macro']['sensibilidad']:.3f} Sp "
               f"{mc['macro']['especificidad']:.3f} F1 {mc['macro']['f1']:.3f} "
               f"Brier {mc['brier']:.3f}")
 
-    # --- B: transferencia entre poblaciones ---
+    # --- B: transferencia entre poblaciones (train equilibrado) ---
     print('== B: transferencia ZZU→Leipzig y Leipzig→ZZU (SVM) ==', flush=True)
     trans = {}
     for nombre, tr_m, te_m in (('zzu_a_leipzig', m_zzu, ~m_zzu),
                                ('leipzig_a_zzu', ~m_zzu, m_zzu)):
-        modelo = entrenar_calibrado(X[tr_m].to_numpy(float), y[tr_m].to_numpy(),
-                                    pac[tr_m].to_numpy())
+        X_tr, y_tr, g_tr = submuestrear_mayoria(
+            X[tr_m].to_numpy(float), y[tr_m].to_numpy(), pac[tr_m].to_numpy(), 3.0)
+        modelo = entrenar_calibrado(X_tr, y_tr, g_tr)
         proba = modelo.predict_proba(X[te_m].to_numpy(float))
         clases = np.array(modelo.classes_)
         pred = clases[np.argmax(proba, axis=1)]
         yt = y[te_m].to_numpy()
-        from ecg_pipeline.models import _resultado  # ensamblado §8.2
         res = _resultado(yt, pred, proba, pac[te_m].tolist())
         trans[nombre] = exportar(res, nombre, OUT / 'transferencia' / nombre)
         mc = trans[nombre]

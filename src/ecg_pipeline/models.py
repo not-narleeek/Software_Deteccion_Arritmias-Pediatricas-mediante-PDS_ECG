@@ -238,14 +238,43 @@ def _resultado(
     }
 
 
+def submuestrear_mayoria(
+    X: np.ndarray, y: np.ndarray, grupos: np.ndarray, ratio: float = 3.0, seed: int = 42,
+) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+    """Tope a la clase mayoritaria en ratio × (segunda clase) (F14-bis).
+
+    El desbalance extremo de ZZU (95 % Sinusal) colapsaba SVM y RF hacia
+    la mayoría (Se SVT 4 %); el submuestreo se aplica SOLO al conjunto de
+    entrenamiento — el test se mantiene intacto para métricas honestas.
+    Mantiene grupos (pacientes) de las filas conservadas.
+    """
+    conteos = pd.Series(y).value_counts()
+    if len(conteos) < 2:
+        return X, y, grupos
+    mayor, segunda = conteos.index[0], conteos.index[1]
+    tope = int(ratio * conteos.iloc[1])
+    if conteos.iloc[0] <= tope:
+        return X, y, grupos
+    idx_mayor = np.flatnonzero(y == mayor)
+    rng = np.random.default_rng(seed)
+    conservar = rng.choice(idx_mayor, size=tope, replace=False)
+    mascara = np.ones(y.size, dtype=bool)
+    mascara[idx_mayor] = False
+    mascara[conservar] = True
+    return X[mascara], y[mascara], grupos[mascara]
+
+
 def validacion_grupos(
     X: pd.DataFrame, y: pd.Series, grupos: pd.Series, k: int = 5,
-    spec: ExperimentSpec = ExperimentSpec(),
+    spec: ExperimentSpec = ExperimentSpec(), equilibrar: float | None = None,
 ) -> dict:
     """Validación cruzada GroupKFold anidada por PACIENTE (corpus ZZU,
     Etapa II/F14). Sustituye al LORO por registro cuando hay miles de
     registros: k folds externos por paciente, selección de hiperparámetros
     en folds internos agrupados (§8.1). Mismo ensamblado de métricas §8.2.
+
+    equilibrar: si se fija, submuestrea la clase mayoritaria del TRAIN de
+    cada fold a equilibrar × segunda clase (test intacto).
     """
     Xv = X.to_numpy(dtype=float)
     yv = y.to_numpy()
@@ -253,7 +282,12 @@ def validacion_grupos(
     clases = np.unique(yv)
     y_true, y_pred, probas, reg_col = [], [], [], []
     for i, (tr, te) in enumerate(GroupKFold(n_splits=k).split(Xv, yv, gv), 1):
-        modelo = entrenar_calibrado(Xv[tr], yv[tr], gv[tr], spec)
+        X_tr, y_tr, g_tr = Xv[tr], yv[tr], gv[tr]
+        if equilibrar:
+            X_tr, y_tr, g_tr = submuestrear_mayoria(X_tr, y_tr, g_tr, equilibrar, seed=42 + i)
+            print(f'    fold {i}/{k}: train {len(yv[tr])} -> {len(y_tr)} tras '
+                  f'equilibrar x{equilibrar}', flush=True)
+        modelo = entrenar_calibrado(X_tr, y_tr, g_tr, spec)
         proba = modelo.predict_proba(Xv[te])
         pred = clases[np.argmax(proba, axis=1)]
         y_true.extend(yv[te])
