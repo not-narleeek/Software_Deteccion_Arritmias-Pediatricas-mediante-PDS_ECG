@@ -90,6 +90,60 @@ Formato: [AP-n] tema | contexto | dónde se resuelve | estado
     Dónde se resuelve: consultar errata/fuente PhysioNet -> F5.
     Estado: ABIERTO — menor.
 
+[AP-11] METRICA DE DISTORSION QRS: LIMPIEZA VS DISTORSION
+    Contexto: §3.4 define D = ||y−x||/||x|| crudo vs filtrado en R±60 ms.
+    Medido en Etapa II (237 latidos sinusales, 12 registros limpios):
+    D_crudo mediana 5.07 % FALLA el KPI < 5 %. Descomposición del residuo:
+    el notch aporta 0.3–0.5 %, el HP 0.1–4.4 % (deriva) y el LP 3.8–8.3 %;
+    en los registros con D alto el residuo del LP es mayormente IN-BAND
+    (ruido EMG dentro de 0.5–40 Hz que el filtro elimina correctamente),
+    no warping del QRS.
+    Dónde se resuelve: F6 (scripts/validar_filtros.py).
+    Estado: RESUELTA (decisión de ingeniería, no requiere experto): el KPI
+    se mide como D_morfología = ||y − ref||/||ref|| contra una referencia
+    in-band suave (HP 0.4 ord-2 + notch 50 Q=35 + LP 45 ord-2, fase cero;
+    preprocess.referencia_morfologica), que aísla la distorsión de
+    morfología de la limpieza pretendida. Resultado: mediana 2.59 %,
+    p90 3.57 %, ΔQRS 0.0 ms — KPI objetivo 1 CUMPLIDO. D_crudo se reporta
+    junto (5.07 %) con esta nota metodológica en el informe final.
+
+[AP-12] CONVENCION DE CONTEO DE VENTANAS F2 VS MARGEN §5.1
+    Contexto: las cifras del diseño §5.1 (1971/320/186 ventanas) fueron
+    calculadas en F2 con ventanas íntegras dentro del segmento SIN margen
+    de seguridad. Con el margen de 1 s de §5.1 el índice da 1944/307/176.
+    Dónde se resuelve: F6.
+    Estado: RESUELTA: la regresión del validador usa margen 0 (reproduce
+    exactamente 1971/320/186/1 = evidencia F2) y el índice de producción
+    mantiene margen 1 s (1944/307/176/1; 180 ventanas calidad_dudosa AP-6).
+    Ambas cifras se citan en el informe con esta nota.
+
+[AP-13] DATASET INSUFICIENTE (29 REGISTROS) — AMPLIAR A >5000 ESTUDIOS
+    Contexto: reunión con D. Maureira (sep-2026; registrada 2026-09-13):
+    "exámenes mal tomados, filtrar"; "buscar más datos"; contactar a Isatec;
+    modelo entrenado en población 'x' no suele funcionar en población 'y'
+    (domain shift); combinaciones de canales pueden identificar patologías;
+    serie de tiempo→imágenes da resultados similares. La reunión NO abordó
+    AP-1/2/3 (siguen pendientes de validación escrita). TL;DR del equipo:
+    se requieren >5000 estudios, limpios y correctamente clasificados, antes
+    de continuar con pre-procesamiento y modelado.
+    Dónde se resuelve: rama `busqueda-datos` — docs/busqueda_datos.md
+    (fuentes chilenas, criterios de aceptación, protocolo de ingesta) y
+    docs/reserva_datos_internacionales.md (hallazgo internacional
+    preservado para uso posterior).
+    Estado: ETAPA I (PPS) SOBRE ZZU COMPLETA (2026-09-13,
+    docs/etapa1_zzu_pecg.md, entregable E1-bis): ingesta verificada
+    (14.190, MD5+WFDB), análisis exploratorio y validación fisiológica de
+    etiquetas, QC del 100 % del corpus → 754 excluidos con causa (5,3 %),
+    13.436 supervivientes (>>5.000 del experto), literatura F3-B y diseño
+    del pipeline actualizado (4 clases primarias: VT asciende a clase).
+    Pendientes: validación del experto (mapeo, 'Otro', Paced escaso) y
+    Etapa II sobre corpus combinado. F9 en pausa en `desarrollo` (WIP
+    4d52c10).
+
 ---
 Bitácora de cierre (llenar al resolver):
+    [AP-11] resuelto el 2026-09-09 por equipo (F6) — decisión: KPI sobre
+        D_morfología vs referencia in-band suave; D_crudo reportado aparte.
+    [AP-12] resuelto el 2026-09-09 por equipo (F6) — decisión: regresión
+        F2 con margen 0; índice de producción con margen 1 s.
     [AP-n] resuelto el YYYY-MM-DD por <quién> — decisión: <texto>

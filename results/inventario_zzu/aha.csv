@@ -1,0 +1,92 @@
+codigo,descripcion,registros
+L147,T-wave abnormality,3022
+C21,Sinus tachycardia,2904
+C23,Sinus arrhythmia,2080
+A1,Normal ECG,1906
+L145,ST deviation,1542
+K143,Right ventricular hypertrophy,1191
+L146,ST deviation with T-wave change,1078
+C22,Sinus bradycardia,988
+Left ventricular high voltage,?,878
+F60,Ventricular premature complex(es),736
+A2,Otherwise normal ECG,735
+D30,Atrial premature complex(es),678
+Abnormal Q wave,?,581
+K142,Left ventricular hypertrophy,548
+L148,Prolonged QT interval,483
+Prolonged QTc interval,?,451
+I105,Incomplete right bundle-branch block,449
+L150,Prominent U waves,413
+J120,Right-axis deviation,398
+I106,Right bundle-branch block,395
+Suggests208,Hyperkalemia,389
+I101,Left anterior fascicular block,361
+J125,Low voltage,353
+K141,Right atrial enlargement,348
+Suggests210,Hypocalcemia,327
+K140,Left atrial enlargement,287
+Sinoatrial node to atrial internal migratory rhythm,?,283
+L155,Early repolarization,264
+D37,Junctional escape complex(es),219
+E52,"Ectopic atrial tachycardia, unifocal",189
+First-degree AV block,?,165
+Suggests211,Hypokalemia or drug effect,164
+I108,Ventricular preexcitation,134
+G70,Ventricular tachycardia,99
+Atrial escape complex(es),?,91
+H89,AV dissociation,87
+E55,Supraventricular tachycardia,84
+H86,"AV block, varying conduction",81
+H88,"AV block, complete (third-degree)",78
+Abnormal precordial R-wave progression,?,74
+H80,Short PR interva,69
+Osborn wave,?,68
+J124,Electrical alternans,67
+Suggests213,Ostium primum ASD,65
+H85,2:1 AV block,60
+J121,Left-axis deviation,57
+D31,"Atrial premature complexes, nonconducted",50
+H83,"Second-degree AV block, Mobitz type I(Wenckebach)",48
+Nonspecific intraventricular block,?,45
+F62,Ventricular escape complex(es),44
+H84,"Second-degree AV block, Mobitz type II",43
+E51,Atrial flutter,43
+Preexcitation syndrome,?,40
+E54,Junctional tachycardia,40
+Suggests207,Hypercalcemia,35
+F61,Fusion complex(es),33
+H81,AV conduction ratio N:D,32
+E50,Atrial fibrillation,31
+I104,Left bundle-branch block,31
+L152,TU fusion,29
+I107,Intraventricular conduction delay,26
+Suggests202,Brugada abnormality,24
+N(180,?,23
+H87,"AV block, advanced (high-grade)",22
+C26,Sinus pause or arrest,21
+Suggests205,Digitalis effect,19
+I102,Left posterior fascicular block,19
+L149,Short QT interval,19
+D36,Junctional premature complex(es),16
+Accelerated atrial autonomous rhythm,?,16
+M165,Anteroseptal MI,15
+M161,Inferior MI,15
+H82,Prolonged PR interval,12
+Consider230,Dextrocardia,11
+Consider221,AV nodal reentry,10
+C25,"Sinoatrial block, type II",10
+Consider226,Ischemia,10
+M160,Anterior MI,8
+Right ventricular high voltage,?,6
+M163,Lateral MI,4
+D39,Accelerated junctional rhythm,4
+Atrial reciprocal beats,?,3
+Consider229,Pulmonary disease,3
+G72,"Ventricular tachycardia, polymorphous",3
+M166,Extensive anterior MI,3
+Consider220,Acute ischemia,3
+G74,Ventricular fibrillation,3
+Suggests200,Acute pericarditis,2
+L151,Inverted U waves,2
+Short QTc interval,?,1
+M162,Posterior MI,1

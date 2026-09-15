@@ -160,3 +160,52 @@ Decisiones metodológicas respaldadas:
   Sharp Resolution* (IEEE Access ~2019) — autores por confirmar.
 - Revisión clínica formal de taquiarritmias pediátricas (SVT/AFL/VT) para la sección C
   — candidata a pedirla al experto asesor (D. Maureira) junto con la validación de AP-1/2/3.
+
+---
+
+## F3-B. Addendum — corpus ZZU pECG (Etapa I sobre datos ampliados, AP-13)
+
+**[tan2025zzupecg]** — Dataset de ampliación. 14.190 ECG (500 Hz, WFDB) de
+11.643 niños 0–14 años hospitalizados (Zhengzhou, 2018–2024), equipo MedEx
+MECG-300 (24 bit). Etiquetas por registro: enunciados ECG según estándar
+AHA/ACC/HRS 2007 (78 primarios + 13 secundarios) y consenso chino 2019,
+consenso de dos médicos; además ICD-10 de alta y SQI por derivación
+(pSQI/basSQI/bSQI). Ética aprobada, datos desensibilizados; CC BY 4.0
+(Figshare, DOI 10.6084/m9.figshare.27078763). *Implicaciones de diseño:*
+1. Etiqueta por **registro completo**, no por segmento de ritmo (≠ Leipzig
+   `.atr`): las ventanas heredan la clase del registro; conviven estados en
+   un mismo registro solo si el informe lo declara (0,6 % multi-grupo).
+2. Nuestro análisis (docs/analisis_zzu_pecg.md) valida las etiquetas
+   fisiológicamente (C21 133 lpm vs C22 57 lpm; SVT/VT ~150 lpm; SVT
+   neonatal hasta 273 lpm) → el mapeo AHA→AP-1 tiene base sólida.
+3. Señal pre-filtrada por el equipo (50 Hz ausente, deriva mínima): el
+   notch/LP de la cadena propia actúa como salvaguarda, no como corrector.
+4. 9 derivaciones (V1/V3/V5) en menores de 7 años: el detector debe
+   prescindir de V2 en ese subconjunto (1.856 registros).
+
+**[kligfield2007aha]** — Estándar AHA/ACC/HRS 2007 de terminología
+diagnóstica ECG: el vocabulario sobre el que se construyeron las etiquetas
+del dataset (vía conversión estilo [liu2022sph]). Referencia normativa del
+mapeo AHA→clases AP-1 (códigos E50–E55, G70–G74, N(180+181), A1/C2x).
+
+**[liu2022sph]** — SPH dataset: precedente metodológico de estandarización
+de enunciados diagnósticos (multi-etiqueta AHA) que ZZU replica en
+población pediátrica oriental; adulto, por lo que su rol acá es
+metodológico (cómo convertir texto libre a códigos AHA), no de datos.
+
+**[saarel2018phn]** — ECG digitales en niños sanos norteamericanos (PHN):
+el otro dataset pediátrico citado por [tan2025zzupecg]; pequeño y solo
+normales → no resuelve arritmias; contexto de escasez.
+
+**[chen2024chd]** — Detección de cardiopatía congénita por DL sobre ECG
+pediátrico integrando conceptos clínicos (Nat Commun): metodológicamente
+cercano (features interpretables + DL, niños); justifica también la
+exploración RF7 multi-canal.
+
+**[bratincsak2020z]** — Estándares ECG pediátricos con Z-scores por edad:
+base de las bandas etarias que usa ZZU; útil para estratificar la
+validación por edad (nuestro SVT concentra lactantes).
+
+Vacío F3-2 (dataset pediátrico de arritmias a escala) **resuelto** por
+tan2025zzupecg con las limitaciones declaradas (población hospitalaria
+oriental; etiqueta por registro; Paced escaso → complemento Leipzig).

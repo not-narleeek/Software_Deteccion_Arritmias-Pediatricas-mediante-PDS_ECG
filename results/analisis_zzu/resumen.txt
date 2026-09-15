@@ -1,0 +1,51 @@
+registros analizados (A/B): 14190 | muestra C/D: 874 (det_ok 862/874)
+
+== A. Demografia por clase ==
+  clase  registros  pacientes  edad_med  edad_p25  edad_p75  pct_masculino  dur_med_s
+  Paced         23         11     10.11      8.40     11.90          56.52       30.0
+     VT        103         53      8.84      2.10     11.49          58.25       30.0
+    SVT        348        222      5.30      0.92     11.05          50.29       30.0
+Sinusal       7708       6742      8.15      4.02     12.20          56.01       30.0
+   Otro       6008       5402      9.16      4.97     12.70          59.35       30.0
+
+== B. Estructura de etiquetas ==
+                                      metrica      valor
+enunciados por registro (mediana / p90 / max) 1 / 3 / 11
+                   registros con >1 enunciado      49.8%
+registros con enunciados de >1 grupo de clase  0.6% (89)
+     registros A1 con algun enunciado anormal       0.2%
+              registros solo A1 (normal puro)       1882
+
+== Co-ocurrencia de grupos (top 8) ==
+grupo_1 grupo_2  registros
+    SVT Sinusal         60
+Sinusal      VT         14
+    SVT      VT         10
+  Paced Sinusal          4
+  Paced     SVT          3
+
+== C. FC por clase (muestra, det_ok) ==
+  clase   n  det_ok  fc_med  fc_p25  fc_p75  cv_rr_med
+  Paced  23      23  111.10   85.05  139.50       0.23
+     VT 101     101  156.20  130.40  178.60       0.11
+    SVT 340     340  150.80  105.95  182.23       0.15
+Sinusal 198     198   94.70   76.08  123.00       0.06
+   Otro 200     200   86.25   78.82   97.68       0.06
+
+== C2. FC por subgrupo sinusal ==
+          count  median  <lambda_0>  <lambda_1>
+subgrupo                                       
+A1           48    89.0        79.0       103.0
+A2           10    84.0        76.0        93.0
+C21          71   133.0       118.0       155.0
+C22          29    57.0        52.0        58.0
+C23          40    79.0        73.0        89.0
+
+== D. Senal (medianas por clase) ==
+         rango_mv  frac_flat  pico_50hz_x  p_pot_lt_05hz
+clase                                                   
+Otro        1.260        0.0          0.0          0.001
+Paced       1.750        0.0          0.3          0.000
+SVT         1.215        0.0          0.1          0.001
+Sinusal     1.275        0.0          0.0          0.001
+VT          1.330        0.0          0.2          0.000

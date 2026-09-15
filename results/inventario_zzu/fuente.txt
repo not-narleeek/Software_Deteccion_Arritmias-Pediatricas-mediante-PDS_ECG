@@ -1,0 +1,31 @@
+Fuente: ZZU pECG v1 (publicado 2025-05-27)
+Paper: DOI 10.1038/s41597-025-05225-z (Sci Data 12:867, 2025)
+Dataset: DOI 10.6084/m9.figshare.27078763 — licencia CC BY 4.0
+Descargado: 2026-09-13 (rama busqueda-datos), MD5 verificados contra la API
+de Figshare (api.figshare.com/v2/articles/27078763):
+
+  ECGCode.csv               3.6 KB   7612c5af0e01e052eb85792c5e362f12
+  DiseaseCode.csv           3.0 KB   0bff597c23397c0d05a937fe09807ad4
+  AttributesDictionary.csv  7.7 MB   ffbbb7ebd8ad4425b3a859739eb65eb1
+  ExampleReadingCode.ipynb  159 KB   66694258f55ea75bf3454546d486a0e5
+  Child_ecg.z01             2.15 GB  4782e8c17b478745853db85210ce46aa
+  Child_ecg.zip             1.91 GB  d7bb207d0f559c5f697bd7e442975718
+
+
+URLs completas (metodología y acceso: docs/metodologia_zzu_pecg.md):
+  Paper:      https://www.nature.com/articles/s41597-025-05225-z
+  Dataset:    https://doi.org/10.6084/m9.figshare.27078763
+  Manifiesto: https://api.figshare.com/v2/articles/27078763
+  Descarga:   https://ndownloader.figshare.com/files/<id> con id por archivo:
+              ECGCode=53512538 DiseaseCode=53512544 AttrDict=53580632
+              Notebook=53581268 z01=53524583 zip=53523902
+Extracción: 7-Zip 26.02 sobre el zip multipartito -> data/zzu_pecg/Child_ecg/
+(14.190 .hea + 14.190 .dat, 4,3 GB). data/ no se versiona (gitignore);
+este archivo es el registro de reproducibilidad.
+
+Verificación (scripts/inventario_zzu.py, 2026-09-13):
+- 14.190/14.190 registros: diccionario == cabeceras WFDB (fs, n_sig, sig_len)
+- fs única 500 Hz; 12.334 de 12 deriv + 1.856 de 9 deriv (sin V2, menores
+  de 7 años); duración total 6.387,5 min; 7 registros < 10 s.
+- Nomenclatura de derivaciones: 'AVR','AVL','AVF' (mayúsculas) — difiere de
+  Leipzig ('aVR'...); normalizar al integrar en io.py.

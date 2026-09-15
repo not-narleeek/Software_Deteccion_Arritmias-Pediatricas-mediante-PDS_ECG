@@ -1,0 +1,3 @@
+registros diccionario: 14190
+cabeceras leidas: 14190
+inconsistencias: 0
