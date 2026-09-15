@@ -130,15 +130,14 @@ Formato: [AP-n] tema | contexto | dónde se resuelve | estado
     (fuentes chilenas, criterios de aceptación, protocolo de ingesta) y
     docs/reserva_datos_internacionales.md (hallazgo internacional
     preservado para uso posterior).
-    Estado: ETAPA I (PPS) SOBRE ZZU COMPLETA (2026-09-13,
-    docs/etapa1_zzu_pecg.md, entregable E1-bis): ingesta verificada
-    (14.190, MD5+WFDB), análisis exploratorio y validación fisiológica de
-    etiquetas, QC del 100 % del corpus → 754 excluidos con causa (5,3 %),
-    13.436 supervivientes (>>5.000 del experto), literatura F3-B y diseño
-    del pipeline actualizado (4 clases primarias: VT asciende a clase).
-    Pendientes: validación del experto (mapeo, 'Otro', Paced escaso) y
-    Etapa II sobre corpus combinado. F9 en pausa en `desarrollo` (WIP
-    4d52c10).
+    Estado: ETAPA II SOBRE CORPUS COMBINADO EJECUTADA (2026-09-13, rama
+    etapa2-corpus-combinado): F11/F12 VERDES, F13 features 41.900 ventanas,
+    F14 3 iteraciones — mejor RF F1 macro 0,518 con submuestreo 3× y
+    features morfológicas P/RP/PR/V1; KPI F1>=0,80/clase NO alcanzado
+    (confusión estructural SVT(EAT)↔sinuso-taquicardia; Brier 0,04 OK).
+    Transferencia ZZU↔Leipzig F1 0,10-0,36: domain shift cuantificado.
+    Pendiente: enmienda del KPI con D. Maureira + decisión de alcance
+    (nivel registro vs ventana). F9 Leipzig histórico en `desarrollo`.
 
 ---
 Bitácora de cierre (llenar al resolver):

@@ -310,6 +310,83 @@ def _feat_p(ventana: np.ndarray, picos: np.ndarray, fs: int) -> dict[str, float]
     return {'p_presencia': np.nan, 'p_amp_mv': np.nan, 'p_r_rel': np.nan}
 
 
+def _pico_p_signed(seg: np.ndarray, base: float) -> tuple[int, float]:
+    """(índice, amplitud con signo) del pico P de un segmento PR."""
+    j = int(np.argmax(np.abs(seg - base)))
+    return j, float(seg[j] - base)
+
+
+def _feat_pqrs_morfologia(ventana: np.ndarray, picos: np.ndarray, fs: int) -> dict[str, float]:
+    """Discriminantes morfológicos SVT↔Sinusal (F14-ter, Etapa II).
+
+    La confusión dominante del corpus ZZU es EAT (grupo SVT) vs
+    sinuso-taquicardia C21 (grupo Sinusal): se separan clínicamente por
+    morfología/eje de P y relación RP (docs/analisis_zzu_pecg.md). Todas
+    usan derivaciones presentes en 12 y 9 derivaciones (II, III, V1).
+    """
+    ii = ventana[:, 1].astype(float)
+    iii = ventana[:, 2].astype(float)
+    v1 = ventana[:, 6].astype(float)
+    pol_ii, pol_v1, amp_iii, amp_ii, p_durs, rps, prs = [], [], [], [], [], [], []
+    for i, p in enumerate(picos):
+        i0, i1 = int(p) - int(0.160 * fs), int(p) - int(0.040 * fs)
+        if i0 < 0 or i1 >= ii.size:
+            continue
+        for arr, acum in ((ii, pol_ii), (v1, pol_v1)):
+            seg = arr[i0:i1]
+            base = np.median(np.r_[seg[: int(0.02 * fs)], seg[-int(0.02 * fs) :]])
+            _, amp = _pico_p_signed(seg, base)
+            acum.append(amp)
+        seg_ii = ii[i0:i1]
+        base_ii = np.median(np.r_[seg_ii[: int(0.02 * fs)], seg_ii[-int(0.02 * fs) :]])
+        seg_iii = iii[i0:i1]
+        base_iii = np.median(np.r_[seg_iii[: int(0.02 * fs)], seg_iii[-int(0.02 * fs) :]])
+        _, a_ii = _pico_p_signed(seg_ii, base_ii)
+        _, a_iii = _pico_p_signed(seg_iii, base_iii)
+        amp_ii.append(a_ii)
+        amp_iii.append(a_iii)
+        # duración de P al 25 % de su amplitud (solo si hay P apreciable)
+        if abs(a_ii) > 0.04:
+            j = int(np.argmax(np.abs(seg_ii - base_ii)))
+            umbral = abs(a_ii) * 0.25
+            izq = j
+            while izq > 0 and abs(seg_ii[izq] - base_ii) > umbral:
+                izq -= 1
+            der = j
+            while der < seg_ii.size - 1 and abs(seg_ii[der] - base_ii) > umbral:
+                der += 1
+            p_durs.append((der - izq) / fs * 1000.0)
+        # RP (P actual tras el R previo) y PR (P actual -> R actual)
+        j = int(np.argmax(np.abs(seg_ii - base_ii)))
+        t_p = i0 + j
+        prs.append((p - t_p) / fs * 1000.0)
+        if i > 0:
+            rps.append((t_p - picos[i - 1]) / fs * 1000.0)
+
+    r_v1, s_v1 = [], []
+    for p in picos:
+        r_v1.append(v1[max(0, p - int(0.04 * fs)) : p + int(0.04 * fs)].max())
+        s_v1.append(v1[p : p + int(0.07 * fs)].min())
+    med = lambda xs: _seguro(np.median(xs)) if xs else np.nan
+    out = {
+        'p_pol_ii_mv': med(pol_ii),
+        'p_pol_v1_mv': med(pol_v1),
+        'p_neg_ii_frac': _seguro(np.mean([a < 0 for a in pol_ii])) if pol_ii else np.nan,
+        'p_amp_ratio_iii_ii': _seguro(abs(med(amp_iii)) / abs(med(amp_ii)))
+        if np.isfinite(med(amp_ii)) and abs(med(amp_ii)) > 1e-6 else np.nan,
+        'p_dur_ms': med(p_durs),
+        'p_rp_ms': med(rps),
+        'p_pr_ms': med(prs),
+        'qrs_r_v1_mv': med(r_v1),
+        'qrs_s_v1_mv': med(s_v1),
+    }
+    den = abs(out['qrs_s_v1_mv'])
+    out['qrs_rs_v1'] = _seguro(out['qrs_r_v1_mv'] / den) \
+        if np.isfinite(den) and den > 1e-6 else np.nan
+    return out
+
+
+
 def _feat_espectrales(ventana: np.ndarray, fs: int) -> dict[str, float]:
     bandas = [(0.5, 4.0), (4.0, 8.0), (8.0, 16.0), (16.0, 25.0), (25.0, 40.0)]
     out = {}
@@ -388,6 +465,7 @@ def vector_caracteristicas(
     out.update(_feat_rr(picos, fs, ventana.shape[0] / fs))
     out.update(_feat_qrs(ventana, picos, fs))
     out.update(_feat_p(ventana, picos, fs))
+    out.update(_feat_pqrs_morfologia(ventana, picos, fs))
     n_esp = float(np.asarray(espiculas).size)
     out['esp_n'] = n_esp
     out['esp_por_min'] = _seguro(n_esp / (ventana.shape[0] / fs / 60.0))

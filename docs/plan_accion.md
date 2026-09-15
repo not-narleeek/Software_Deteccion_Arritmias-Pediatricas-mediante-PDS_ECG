@@ -102,6 +102,29 @@ su KPI no se cumple** (§11 del diseño).
   → "por clase primaria") y bitácora de cierre de AP-1/2/3.
 - Merge a `main` del estado validado (fin del rol de fallback de main).
 
+### Hitos F11–F14 — corpus combinado ZZU+Leipzig (rama `etapa2-corpus-combinado`, 13-sep)
+
+Serie que re-ejecuta Etapa II sobre el corpus ampliado (AP-13):
+- **F11** io.py corpus ZZU + índice combinado — VERDE (regresión F6 2.428
+  exacta; 66.759 ventanas: Leipzig 8.581 + ZZU 58.178).
+- **F12** detector sobre ZZU — VERDE (det_ok 100 %; fusión II+V1 en
+  9-deriv sin degradación: |ΔFC| 0,2 lpm).
+- **F13** features corpus — 41.900 ventanas primarias; separabilidad
+  fuerte (fc_norm F 5.017).
+- **F14** experimento SVM/RF GroupKFold-5 por paciente — **KPI 0,80/clase
+  NO alcanzado** tras 3 iteraciones (submuestreo 3×, features morfológicas
+  P/RP/PR/V1): mejor RF F1 macro 0,518 (Sinusal 0,95; SVT 0,35; VT 0,43;
+  Paced 0,34). Confusión dominante SVT↔Sinusal (EAT vs sinuso-taquicardia).
+  Transferencia ZZU→Leipzig F1 0,36; Leipzig→ZZU 0,10 (domain shift
+  cuantificado, evidencia para el FPS). Brier < 0,04 (KPI de calibración
+  cumplido). Estado completo: results/experimento_corpus/.
+
+Consecuencia para el acta: el KPI 4 (F1 ≥ 0,80 por clase) requiere
+enmienda con el experto (alcance por clase primaria + nivel registro, o
+reposicionamiento como soporte diagnóstico con reporte de certeza) — la
+brecha es estructural del enfoque SVM/RF + features manuales sobre
+ventanas de 10 s, no de implementación.
+
 ## 3. Etapa III — informe final + defensa (nov–dic)
 
 1. **FPS (informe final):** consolidar resultados de Etapa II con limitaciones explícitas
