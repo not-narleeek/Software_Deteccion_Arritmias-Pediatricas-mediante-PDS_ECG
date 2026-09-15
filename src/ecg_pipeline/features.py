@@ -118,7 +118,8 @@ def _envolvente_enlt(x: np.ndarray, fs: int) -> np.ndarray:
 
 
 def detectar_picos_r_fusion(
-    x_filtrada: np.ndarray, fs: int = FS, sep_ms: float = 150.0, evidencia: float = 3.0
+    x_filtrada: np.ndarray, fs: int = FS, sep_ms: float = 150.0, evidencia: float = 3.0,
+    idx_ii: int = 1, idx_v: int = 7,
 ) -> np.ndarray:
     """Detector de producción: voto II+V2 con validación cruzada (§4).
 
@@ -128,17 +129,23 @@ def detectar_picos_r_fusion(
     3. Validación cruzada: un evento se acepta solo si la OTRA derivación
        muestra energía QRS (>= evidencia·NPK de su envolvente) en ±60 ms:
        un artefacto golpea una derivación, un R verdadero aparece en ambas.
+
+    idx_v permite sustituir la precordial de fusión: en los registros ZZU
+    de 9 derivaciones (< 7 años, sin V2) se usa V1 (índice 6) — §4.3 de la
+    Etapa I-bis. Por defecto mantiene II (1) + V2 (7) del diseño original.
     """
     x = np.asarray(x_filtrada, dtype=np.float64)
     if x.ndim != 2 or x.shape[1] < 8:
         raise ValueError('detectar_picos_r_fusion requiere [n x 12] (II y V2)')
-    x_ii, x_v2 = x[:, 1], x[:, 7]
-    e_ii, e_v2 = _envolvente_enlt(x_ii, fs), _envolvente_enlt(x_v2, fs)
+    x_ii, x_v = x[:, idx_ii], x[:, idx_v]
+    e_ii, e_v = _envolvente_enlt(x_ii, fs), _envolvente_enlt(x_v, fs)
     k_ii = _alinear_a_r(x_ii, _picos_desde_envolvente(e_ii, fs), fs)
-    k_v2 = _alinear_a_r(x_v2, _picos_desde_envolvente(e_v2, fs), fs)
-    npk_ii, npk_v2 = float(np.percentile(e_ii, 50)), float(np.percentile(e_v2, 50))
+    k_v = _alinear_a_r(x_v, _picos_desde_envolvente(e_v, fs), fs)
+    npk_ii, npk_v = float(np.percentile(e_ii, 50)), float(np.percentile(e_v, 50))
     sep = int(sep_ms * fs / 1000)
-    todos = np.sort(np.concatenate([k_ii, k_v2])).astype(int)
+    todos = np.sort(np.concatenate([k_ii, k_v])).astype(int)
+    if todos.size == 0:
+        return np.asarray([], dtype=int)
     fusion = [int(todos[0])]
     for p in todos[1:]:
         if p - fusion[-1] > sep:
@@ -149,7 +156,7 @@ def detectar_picos_r_fusion(
     out = [
         p
         for p in fusion
-        if e_v2[max(0, p - w) : p + w].max() >= evidencia * npk_v2
+        if e_v[max(0, p - w) : p + w].max() >= evidencia * npk_v
         and e_ii[max(0, p - w) : p + w].max() >= evidencia * npk_ii
     ]
     return np.asarray(out, dtype=int)
