@@ -294,7 +294,7 @@ def validacion_grupos(
         y_pred.extend(pred)
         probas.append(proba)
         reg_col.extend(gv[te].tolist())
-        print(f'    fold {i}/{k}: n_test={int(te.sum())}', flush=True)
+        print(f'    fold {i}/{k}: n_test={te.size}', flush=True)
     return _resultado(
         np.asarray(y_true), np.asarray(y_pred), np.vstack(probas), reg_col)
 

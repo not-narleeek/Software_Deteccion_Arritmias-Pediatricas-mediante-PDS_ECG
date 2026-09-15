@@ -1,5 +1,5 @@
 ,Paced,SVT,Sinusal,VT
-Paced,1,0,12,0
-SVT,1,1,25,0
-Sinusal,0,0,25,0
-VT,0,0,2,0
+Paced,8,0,4,1
+SVT,1,4,21,1
+Sinusal,0,1,24,0
+VT,0,0,0,2
