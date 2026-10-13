@@ -1,6 +1,6 @@
 """Extracción de features sobre el corpus ZZU — F13, Etapa II.
 
-Dataset de ventanas (una fila por ventana de results/corpus/
+Dataset de ventanas (una fila por ventana de results/fase2_pipeline/corpus/
 indice_ventanas.csv) con el vector §6 de 46 features + wavelet, para las
 CLASES PRIMARIAS (Sinusal/SVT/VT/Paced; 'Otro' es clase reportada, no
 objetivo — docs/etapa1_zzu_pecg.md §4.5).
@@ -10,7 +10,7 @@ completo (FilterSpec fs por fuente) → detectar R (fusión II+V2 o II+V1 si
 no hay V2) y espículas sobre la señal completa → rebanar ventanas del
 índice → features.vector_caracteristicas por ventana.
 
-Salidas: results/corpus/ventanas_features.csv y separabilidad.csv
+Salidas: results/fase2_pipeline/corpus/ventanas_features.csv y separabilidad.csv
 (ANOVA+Fisher entre las 4 clases) + resumen.txt.
 
 Uso:  uv run python scripts/extraer_features_corpus.py
@@ -31,8 +31,8 @@ from ecg_pipeline.features import (  # noqa: E402
     detectar_picos_r_fusion, separabilidad, vector_caracteristicas,
 )
 
-IDX = ROOT / 'results' / 'corpus' / 'indice_ventanas.csv'
-OUT = ROOT / 'results' / 'corpus'
+IDX = ROOT / 'results' / 'fase2_pipeline' / 'fase2_pipeline' / 'corpus' / 'indice_ventanas.csv'
+OUT = ROOT / 'results' / 'fase2_pipeline' / 'corpus'
 WORKERS = 6
 PRIMARIAS = ('Sinusal', 'SVT', 'VT', 'Paced')
 

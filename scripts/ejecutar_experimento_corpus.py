@@ -30,8 +30,8 @@ from ecg_pipeline.models import (  # noqa: E402
     ExperimentSpec, curvas_confiabilidad, validacion_grupos,
 )
 
-FEAT = ROOT / 'results' / 'corpus' / 'ventanas_features.csv'
-OUT = ROOT / 'results' / 'experimento_corpus'
+FEAT = ROOT / 'results' / 'fase2_pipeline' / 'corpus' / 'ventanas_features.csv'
+OUT = ROOT / 'results' / 'fase2_pipeline' / 'experimento_corpus'
 META = {'registro', 'fuente', 'paciente', 'clase', 'ritmo',
         'calidad_dudosa', 'inicio_muestra', 'fin_muestra'}
 
@@ -89,7 +89,7 @@ def main() -> None:
         json.dump(kpi, f, indent=2)
     print(f'KPI: {kpi}')
     if not all(kpi.values()):
-        sys.exit('F14: KPI no cumplido — diagnóstico en results/experimento_corpus/')
+        sys.exit('F14: KPI no cumplido — diagnóstico en results/fase2_pipeline/experimento_corpus/')
     print('F14 VERDE')
 
 

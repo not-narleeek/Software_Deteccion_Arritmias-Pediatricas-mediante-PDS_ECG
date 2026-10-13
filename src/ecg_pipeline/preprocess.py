@@ -133,7 +133,7 @@ def detectar_espiculas_multiderivacion(
     return np.asarray(fusion, dtype=int)
 
 
-def documentar_respuesta(spec: FilterSpec = FilterSpec(), salida: str = 'results/figuras') -> None:
+def documentar_respuesta(spec: FilterSpec = FilterSpec(), salida: str = 'results/fase2_pipeline/figuras') -> None:
     """Genera módulo/fase vs frecuencia por filtro y tabla de ganancias
     en 0.5/40/49.5/50/50.5 Hz (RF2, §3.3)."""
     out = Path(salida)

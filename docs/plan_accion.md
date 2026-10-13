@@ -117,7 +117,7 @@ Serie que re-ejecuta Etapa II sobre el corpus ampliado (AP-13):
   Paced 0,34). Confusión dominante SVT↔Sinusal (EAT vs sinuso-taquicardia).
   Transferencia ZZU→Leipzig F1 0,36; Leipzig→ZZU 0,10 (domain shift
   cuantificado, evidencia para el FPS). Brier < 0,04 (KPI de calibración
-  cumplido). Estado completo: results/experimento_corpus/.
+  cumplido). Estado completo: results/fase2_pipeline/experimento_corpus/.
 
 Consecuencia para el acta: el KPI 4 (F1 ≥ 0,80 por clase) requiere
 enmienda con el experto (alcance por clase primaria + nivel registro, o

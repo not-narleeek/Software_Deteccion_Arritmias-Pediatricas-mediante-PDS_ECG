@@ -20,11 +20,11 @@ Feedback recibido (2 puntos):
 
 | Hecho | Cifra | Fuente |
 |---|---|---|
-| Techo SVM/RF tras 3 iteraciones autorizadas | F1 macro 0,518 (RF); SVT 0,35 / VT 0,43 / Paced 0,34 | `results/experimento_corpus/` |
+| Techo SVM/RF tras 3 iteraciones autorizadas | F1 macro 0,518 (RF); SVT 0,35 / VT 0,43 / Paced 0,34 | `results/fase2_pipeline/experimento_corpus/` |
 | Confusión estructural a 10 s con features manuales | SVT(EAT)↔sinuso-taquicardia: 87+363 registros cruzados | F14, §3.2 etapa2 |
 | Domain shift entre poblaciones (histórico) | ZZU→Leipzig F1 0,36; Leipzig→ZZU 0,10 | F14, docs/etapa2_corpus_combinado.md §3.3 (evidencia purgada 13-oct) |
 | Calibración (fortaleza a preservar) | Brier multiclase 0,037 (KPI ✅) | ídem |
-| Corpus ZZU tras QC 100 % | 13.436 estudios / 11.643 pacientes / 500 Hz | `results/qc_zzu/` |
+| Corpus ZZU tras QC 100 % | 13.436 estudios / 11.643 pacientes / 500 Hz | `results/fase1_limpieza/qc_zzu/` |
 | GPU local | No existe (CPU 13 GB RAM) → entrenamiento externo obligatorio | `nvidia-smi` falla |
 
 Los dos puntos del feedback son consistentes con la evidencia propia: la mezcla
@@ -85,7 +85,7 @@ final (D6).
 semillas sobre train+val, seleccionar por val, evaluar UNA vez en test con la
 batería §8.2 completa (Se/Sp/F1 por clase a nivel ventana y registro-voto,
 matrices, Brier, confiabilidad, IC bootstrap) — mismo esquema de
-`results/experimento_corpus/` para la tabla comparativa SVM/RF vs DL.
+`results/fase2_pipeline/experimento_corpus/` para la tabla comparativa SVM/RF vs DL.
 
 ```mermaid
 flowchart LR
@@ -104,7 +104,7 @@ flowchart LR
 ## 3. Hitos F15–F19 (continúa la serie de commits)
 
 ### F15 — Empaquetado de datos para DL (local, sin GPU)
-- `scripts/empaquetar_shards_dl.py`: recorre `results/corpus/indice_ventanas.csv`
+- `scripts/empaquetar_shards_dl.py`: recorre `results/fase2_pipeline/corpus/indice_ventanas.csv`
   (solo `fuente=zzu`), aplica `io.cargar_ventana` + `preprocess.preprocesar`,
   escribe tensores **int16** (ganancia 1 µV/LSB, rango ±32 mV) en shards
   ~1 GB + manifiesto (window_id, paciente, registro, clase, shard, offset,

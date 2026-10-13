@@ -12,7 +12,7 @@ cumple:
      7 en 12-deriv; V1 índice 6 en 9-deriv) devuelven picos con FC
      plausible.
 
-Salida: results/corpus/indice_ventanas.csv + verificacion_corpus.txt.
+Salida: results/fase2_pipeline/corpus/indice_ventanas.csv + verificacion_corpus.txt.
 
 Uso:  uv run python scripts/validar_corpus.py
 """
@@ -29,8 +29,8 @@ sys.path.insert(0, str(ROOT / 'src'))
 from ecg_pipeline import io, preprocess  # noqa: E402
 from ecg_pipeline.features import detectar_picos_r_fusion  # noqa: E402
 
-OUT = ROOT / 'results' / 'corpus'
-QC_ZZU = ROOT / 'results' / 'qc_zzu' / 'qc_registros.csv'
+OUT = ROOT / 'results' / 'fase2_pipeline' / 'corpus'
+QC_ZZU = ROOT / 'results' / 'fase1_limpieza' / 'qc_zzu' / 'qc_registros.csv'
 
 errores: list[str] = []
 

@@ -18,7 +18,7 @@ de FC y razón de latidos.
 ACEPTACIÓN (KPI análogo F7): det_ok >= 95 % global y por clase primaria;
 orden de FC verificado.
 
-Salidas: results/validacion_detector_zzu/{deteccion.csv, resumen.txt}.
+Salidas: results/fase2_pipeline/validacion_detector_zzu/{deteccion.csv, resumen.txt}.
 
 Uso:  uv run python scripts/validar_detector_zzu.py
 """
@@ -36,8 +36,8 @@ sys.path.insert(0, str(ROOT / 'src'))
 from ecg_pipeline import io, preprocess  # noqa: E402
 from ecg_pipeline.features import detectar_picos_r_fusion  # noqa: E402
 
-QC = ROOT / 'results' / 'qc_zzu' / 'qc_registros.csv'
-OUT = ROOT / 'results' / 'validacion_detector_zzu'
+QC = ROOT / 'results' / 'fase1_limpieza' / 'qc_zzu' / 'qc_registros.csv'
+OUT = ROOT / 'results' / 'fase2_pipeline' / 'validacion_detector_zzu'
 FS = 500
 WORKERS = 6
 SEED = 11

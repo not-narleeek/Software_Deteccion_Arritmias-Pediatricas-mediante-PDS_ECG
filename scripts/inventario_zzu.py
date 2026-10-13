@@ -5,7 +5,7 @@ ECG (500 Hz, WFDB) de 11.643 niños 0–14 años hospitalizados. Etiquetas por
 registro: enunciados ECG AHA/ACC/HRS 2007 + CHN 2019 (multi-etiqueta con
 ';') e ICD-10 de alta; SQI por derivación (pSQI/basSQI/bSQI).
 
-Genera (results/inventario_zzu/):
+Genera (results/fase1_limpieza/inventario_zzu/):
 
   registros.csv   — metadatos + clase mapeada + SQI mínimo por registro
   aha.csv         — frecuencia de cada enunciado AHA (código base)
@@ -39,7 +39,7 @@ RAIZ = Path(__file__).resolve().parents[1]
 DATA = RAIZ / 'data' / 'zzu_pecg' / 'Child_ecg'
 DICC = RAIZ / 'data' / 'zzu_pecg' / 'downloads' / 'AttributesDictionary.csv'
 CODIGOS = RAIZ / 'data' / 'zzu_pecg' / 'downloads' / 'ECGCode.csv'
-OUT = RAIZ / 'results' / 'inventario_zzu'
+OUT = RAIZ / 'results' / 'fase1_limpieza' / 'inventario_zzu'
 
 FS_ESPERADA = 500
 

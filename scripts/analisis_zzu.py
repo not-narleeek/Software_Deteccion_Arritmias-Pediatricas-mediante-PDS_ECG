@@ -19,7 +19,7 @@ Cuatro bloques:
      flatline (ventanas 1 s con std==0), pico espectral en 49–51 Hz vs
      piso 20–40 Hz (interferencia de red), potencia < 0,5 Hz (deriva).
 
-Salidas (results/analisis_zzu/): demografia.csv, multietiqueta.csv,
+Salidas (results/fase1_limpieza/analisis_zzu/): demografia.csv, multietiqueta.csv,
 coocurrencia.csv, hr_muestra.csv, hr_por_clase.csv, senal_muestra.csv,
 resumen.txt.
 
@@ -43,8 +43,8 @@ from ecg_pipeline.features import detectar_picos_r  # noqa: E402
 from inventario_zzu import CLASES, base, tokens  # noqa: E402
 
 DATA = RAIZ / 'data' / 'zzu_pecg' / 'Child_ecg'
-REG = RAIZ / 'results' / 'inventario_zzu' / 'registros.csv'
-OUT = RAIZ / 'results' / 'analisis_zzu'
+REG = RAIZ / 'results' / 'fase1_limpieza' / 'inventario_zzu' / 'registros.csv'
+OUT = RAIZ / 'results' / 'fase1_limpieza' / 'analisis_zzu'
 
 FS = 500
 SEED = 42

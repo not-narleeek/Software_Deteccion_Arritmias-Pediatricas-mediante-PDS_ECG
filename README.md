@@ -46,11 +46,11 @@ Diagnóstico de ritmo + porcentaje de certeza
 - Etiquetas por registro: enunciados ECG AHA/ACC/HRS 2007 + ICD-10 + índices de calidad (pSQI/basSQI/bSQI)
 - Tras QC del 100 % del corpus: **13.436 estudios aceptados** (754 excluidos con causa) — Sinusal 7.238 / Otro 5.767 / SVT 317 / VT 92 / Paced 22
 
-> Ningún dataset se encuentra en este repositorio (peso excesivo, excluidos vía `.gitignore` bajo `data/`). Descarga y verificación de ZZU pECG: checksums y URLs en [results/inventario_zzu/fuente.txt](results/inventario_zzu/fuente.txt) y metodología completa en [docs/metodologia_zzu_pecg.md](docs/metodologia_zzu_pecg.md).
+> Ningún dataset se encuentra en este repositorio (peso excesivo, excluidos vía `.gitignore` bajo `data/`). Descarga y verificación de ZZU pECG: checksums y URLs en [results/fase1_limpieza/inventario_zzu/fuente.txt](results/fase1_limpieza/inventario_zzu/fuente.txt) y metodología completa en [docs/metodologia_zzu_pecg.md](docs/metodologia_zzu_pecg.md).
 >
 > **Historial:** el dataset Leipzig Heart Center (PhysioNet, 2025) se usó como corpus de desarrollo en la Etapa I (F1–F9, method development y validación del detector). Eliminado del proyecto el 13-oct-2026 por decisión del equipo (ZZU-only); su evidencia histórica queda descrita en los docs de etapa y en el historial de git.
 
-Scripts del corpus ZZU (rama `busqueda-datos`): `scripts/inventario_zzu.py` (inventario + mapeo AHA→clases), `scripts/analisis_zzu.py` (análisis exploratorio), `scripts/qc_zzu.py` (control de calidad 100 %). Evidencia en `results/inventario_zzu/`, `results/analisis_zzu/`, `results/qc_zzu/`.
+Scripts del corpus ZZU (rama `busqueda-datos`): `scripts/inventario_zzu.py` (inventario + mapeo AHA→clases), `scripts/analisis_zzu.py` (análisis exploratorio), `scripts/qc_zzu.py` (control de calidad 100 %). Evidencia en `results/fase1_limpieza/inventario_zzu/`, `results/fase1_limpieza/analisis_zzu/`, `results/fase1_limpieza/qc_zzu/`.
 
 ## Objetivos y métricas de éxito (KPI)
 
