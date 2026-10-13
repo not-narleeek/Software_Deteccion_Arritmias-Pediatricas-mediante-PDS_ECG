@@ -1,10 +1,9 @@
-"""Extracción de features sobre el corpus combinado — F13, Etapa II.
+"""Extracción de features sobre el corpus ZZU — F13, Etapa II.
 
 Dataset de ventanas (una fila por ventana de results/corpus/
 indice_ventanas.csv) con el vector §6 de 46 features + wavelet, para las
 CLASES PRIMARIAS (Sinusal/SVT/VT/Paced; 'Otro' es clase reportada, no
-objetivo — docs/etapa1_zzu_pecg.md §4.5). AFL de Leipzig se reporta dentro
-de SVT (AP-2 análogo).
+objetivo — docs/etapa1_zzu_pecg.md §4.5).
 
 Pipeline por registro (paralelo, 6 workers): cargar → preprocesar
 completo (FilterSpec fs por fuente) → detectar R (fusión II+V2 o II+V1 si
@@ -40,15 +39,9 @@ PRIMARIAS = ('Sinusal', 'SVT', 'VT', 'Paced')
 
 def procesar_registro(args: tuple) -> list[dict]:
     reg, fuente, filas_idx = args
-    if fuente == 'leipzig':
-        ruta = next((ROOT / 'data').glob('leipzig-heart-center-ecg-*')) / reg
-        x, fs, _ = io.cargar_registro(ruta)
-        presentes = io.SURFACE
-        edad, sexo = io.demografia(ruta)
-    else:
-        x, fs, presentes = io.cargar_registro_zzu(reg)
-        edad = float(filas_idx[0]['edad_anos'])
-        sexo = int(filas_idx[0]['sexo'])
+    x, fs, presentes = io.cargar_registro_zzu(reg)
+    edad = float(filas_idx[0]['edad_anos'])
+    sexo = int(filas_idx[0]['sexo'])
     spec = preprocess.FilterSpec(fs=int(fs))
     y = preprocess.preprocesar(x, spec)
     idx_v = 7 if 'V2' in presentes else 6
@@ -74,7 +67,6 @@ def main() -> None:
     OUT.mkdir(parents=True, exist_ok=True)
     idx = pd.read_csv(IDX)
     idx = idx[idx.clase.isin(PRIMARIAS)].copy()
-    idx.loc[idx.clase == 'AFL', 'clase'] = 'SVT'  # AFL→SVT (AP-2)
     idx['clase'] = idx.clase.astype(str)
 
     trabajos = [

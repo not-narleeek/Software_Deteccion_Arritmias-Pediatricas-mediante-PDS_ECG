@@ -125,6 +125,28 @@ reposicionamiento como soporte diagnóstico con reporte de certeza) — la
 brecha es estructural del enfoque SVM/RF + features manuales sobre
 ventanas de 10 s, no de implementación.
 
+### Hitos F15–F19 — Etapa II-bis: Deep Learning sobre ZZU pECG (rama `dl-zzu`, 12-oct)
+
+Feedback D. Maureira (reunión 2026-10-12): (1) entrenar solo con ZZU pECG
+(dataset con más datos; evitar fallas por población); (2) DL + Optuna en
+Colab/instancia gratuita, dado el techo de SVM/RF (F1 macro 0,518) y el
+volumen >13.000 estudios. Plan completo con decisiones D1–D6, espacio Optuna,
+presupuesto de cómputo y riesgos: **[docs/plan_dl_zzu.md](plan_dl_zzu.md)**.
+
+- **F15** shards int16 de ventanas ZZU (≈8 GB, Drive) + splits 80/10/10 por
+  paciente + verificación bit-exacta — local CPU.
+- **F16** baseline ResNet-1D 12×5.000 en Colab T4 — gate: F1 macro val
+  (ZZU, por paciente) **> 0,518** antes de seguir.
+- **F17** campaña Optuna única autorizada (60–100 trials, MedianPruner,
+  reanudable, journal en Drive).
+- **F18** reentrenos 5 semillas + test ÚNICO con batería §8.2 + temperature
+  scaling + validación externa Leipzig (domain shift, no KPI).
+- **F19** gate de decisión: KPI → enmienda del acta (opción b) o
+  reposicionamiento screening (opción c); cierre AP-14.
+
+El pipeline PDS F6–F13 y la demo E5 no cambian: DL reemplaza solo el bloque
+clasificador F14.
+
 ## 3. Etapa III — informe final + defensa (nov–dic)
 
 1. **FPS (informe final):** consolidar resultados de Etapa II con limitaciones explícitas
@@ -152,6 +174,12 @@ ventanas de 10 s, no de implementación.
 Margen: ~2 semanas de holgura antes del 20-dic para absorbimiento de retrasos (principal
 riesgo: RS4 respuesta tardía del experto → no bloquea F6–F8; solo F9-final y la enmienda
 del acta).
+
+**Replanificación 12-oct (post feedback D. Maureira):** F6–F14 cerraron con
+~4 semanas de adelanto (sep). El tramo 18-oct–06-nov pasa a F15–F18 (DL
+ZZU-only, calendario detallado en [docs/plan_dl_zzu.md](plan_dl_zzu.md) §6),
+F19 ocupa 10–14 nov y la Etapa III corre 17-nov→20-dic con la holgura
+original intacta.
 
 ## 5. Convenciones de trabajo en `desarrollo`
 

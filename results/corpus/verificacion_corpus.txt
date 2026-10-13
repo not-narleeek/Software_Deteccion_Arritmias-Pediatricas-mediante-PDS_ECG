@@ -1,16 +1,11 @@
-ventanas combinadas: 66759 (leipzig 8581 / zzu 58178)
-por fuente×clase:
-fuente   clase  
-leipzig  AFL            6
-         Paced        776
-         SVT         1210
-         Sinusal     6587
-         VT             2
-zzu      Otro       24853
-         Paced        104
-         SVT         1501
-         Sinusal    31285
-         VT           435
-calidad_dudosa: 8161 ventanas
+ventanas ZZU: 58178
+por clase:
+clase
+Otro       24853
+Paced        104
+SVT         1501
+Sinusal    31285
+VT           435
+calidad_dudosa: 7892 ventanas
 
 errores: ninguno

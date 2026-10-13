@@ -479,57 +479,6 @@ def vector_caracteristicas(
     return out
 
 
-def construir_dataset(
-    registros: list,
-    spec: 'io.WindowSpec' = None,  # type: ignore[assignment]
-    cache: Path | None = None,
-) -> pd.DataFrame:
-    """Dataset de ventanas con features (una fila por ventana del índice).
-
-    Pipeline por registro: cargar crudo → preprocesar completo → detectar R
-    (fusión II+V2 §4) y espículas (§3.2) sobre la señal completa → rebanar
-    ventanas y calcular vector_caracteristicas. `cache` serializa el
-    resultado (CSV) para no recomputar entre experimentos.
-    """
-    from pathlib import Path as _P
-
-    from . import io as _io
-
-    if cache is not None and _P(cache).exists():
-        return pd.read_csv(cache)
-    spec = spec or _io.WindowSpec()
-    idx = _io.construir_indice_ventanas(registros, spec)
-    filas = []
-    for ruta in registros:
-        nombre = ruta.name
-        filas_idx = idx[idx['registro'] == nombre]
-        if filas_idx.empty:
-            continue
-        x, fs, _ = _io.cargar_registro(ruta)
-        y = preprocess.preprocesar(x)
-        picos = detectar_picos_r_fusion(y.astype(np.float64), fs)
-        espiculas = preprocess.detectar_espiculas_multiderivacion(x.astype(np.float64), fs)
-        edad, sexo = _io.demografia(ruta)
-        for _, fila in filas_idx.iterrows():
-            i0, i1 = int(fila['inicio_muestra']), int(fila['fin_muestra'])
-            loc = picos[(picos >= i0) & (picos < i1)] - i0
-            esp = espiculas[(espiculas >= i0) & (espiculas < i1)] - i0
-            fv = vector_caracteristicas(
-                y[i0:i1], loc, esp, edad, sexo, fs, ventana_raw=x[i0:i1]
-            )
-            fv.update(
-                registro=nombre, ritmo=fila['ritmo'], clase=fila['clase'],
-                calidad_dudosa=bool(fila['calidad_dudosa']),
-                inicio_muestra=i0, fin_muestra=i1,
-            )
-            filas.append(fv)
-        print(f'    {nombre}: {len(filas_idx)} ventanas', flush=True)
-    df = pd.DataFrame(filas)
-    if cache is not None:
-        _P(cache).parent.mkdir(parents=True, exist_ok=True)
-        df.to_csv(cache, index=False)
-    return df
-
 def separabilidad(X: pd.DataFrame, y: pd.Series) -> pd.DataFrame:
     """ANOVA univariada + índice de Fisher por feature (objetivo 2 del acta).
 

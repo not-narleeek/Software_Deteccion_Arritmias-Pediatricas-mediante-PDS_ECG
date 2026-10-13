@@ -1,5 +1,4 @@
-# Dataset Leipzig Heart Center ECG (PhysioNet) — demasiado pesado para el repo.
-# Descargar manualmente desde: https://physionet.org/content/leipzig-heart-center-ecg-database-arrhythmias-in-children-and-patients-with-congenital-heart-disease/
+# Datos crudos (ZZU pECG ~12 GB) — fuera del repo; ver docs/metodologia_zzu_pecg.md
 data/
 
 # Python

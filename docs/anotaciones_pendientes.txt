@@ -139,6 +139,40 @@ Formato: [AP-n] tema | contexto | dónde se resuelve | estado
     Pendiente: enmienda del KPI con D. Maureira + decisión de alcance
     (nivel registro vs ventana). F9 Leipzig histórico en `desarrollo`.
 
+[AP-14] CAMBIO DE ENFOQUE: CORPUS ZZU-ONLY + DEEP LEARNING (FEEDBACK 2026-10-12)
+    Contexto: reunión con D. Maureira (2026-10-12). Recomendaciones: (1) usar
+    SOLO el dataset con más datos (ZZU pECG) porque herramientas entrenadas
+    con datos de una población fallan al diagnosticar a otra, lejana y a
+    veces cercana (confirma el domain shift medido F1 0,10-0,36); (2) dado el
+    techo de SVM/RF (F1 macro 0,518 tras 3 iteraciones) y el volumen
+    >13.000 estudios, pasar a Deep Learning con Optuna para hiperparámetros,
+    entrenando en Google Colab o instancia gratuita.
+    Dónde se resuelve: rama `dl-zzu` — docs/plan_dl_zzu.md (decisiones D1-D6,
+    hitos F15-F19, presupuesto de cómputo) y docs/plan_accion.md (§2 F15-F19,
+    §4 replanificación).
+    Estado: PLAN REDACTADO (2026-10-12) Y CONFIRMADO POR EL EQUIPO (misma
+    fecha): presupuesto $0 — solo versión gratuita de Colab, Kaggle únicamente
+    si Colab falla; D2 confirmada (Leipzig queda excluido SOLO del
+    entrenamiento, se conserva como validación externa). Pendientes: campaña
+    Optuna dentro del tope del plan (<=100 trials + 5 semillas + 2
+    ablaciones); decisiones B1-B4 y enmienda KPI siguen abiertas junto a
+    AP-1/2/3.
+
+
+[AP-15] PURGA COMPLETA DE LEIPZIG — PROYECTO ZZU-ONLY (2026-10-13)
+    Contexto: decisión del equipo. El dataset Leipzig Heart Center se
+    elimina del proyecto por completo (data/, scripts F1-F9, results de
+    inventario/experimento/validacion_*/features, notebooks 01-04 y
+    transferencia F14). Revoca la segunda parte de D2 (validación externa
+    sobre Leipzig): el domain shift queda como evidencia histórica
+    (docs/etapa2_corpus_combinado.md §3.3); la limitación de población se
+    declara en el FPS. Causa de la purga además del enfoque ZZU-only:
+    simplificación del corpus y del mantenimiento.
+    Dónde se resuelve: commits de la purga en la rama
+    `etapa2-corpus-combinado` (io.py/features.py ZZU-only, validar_corpus /
+    extraer_features_corpus / ejecutar_experimento_corpus depurados,
+    F11-F13-F14 re-ejecutados ZZU-only).
+    Estado: RESUELTO 2026-10-13 por equipo.
 ---
 Bitácora de cierre (llenar al resolver):
     [AP-11] resuelto el 2026-09-09 por equipo (F6) — decisión: KPI sobre

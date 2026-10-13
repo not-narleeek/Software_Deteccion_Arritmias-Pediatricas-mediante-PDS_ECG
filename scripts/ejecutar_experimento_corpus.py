@@ -1,18 +1,13 @@
-"""Experimento de clasificación sobre el corpus combinado — F14, Etapa II.
+"""Experimento de clasificación sobre el corpus ZZU — F14, Etapa II.
 
-Retoma el F9 pausado (WIP 4d52c10, Leipzig solo, Paced colapsaba por falta
-de datos) sobre el corpus ampliado (F13: ventanas_features.csv).
+Corpus ZZU-only (depuración oct-2026: Leipzig eliminado del proyecto).
 
 Diseño (docs/etapa1_zzu_pecg.md §4.1/§4.7):
 
-  A. Validación dentro de ZZU: 5-fold GroupKFold por PACIENTE anidado
-     (models.validacion_grupos) — SVM-RBF primario y RF comparador.
-  B. Transferencia por población (cuantifica el domain shift advertido por
-     el experto): entrenar en ZZU → evaluar en Leipzig pediátrico (ventanas
-     10 s), y el reverso. Nunca se mezclan poblaciones en un mismo fold.
+  Validación dentro de ZZU: 5-fold GroupKFold por PACIENTE anidado
+  (models.validacion_grupos) — SVM-RBF primario y RF comparador.
   KPI (acta §5, enmienda AP-1 'por clase primaria'): Se/Sp global >= 85 %,
-  F1 >= 0.80 por clase primaria, Brier < 0.2 — experimento A. B se reporta
-  como evidencia de limitación.
+  F1 >= 0.80 por clase primaria, Brier < 0.2.
 
 F14-bis: submuestreo de la clase mayoritaria (ratio 3x segunda clase) SOLO
 en entrenamiento (diagnóstico F14: colapso a Sinusal con 95 % de mayoría).
@@ -32,8 +27,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / 'src'))
 
 from ecg_pipeline.models import (  # noqa: E402
-    ExperimentSpec, _resultado, curvas_confiabilidad, entrenar_calibrado,
-    submuestrear_mayoria, validacion_grupos,
+    ExperimentSpec, curvas_confiabilidad, validacion_grupos,
 )
 
 FEAT = ROOT / 'results' / 'corpus' / 'ventanas_features.csv'
@@ -66,14 +60,12 @@ def main() -> None:
     print(f'{len(df)} ventanas, {len(feats)} features, clases: '
           f'{df.clase.value_counts().to_dict()}')
 
-    X, y, pac, fuente = df[feats], df.clase, df.paciente, df.fuente
-
-    # --- A: dentro de ZZU, GroupKFold por paciente ---
-    m_zzu = fuente == 'zzu'
+    X, y, pac = df[feats], df.clase, df.paciente
     resumen = {}
     for modelo in ('svm', 'rf'):
-        print(f'== A: {modelo} (ZZU, GroupKFold-5 por paciente, equilibrar 3x) ==', flush=True)
-        res = validacion_grupos(X[m_zzu], y[m_zzu], pac[m_zzu], k=5,
+        print(f'== {modelo} (ZZU, GroupKFold-5 por paciente, equilibrar 3x) ==',
+              flush=True)
+        res = validacion_grupos(X, y, pac, k=5,
                                 spec=ExperimentSpec(modelo=modelo), equilibrar=3.0)
         resumen[modelo] = exportar(res, modelo, OUT / modelo)
         mc = resumen[modelo]
@@ -81,25 +73,7 @@ def main() -> None:
               f"{mc['macro']['especificidad']:.3f} F1 {mc['macro']['f1']:.3f} "
               f"Brier {mc['brier']:.3f}")
 
-    # --- B: transferencia entre poblaciones (train equilibrado) ---
-    print('== B: transferencia ZZU→Leipzig y Leipzig→ZZU (SVM) ==', flush=True)
-    trans = {}
-    for nombre, tr_m, te_m in (('zzu_a_leipzig', m_zzu, ~m_zzu),
-                               ('leipzig_a_zzu', ~m_zzu, m_zzu)):
-        X_tr, y_tr, g_tr = submuestrear_mayoria(
-            X[tr_m].to_numpy(float), y[tr_m].to_numpy(), pac[tr_m].to_numpy(), 3.0)
-        modelo = entrenar_calibrado(X_tr, y_tr, g_tr)
-        proba = modelo.predict_proba(X[te_m].to_numpy(float))
-        clases = np.array(modelo.classes_)
-        pred = clases[np.argmax(proba, axis=1)]
-        yt = y[te_m].to_numpy()
-        res = _resultado(yt, pred, proba, pac[te_m].tolist())
-        trans[nombre] = exportar(res, nombre, OUT / 'transferencia' / nombre)
-        mc = trans[nombre]
-        print(f"   {nombre}: F1 macro {mc['macro']['f1']:.3f} "
-              f"Brier {mc['brier']:.3f}")
-
-    # --- KPI (experimento A, modelo primario SVM) ---
+    # --- KPI (modelo primario SVM) ---
     svm = resumen['svm']
     f1_ok = all(v['f1'] >= 0.80 for v in svm['por_clase'].values())
     kpi = {'se_sp': svm['macro']['sensibilidad'] >= .85
