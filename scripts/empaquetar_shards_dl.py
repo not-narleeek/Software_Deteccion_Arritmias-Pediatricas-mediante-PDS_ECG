@@ -185,6 +185,16 @@ def _verificar(idx: pd.DataFrame, man: pd.DataFrame, splits: pd.Series,
     (OUT / 'normalizacion.json').write_text(json.dumps(norm, indent=2))
     return errores
 
+def _volcar(buf: list[np.ndarray], manifiesto: list[dict], shard: int) -> None:
+    arr = np.stack(buf)
+    np.save(OUT / 'shards' / f'shard_{shard:03d}.npy', arr)
+    print(f'    shard_{shard:03d}.npy: {arr.shape} '
+          f'({arr.nbytes / 1e9:.2f} GB)', flush=True)
+
+
+def _hop_de(window_id: str) -> int:
+    return int(window_id.rsplit('_', 1)[1])
+
 
 def _inicio_de(window_id: str, registro: str, idx: pd.DataFrame) -> int:
     fila = idx[(idx.registro == registro)
