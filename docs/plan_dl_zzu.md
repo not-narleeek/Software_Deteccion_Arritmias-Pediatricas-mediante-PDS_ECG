@@ -103,18 +103,22 @@ flowchart LR
 
 ## 3. Hitos F15–F19 (continúa la serie de commits)
 
-### F15 — Empaquetado de datos para DL (local, sin GPU)
-- `scripts/empaquetar_shards_dl.py`: recorre `results/fase2_pipeline/corpus/indice_ventanas.csv`
-  (solo `fuente=zzu`), aplica `io.cargar_ventana` + `preprocess.preprocesar`,
-  escribe tensores **int16** (ganancia 1 µV/LSB, rango ±32 mV) en shards
-  ~1 GB + manifiesto (window_id, paciente, registro, clase, shard, offset,
-  escala). Total ≈ 8 GB con 'Otro' (5 GB solo primarias).
-- Verificación (falla con exit ≠ 0): conteos == índice; reconstrucción
-  bit-exacta de 200 ventanas aleatorias vs `io.cargar_ventana`; disjointness
-  por paciente de las 3 particiones; estadísticos de normalización solo de
-  train. Salidas: `results/dl/shards/` + `results/dl/verificacion_shards.txt`.
-- Subida única a Google Drive (cuota gratuita 15 GB ≥ 8 GB + `optuna.db` +
-  checkpoints).
+### F15 — Empaquetado de datos para DL (**en Colab**, política 13-oct)
+`scripts/empaquetar_shards_dl.py` + `notebooks/05_dl_colab.ipynb`: el cómputo
+corre en el runtime de Colab (el local queda solo para revisión). Recorre
+`results/fase2_pipeline/corpus/indice_ventanas.csv` (ZZU-only), aplica
+`io.cargar_registro_zzu` + `preprocess.preprocesar` una vez por registro,
+cuantiza a **int16** (1 µV/LSB) y escribe shards ~1 GB + manifiesto
+(window_id, paciente, registro, clase, shard, offset). Total ≈ 7 GB con
+'Otro' (~4 GB solo primarias, `--sin-otro`). Partición 80/10/10 por paciente
+estratificada → `results/dl/splits.csv`; estadísticos de normalización solo
+de train → `results/dl/normalizacion.json`.
+
+Verificación (falla con exit ≠ 0): conteos == índice; reconstrucción
+bit-exacta de 200 ventanas; particiones disjuntas por paciente. Shards a
+Drive (gitignore), manifiesto/splits/stats al repo. La subida del dato
+crudo ZZU al runtime está en el notebook (descarga multipartito + MD5 +
+extracción 7z, docs/metodologia_zzu_pecg.md §1).
 
 ### F16 — Baseline DL en Colab (gate temprano)
 - `notebooks/05_dl_colab.ipynb`: monta Drive, memmap de shards, DataLoader con

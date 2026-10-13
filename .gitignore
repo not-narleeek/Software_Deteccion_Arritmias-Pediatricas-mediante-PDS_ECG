@@ -10,3 +10,6 @@ venv/
 # Notebooks
 .ipynb_checkpoints/
 
+
+# Shards DL (int16, ~1 GB c/u) — viven en Drive, no en git (plan_dl_zzu F15)
+results/dl/shards/
