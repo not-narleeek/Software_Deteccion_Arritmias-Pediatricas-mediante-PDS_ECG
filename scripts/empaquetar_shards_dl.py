@@ -120,6 +120,7 @@ def main() -> None:
                 f['shard'], f['offset'] = shard_actual, offset
                 manifiesto.append({k: v for k, v in f.items() if k != '_ventana'})
                 buf.append(f['_ventana'])
+                offset += 1
             if i % 500 == 0:
                 print(f'    {i}/{len(trabajos)} registros', flush=True)
     if buf:
