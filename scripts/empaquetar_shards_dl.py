@@ -96,6 +96,15 @@ def main() -> None:
     idx = pd.read_csv(IDX)
     if SIN_OTRO:
         idx = idx[idx.clase.isin(('Sinusal', 'SVT', 'VT', 'Paced'))]
+    if '--verificar' in sys.argv:
+        # reusa manifiesto/splits ya generados (p. ej. tras interrumpir la
+        # verificación): solo corre el gate y escribe normalizacion/reporte
+        man = pd.read_csv(OUT / 'manifiesto.csv')
+        splits = pd.read_csv(OUT / 'splits.csv', index_col=0)['particion']
+        man = man.merge(splits, left_on='paciente', right_index=True)
+        errores += _verificar(idx, man, splits)
+        _reporte(man, errores)
+        return
     (OUT / 'shards').mkdir(parents=True, exist_ok=True)
     print(f'{len(idx)} ventanas a empaquetar '
           f'({SIN_OTRO and "solo primarias" or "con Otro"})', flush=True)
@@ -134,10 +143,14 @@ def main() -> None:
     splits.to_csv(OUT / 'splits.csv')
     man = man.merge(splits, left_on='paciente', right_index=True)
 
-    errores += _verificar(idx, man, splits, n_shards)
+    errores += _verificar(idx, man, splits)
+    _reporte(man, errores)
 
+
+def _reporte(man: pd.DataFrame, errores: list[str]) -> None:
+    n_shards = int(man.shard.max()) + 1
     (OUT / 'verificacion_shards.txt').write_text('\n'.join([
-        f'ventanas: {len(man)} en {n_shards + 1} shards',
+        f'ventanas: {len(man)} en {n_shards} shards',
         'por partición: ' + str(man.particion.value_counts().to_dict()),
         'clases por partición:\n' + man.groupby(['particion', 'clase']).size().to_string(),
         '', 'errores: ' + ('ninguno' if not errores else str(errores)),
@@ -146,8 +159,9 @@ def main() -> None:
         sys.exit(f'F15 FALLA: {errores}')
     print('F15 VERDE')
 
-def _verificar(idx: pd.DataFrame, man: pd.DataFrame, splits: pd.Series,
-               n_shards: int) -> list[str]:
+def _verificar(idx: pd.DataFrame, man: pd.DataFrame, splits: pd.Series) -> list[str]:
+    print('verificando (conteos, 200 reconstrucciones bit-exacta, disjointness; '
+          '2-3 min sin output por ventana)', flush=True)
     errores: list[str] = []
     # 1. conteos e ids únicos
     if len(man) != len(idx):
@@ -155,9 +169,11 @@ def _verificar(idx: pd.DataFrame, man: pd.DataFrame, splits: pd.Series,
     if man.window_id.duplicated().any():
         errores.append('window_id duplicados en el manifiesto')
     # 2. reconstrucción bit-exacta de 200 ventanas aleatorias
-    muestra = man.sample(200, random_state=7)
+    muestra = man.sample(min(200, len(man)), random_state=7)
     shards_cache: dict[int, np.ndarray] = {}
-    for _, w in muestra.iterrows():
+    for j, (_, w) in enumerate(muestra.iterrows(), 1):
+        if j % 50 == 0:
+            print(f'    bit-exacta {j}/200', flush=True)
         s = int(w.shard)
         if s not in shards_cache:
             shards_cache[s] = np.load(OUT / 'shards' / f'shard_{s:03d}.npy')
