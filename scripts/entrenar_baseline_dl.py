@@ -38,7 +38,7 @@ class VentanasDL(Dataset):
     """Memmap de shards + manifiesto; indexa (shard, offset) por partición."""
 
     def __init__(self, man: pd.DataFrame, particion: str, dir_shards: Path,
-                 media: np.ndarray, desv: np.ndarray):
+                 media: np.ndarray, desv: np.ndarray, recorte: int = 0):
         self.filas = man[man.particion == particion].reset_index(drop=True)
         self.shards = {s: np.load(dir_shards / f'shard_{s:03d}.npy',
                                   mmap_mode='r')
@@ -54,6 +54,8 @@ class VentanasDL(Dataset):
         f = self.filas.iloc[i]
         x = torch.from_numpy(                        # copia: memmap no escribible
             np.asarray(self.shards[f.shard][f.offset]).copy())
+        if self.recorte:                             # humo: 2,5 s @ 500 Hz
+            x = x[:, :self.recorte]
         x = (x.float() / 1000.0 - self.media) / self.desv  # int16→mV→z-score
         return x, CLASES.index(f.clase)
 
@@ -77,16 +79,17 @@ class Bloque(nn.Module):
 
 
 class ResNet1D(nn.Module):
-    """ResNet-1D sensata por defecto: stem 12→64 + 4 etapas → AvgPool → FC."""
+    """ResNet-1D: stem 12→64 + 4 etapas → AvgPool → FC (±anchura en escala)."""
 
-    def __init__(self, n_clases: int = len(CLASES)):
+    def __init__(self, n_clases: int = len(CLASES), escala: int = 1):
         super().__init__()
-        self.stem = nn.Sequential(nn.Conv1d(12, 64, 15, 2, 7, bias=False),
-                                  nn.BatchNorm1d(64), nn.ReLU())
-        etapas, c = [], 64
+        w = (lambda c: max(16, c // escala))
+        self.stem = nn.Sequential(nn.Conv1d(12, w(64), 15, 2, 7, bias=False),
+                                  nn.BatchNorm1d(w(64)), nn.ReLU())
+        etapas, c = [], w(64)
         for c_out, stride in ((64, 1), (128, 2), (256, 2), (512, 2)):
-            etapas.append(Bloque(c, c_out, stride))
-            c = c_out
+            etapas.append(Bloque(c, w(c_out), stride))
+            c = w(c_out)
         self.etapas = nn.Sequential(*etapas)
         self.cabeza = nn.Sequential(nn.AdaptiveAvgPool1d(1), nn.Flatten(),
                                     nn.Dropout(0.2), nn.Linear(c, n_clases))
@@ -147,11 +150,17 @@ def main() -> None:
         man = pd.concat([g.sample(min(len(g), 200), random_state=args.semilla)
                          for _, g in man.groupby('clase')])
 
-    train_ds = VentanasDL(man, 'train', REPO_DL / 'shards', media, desv)
+    # humo: misma tubería con config ligera (ventanas de 2,5 s, anchura /4)
+    # para que quepa en la CPU de 2 vCPU del runtime gratuito en ~1 min
+    recorte, escala = (1250, 4) if args.humo else (0, 1)
+
+    train_ds = VentanasDL(man, 'train', REPO_DL / 'shards', media, desv,
+                          recorte=recorte)
     if not args.humo and not torch.cuda.is_available():
         sys.exit('F16 FALLA: el entrenamiento completo exige GPU (runtime T4); '
                  'usa --humo para el humo en CPU')
-    val_ds = VentanasDL(man, 'val', REPO_DL / 'shards', media, desv)
+    val_ds = VentanasDL(man, 'val', REPO_DL / 'shards', media, desv,
+                        recorte=recorte)
     dispositivo = 'cuda' if torch.cuda.is_available() else 'cpu'
     print(f'train={len(train_ds)} val={len(val_ds)} '
           f'epocas={2 if args.humo else args.epocas} dispositivo={dispositivo}',
@@ -162,7 +171,7 @@ def main() -> None:
         pin_memory=dispositivo == 'cuda', drop_last=entrena))
     train_dl, val_dl = cargador(train_ds, True), cargador(val_ds, False)
 
-    modelo = ResNet1D().to(dispositivo)
+    modelo = ResNet1D(escala=escala).to(dispositivo)
     # pesos de clase balanceados (Otro/Sinusal dominan; Paced 86 ventanas)
     conteo = train_ds.filas.clase.value_counts()
     pesos = torch.tensor([len(train_ds) / (len(CLASES) * conteo[c])
