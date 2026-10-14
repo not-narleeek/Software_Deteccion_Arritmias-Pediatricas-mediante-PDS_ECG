@@ -17,6 +17,7 @@ Salidas en --salida (apúntalo a Drive en Colab):
 import argparse
 import json
 import random
+import sys
 import time
 from pathlib import Path
 
@@ -42,15 +43,17 @@ class VentanasDL(Dataset):
         self.shards = {s: np.load(dir_shards / f'shard_{s:03d}.npy',
                                   mmap_mode='r')
                        for s in self.filas.shard.unique()}
-        self.media = torch.tensor(media, dtype=torch.float32).view(1, 12, 1)
-        self.desv = torch.tensor(desv, dtype=torch.float32).view(1, 12, 1)
+        # (12,1): difunde contra una ventana [12,5000] sin subir el rango
+        self.media = torch.tensor(media, dtype=torch.float32).view(12, 1)
+        self.desv = torch.tensor(desv, dtype=torch.float32).view(12, 1)
 
     def __len__(self) -> int:
         return len(self.filas)
 
     def __getitem__(self, i: int):
         f = self.filas.iloc[i]
-        x = torch.from_numpy(np.asarray(self.shards[f.shard][f.offset]))
+        x = torch.from_numpy(                        # copia: memmap no escribible
+            np.asarray(self.shards[f.shard][f.offset]).copy())
         x = (x.float() / 1000.0 - self.media) / self.desv  # int16→mV→z-score
         return x, CLASES.index(f.clase)
 
@@ -141,11 +144,13 @@ def main() -> None:
     media, desv = np.array(norm['media_mv']), np.array(norm['desv_mv'])
 
     if args.humo:  # submuestreo determinista: ≤200 ventanas por clase
-        man = (man.groupby('clase', group_keys=False)
-                  .apply(lambda g: g.sample(min(len(g), 200),
-                                            random_state=args.semilla)))
+        man = pd.concat([g.sample(min(len(g), 200), random_state=args.semilla)
+                         for _, g in man.groupby('clase')])
 
     train_ds = VentanasDL(man, 'train', REPO_DL / 'shards', media, desv)
+    if not args.humo and not torch.cuda.is_available():
+        sys.exit('F16 FALLA: el entrenamiento completo exige GPU (runtime T4); '
+                 'usa --humo para el humo en CPU')
     val_ds = VentanasDL(man, 'val', REPO_DL / 'shards', media, desv)
     dispositivo = 'cuda' if torch.cuda.is_available() else 'cpu'
     print(f'train={len(train_ds)} val={len(val_ds)} '
