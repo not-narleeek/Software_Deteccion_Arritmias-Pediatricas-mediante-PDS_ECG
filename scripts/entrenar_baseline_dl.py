@@ -46,6 +46,7 @@ class VentanasDL(Dataset):
         # (12,1): difunde contra una ventana [12,5000] sin subir el rango
         self.media = torch.tensor(media, dtype=torch.float32).view(12, 1)
         self.desv = torch.tensor(desv, dtype=torch.float32).view(12, 1)
+        self.recorte = recorte
 
     def __len__(self) -> int:
         return len(self.filas)
