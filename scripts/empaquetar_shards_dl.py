@@ -170,14 +170,15 @@ def _verificar(idx: pd.DataFrame, man: pd.DataFrame, splits: pd.Series) -> list[
         errores.append('window_id duplicados en el manifiesto')
     # 2. reconstrucción bit-exacta de 200 ventanas aleatorias
     muestra = man.sample(min(200, len(man)), random_state=7)
-    shards_cache: dict[int, np.ndarray] = {}
+    shards_cache: dict[int, np.ndarray] = {}  # memmap: 1 ventana en RAM
     for j, (_, w) in enumerate(muestra.iterrows(), 1):
         if j % 50 == 0:
             print(f'    bit-exacta {j}/200', flush=True)
         s = int(w.shard)
         if s not in shards_cache:
-            shards_cache[s] = np.load(OUT / 'shards' / f'shard_{s:03d}.npy')
-        v = shards_cache[s][int(w.offset)]
+            shards_cache[s] = np.load(OUT / 'shards' / f'shard_{s:03d}.npy',
+                                      mmap_mode='r')
+        v = np.asarray(shards_cache[s][int(w.offset)])
         x, fs, _ = io.cargar_registro_zzu(w.registro)
         y = preprocess.preprocesar(x, preprocess.FilterSpec(fs=int(fs)))
         i0 = _inicio_de(w.window_id, w.registro, idx)
@@ -189,17 +190,33 @@ def _verificar(idx: pd.DataFrame, man: pd.DataFrame, splits: pd.Series) -> list[
     partes = [set(man[man.particion == p].paciente) for p in ('train', 'val', 'test')]
     if (partes[0] & partes[1]) or (partes[0] & partes[2]) or (partes[1] & partes[2]):
         errores.append('particiones comparten pacientes')
-    # 4. estadísticos de normalización SOLO de train (un shard de train)
+    # 4. estadísticos de normalización SOLO de train (un shard de train),
+    #    en chunks para no materializar el shard completo en RAM
     tr = man[man.particion == 'train']
     s0 = int(tr.shard.iloc[0])
-    arr = np.load(OUT / 'shards' / f'shard_{s0:03d}.npy').astype(np.float64) / 1000.0
-    offs = sorted(set(tr[tr.shard == s0].offset.astype(int)))
-    sel = arr[offs]
-    norm = {'media_mv': sel.mean(axis=(0, 2)).round(6).tolist(),
-            'desv_mv': sel.std(axis=(0, 2)).round(6).tolist(),
+    shard = np.load(OUT / 'shards' / f'shard_{s0:03d}.npy', mmap_mode='r')
+    offs = np.array(sorted(set(tr[tr.shard == s0].offset.astype(int))))
+    CH = 256
+    suma = sumsq = None
+    n = 0
+    for k in range(0, len(offs), CH):
+        bloq = shard[offs[k:k + CH]].astype(np.float64) / 1000.0
+        if suma is None:
+            suma = bloq.sum(axis=(0, 2))
+            sumsq = (bloq ** 2).sum(axis=(0, 2))
+        else:
+            suma += bloq.sum(axis=(0, 2))
+            sumsq += (bloq ** 2).sum(axis=(0, 2))
+        n += bloq.shape[0] * bloq.shape[2]
+        print(f'    stats train shard {s0:03d}: {min(k + CH, len(offs))}/{len(offs)}',
+              flush=True)
+    media, var = suma / n, sumsq / n - (suma / n) ** 2
+    norm = {'media_mv': media.round(6).tolist(),
+            'desv_mv': np.sqrt(var).round(6).tolist(),
             'nota': 'z-score por derivación, estadísticos SOLO de train '
                     f'(shard {s0:03d}, {len(offs)} ventanas)'}
     (OUT / 'normalizacion.json').write_text(json.dumps(norm, indent=2))
+    print('    normalizacion.json escrito', flush=True)
     return errores
 
 def _volcar(buf: list[np.ndarray], manifiesto: list[dict], shard: int) -> None:
