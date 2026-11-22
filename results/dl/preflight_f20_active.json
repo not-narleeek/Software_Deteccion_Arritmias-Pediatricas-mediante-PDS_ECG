@@ -1,0 +1,28 @@
+{
+  "estado": "OK",
+  "errores": [],
+  "ventanas": 52594,
+  "particiones": {
+    "train": 46948,
+    "val": 5646
+  },
+  "pacientes": 10031,
+  "clases": {
+    "Sinusal": 28268,
+    "Otro": 22507,
+    "SVT": 1373,
+    "VT": 360,
+    "Paced": 86
+  },
+  "features_hf": [
+    "espiculas_n",
+    "hf_rms_mediana",
+    "hf_rms_max",
+    "hf_q995_mediana",
+    "hf_q995_max",
+    "slew_q999_mediana",
+    "slew_q999_max",
+    "sincronia_hf_q999"
+  ],
+  "test_consultado": false
+}

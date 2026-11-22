@@ -1,0 +1,23 @@
+{
+  "definicion_objetivo": "Paced con evidencia de pacing activo",
+  "paciente_holdout_uncertain": "P05649",
+  "paciente_val_activo": "P05281",
+  "cambios": {
+    "P05649": [
+      "val",
+      "holdout_uncertain"
+    ],
+    "P05281": [
+      "train",
+      "val"
+    ]
+  },
+  "ventanas_sidecar": 52594,
+  "ventanas_por_particion": {
+    "train": 46948,
+    "val": 5646
+  },
+  "ventanas_paced_val": 10,
+  "test_modificado": false,
+  "test_consultado": false
+}

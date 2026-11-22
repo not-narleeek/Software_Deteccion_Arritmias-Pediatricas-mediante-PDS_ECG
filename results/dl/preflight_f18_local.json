@@ -1,0 +1,92 @@
+{
+  "estado": "OK",
+  "errores": [],
+  "advertencias": [
+    "Paced val contiene un solo paciente; F1 inestable"
+  ],
+  "ventanas": 58178,
+  "shards": {
+    "shard_000.npy": {
+      "shape": [
+        8333,
+        12,
+        5000
+      ],
+      "dtype": "int16"
+    },
+    "shard_001.npy": {
+      "shape": [
+        8333,
+        12,
+        5000
+      ],
+      "dtype": "int16"
+    },
+    "shard_002.npy": {
+      "shape": [
+        8333,
+        12,
+        5000
+      ],
+      "dtype": "int16"
+    },
+    "shard_003.npy": {
+      "shape": [
+        8333,
+        12,
+        5000
+      ],
+      "dtype": "int16"
+    },
+    "shard_004.npy": {
+      "shape": [
+        8333,
+        12,
+        5000
+      ],
+      "dtype": "int16"
+    },
+    "shard_005.npy": {
+      "shape": [
+        8333,
+        12,
+        5000
+      ],
+      "dtype": "int16"
+    },
+    "shard_006.npy": {
+      "shape": [
+        8180,
+        12,
+        5000
+      ],
+      "dtype": "int16"
+    }
+  },
+  "conteos": {
+    "test": {
+      "Sinusal": 3017,
+      "SVT": 128,
+      "VT": 75,
+      "Paced": 10,
+      "Otro": 2341
+    },
+    "train": {
+      "Sinusal": 25255,
+      "SVT": 1245,
+      "VT": 312,
+      "Paced": 86,
+      "Otro": 20060
+    },
+    "val": {
+      "Sinusal": 3013,
+      "SVT": 128,
+      "VT": 48,
+      "Paced": 8,
+      "Otro": 2452
+    }
+  },
+  "paced_train_pacientes": 8,
+  "paced_val_pacientes": 1,
+  "fraccion_paced_objetivo": 0.03
+}

@@ -13,3 +13,26 @@ venv/
 
 # Shards DL (int16, ~1 GB c/u) — viven en Drive, no en git (plan_dl_zzu F15)
 results/dl/shards/
+
+# Artefactos locales de entrenamiento, presentaciones y entregas
+shards/
+runs/
+artifacts/
+output/
+tmp/
+.codex-ppt/
+*.pt
+*.pth
+*.ckpt
+
+# Resultados derivados pesados; conservar solo resúmenes pequeños seleccionados
+results/dl/sidecar_hf*.csv
+results/dl/*predicciones*.csv
+results/dl/f19_datasets/*_manifest.csv
+results/dl/f19_datasets/*_features_hf.csv
+
+# Entregables binarios locales
+/Avances_v5.pptx
+/Presentacion-Final-Resultados-Claros-v3.pptx
+/Presentación_Salud_del_Proyecto_F25-Oct_06.pdf
+/tics2-entrega-v4.zip

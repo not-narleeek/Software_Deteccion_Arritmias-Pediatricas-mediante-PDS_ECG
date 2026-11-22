@@ -11,8 +11,9 @@ Feedback recibido (2 puntos):
    fallan al diagnosticar a otra población, lejana y a veces cercana.
 2. **Pasar a Deep Learning + Optuna** para el ajuste de hiperparámetros:
    SVM/RF no entregaron los resultados esperados y con >13.000 estudios el
-   volumen ya habilita aprendizaje profundo. Entrenar en Google Colab o
-   instancia gratuita equivalente.
+   volumen ya habilita aprendizaje profundo. Entrenar en una instancia GPU
+   externa. La ejecución operativa vigente se documenta en
+   [el runbook de Vast.ai](runbooks/vastai_dl.md).
 
 ---
 
@@ -90,11 +91,11 @@ matrices, Brier, confiabilidad, IC bootstrap) — mismo esquema de
 ```mermaid
 flowchart LR
     A[ZZU pECG 13.436 estudios] --> B["F15: shards int16<br/>local CPU"]
-    B -->|Drive| C["Colab T4<br/>F16 baseline ResNet-1D"]
+    B -->|SCP| C["Vast.ai PyTorch<br/>F16 baseline ResNet-1D"]
     C -->|"F1 macro val > 0,518?"| D{Gate F16}
     D -- no --> E["Diagnóstico y<br/>1 ajuste de arquitectura"]
     E --> C
-    D -- sí --> F["F17: Optuna 60-100 trials<br/>pruning + checkpoints Drive"]
+    D -- sí --> F["F17: Optuna 60-100 trials<br/>pruning + checkpoints respaldados"]
     F --> G["F18: 5 semillas train+val<br/>+ test ÚNICO + temp-scaling"]
     G --> H{Gate F19: KPI}
     H -- "F1≥0,80 Sinusal+SVT" --> I["Enmienda acta opción b<br/>+ Etapa III"]
@@ -103,9 +104,9 @@ flowchart LR
 
 ## 3. Hitos F15–F19 (continúa la serie de commits)
 
-### F15 — Empaquetado de datos para DL (**en Colab**, política 13-oct)
-`scripts/empaquetar_shards_dl.py` + `notebooks/05_dl_colab.ipynb`: el cómputo
-corre en el runtime de Colab (el local queda solo para revisión). Recorre
+### F15 — Empaquetado de datos para DL
+`scripts/empaquetar_shards_dl.py` produce los shards; `notebooks/05_dl_colab.ipynb`
+verifica los shards ya transferidos a Vast.ai. El empaquetado recorre
 `results/fase2_pipeline/corpus/indice_ventanas.csv` (ZZU-only), aplica
 `io.cargar_registro_zzu` + `preprocess.preprocesar` una vez por registro,
 cuantiza a **int16** (1 µV/LSB) y escribe shards ~1 GB + manifiesto
@@ -115,24 +116,24 @@ estratificada → `results/dl/splits.csv`; estadísticos de normalización solo
 de train → `results/dl/normalizacion.json`.
 
 Verificación (falla con exit ≠ 0): conteos == índice; reconstrucción
-bit-exacta de 200 ventanas; particiones disjuntas por paciente. Shards a
-Drive (gitignore), manifiesto/splits/stats al repo. La subida del dato
-crudo ZZU al runtime está en el notebook (descarga multipartito + MD5 +
-extracción 7z, docs/metodologia_zzu_pecg.md §1).
+bit-exacta de 200 ventanas; particiones disjuntas por paciente. Los shards
+permanecen fuera de git y se transfieren por SCP a la instancia Vast.ai;
+manifiesto/splits/stats viven en el repo. El flujo operativo está en
+`docs/runbooks/vastai_dl.md`.
 
-### F16 — Baseline DL en Colab (gate temprano)
-- `notebooks/05_dl_colab.ipynb`: monta Drive, memmap de shards, DataLoader con
-  prefetch; ResNet-1D con hiperparámetros por defecto sensatos.
-- Humo CPU en el propio Colab (runtime CPU, 1.000 ventanas): pérdida decrece,
-  val F1 se calcula. Luego 1 entrenamiento completo en T4.
+### F16 — Baseline DL en Vast.ai (gate temprano)
+- `notebooks/05_dl_colab.ipynb`: valida shards cargados por SCP;
+  `notebooks/06_dl_baseline_colab.ipynb` ejecuta el baseline.
+- Humo GPU (≤1.000 ventanas, 2 épocas): pérdida decrece y val F1 se calcula.
+  Luego 1 entrenamiento completo en la GPU de Vast.ai.
 - **Aceptación (gate):** F1 macro val (ZZU, por paciente) **> 0,518** (batir a
   RF). Si no: máximo 1 iteración de diagnóstico (arquitectura/loss) antes de
   escalar al equipo — misma política de cómputo que F14.
 
 ### F17 — Búsqueda Optuna (D5)
-- Campaña autorizada UNA vez (§5). Journal/storage en Drive (reanudable ante
-  desconexión de Colab). Artefactos: `results/dl/optuna/` (estudios, top-10
-  configs, historia de trials).
+- Campaña autorizada UNA vez (§5). Guardar el journal y checkpoints fuera de
+  la instancia antes de destruirla. Artefactos: `results/dl/optuna/`
+  (estudios, top-10 configs, historia de trials).
 
 ### F18 — Evaluación final (D6)
 - `results/dl/` con `metricas.json`, matrices por ventana y registro,
@@ -148,35 +149,35 @@ extracción 7z, docs/metodologia_zzu_pecg.md §1).
 - Actualizar `README.md`, `docs/anotaciones_pendientes.txt` (AP-14 y cierres
   AP-1/2/3 si llegan), merge a `main` del estado validado.
 
-## 4. Logística de cómputo (presupuesto $0)
+## 4. Logística de cómputo
 
 | Recurso | Uso | Límite |
 |---|---|---|
 | Local CPU (13 GB RAM) | F15 shards, verificaciones, figuras | sin límite |
-| Google Colab free (T4 16 GB, sesiones ~12 h) | F16–F18 | ~1 campaña: 60–100 trials ≤ 25 min + 5 reentrenos finales ≤ 30 min ≈ **≤ 45 GPU-h** |
-| Google Drive free (15 GB) | shards + optuna.db + checkpoints | 8–10 GB |
-| Fallback si Colab congestionado | Kaggle notebooks (30 GPU-h/semana, T4/P100) — registrado como riesgo RS-DL2 | — |
+| Vast.ai PyTorch (GPU contratada) | F16–F18 | instancia con ≥16 GB VRAM y SSH directo |
+| Equipo local | shards de origen + respaldo de checkpoints | 8–10 GB |
 
-Detalles operativos: checkpoint por época en Drive (Colab preempta);
+Detalles operativos: checkpoint por época en disco de la instancia; descargar
+resultados antes de destruirla o reciclarla;
 `num_workers=2` + `pin_memory`; precisión mixta bf16/fp16; semilla por trial
 (documentado no bit-exacto por cudnn.benchmark). El repo no agrega torch a las
-dependencias base: Colab trae torch preinstalado y optuna se instala en la
-primera celda del notebook (`uv.lock` queda intacto para el pipeline PDS).
+dependencias base: la plantilla PyTorch de Vast.ai lo provee y `uv.lock` queda
+intacto para el pipeline PDS.
 
 ## 5. Política de cómputo (extensión de la de F14)
 
 Se solicita al equipo autorización ÚNICA por adelantado para: (a) la campaña
 Optuna completa de F17 (≤ 100 trials), (b) 5 reentrenos de semillas en F18,
 (c) 2 abulaciones: con/sin clase 'Otro' (D3) y ventana 10 s @ 500 Hz vs 250 Hz
-(si el I/O de Drive limita). Todo lo demás (nuevas arquitecturas, más trials)
+(si el I/O de SCP limita). Todo lo demás (nuevas arquitecturas, más trials)
 requiere autorización nueva, como en F14-bis/ter.
 
 ## 6. Calendario (12-oct → 20-dic; Etapa III adelantada ~2 semanas)
 
 | Fechas | Hito | Verificación |
 |---|---|---|
-| 13–17 oct | F15 shards + subida Drive; F16 notebook + humo CPU | `verificacion_shards.txt` verde; loss decrece |
-| 20–24 oct | F16 entrenamiento T4 completo | Gate: F1 macro val > 0,518 |
+| 13–17 oct | F15 shards + transferencia SCP; F16 notebook + humo GPU | `verificacion_shards.txt` verde; loss decrece |
+| 20–24 oct | F16 entrenamiento Vast.ai completo | Gate: F1 macro val > 0,518 |
 | 27–31 oct | F17 campaña Optuna (noches, reanudable) | ≥ 60 trials completados |
 | 03–07 nov | F17 cierre + F18 evaluación final | `results/dl/kpi.json` + comparativa |
 | 10–14 nov | F19 gate + docs + merge | acta enmendada o reposicionamiento escrito |
@@ -187,8 +188,8 @@ requiere autorización nueva, como en F14-bis/ter.
 
 | # | Riesgo | Mitigación |
 |---|---|---|
-| RS-DL1 | Colab free no disponible en horas punta | Campaña nocturna/reanudable; fallback Kaggle (§4) |
-| RS-DL2 | Subida de 8 GB a Drive lenta | Primero shards primarios (5 GB); 'Otro' se agrega después |
+| RS-DL1 | Instancia Vast.ai se destruye o recicla | Descargar checkpoints y logs antes de destruirla; implementar reanudación antes de F17 |
+| RS-DL2 | Subida de 6,6 GB por SCP lenta | Transferencia reanudable con `rsync -avP`; no copiar ZZU crudo |
 | RS-DL3 | Paced (104 ventanas) y VT (435) colapsan en DL | Ya contemplado: detectores binarios de caso de estudio (B4/F19) |
 | RS-DL4 | 'Otro' heterogéneo degrada macro-F1 | Ablación con/sin 'Otro' autorizada (§5) |
 | RS-DL5 | Sobreajuste al val por Optuna (selección) | Partición fija declarada, test tocado UNA vez; reportar gap val–test |

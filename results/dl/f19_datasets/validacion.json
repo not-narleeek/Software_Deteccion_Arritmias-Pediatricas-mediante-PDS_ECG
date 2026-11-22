@@ -1,0 +1,11 @@
+{
+  "estado": "VERDE",
+  "ptb_registros": 588,
+  "ptb_paced": 294,
+  "leipzig_registros": 39,
+  "leipzig_con_pacing": 34,
+  "senales_exigidas": true,
+  "avisos": [],
+  "errores": [],
+  "test_zzu_consultado": false
+}

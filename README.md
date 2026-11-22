@@ -9,7 +9,7 @@ Proyecto académico de la asignatura **Proyectos en TICS II** (Facultad de Ingen
 | Código de proyecto | `TICS-II-2026-ECG-PED` |
 | Duración | 16 semanas (1 septiembre – 20 diciembre 2026) |
 | Experto asesor clínico | Diego Maureira |
-| Estado | Etapa II cerrada sobre corpus ZZU pECG (F11–F14: mejor RF F1 macro 0,518; Brier 0,037 ✅). Etapa II-bis en curso tras feedback del experto (12-oct): Deep Learning ZZU-only + Optuna en Google Colab — [docs/plan_dl_zzu.md](docs/plan_dl_zzu.md). Depuración ZZU-only (13-oct): Leipzig eliminado del proyecto (datos, scripts y results F1–F9). |
+| Estado | Etapa II cerrada sobre corpus ZZU pECG (F11–F14: mejor RF F1 macro 0,518; Brier 0,037 ✅). Etapa II-bis en curso tras feedback del experto (12-oct): Deep Learning ZZU-only + Optuna en Vast.ai — [docs/plan_dl_zzu.md](docs/plan_dl_zzu.md). Depuración ZZU-only (13-oct): Leipzig eliminado del proyecto (datos, scripts y results F1–F9). |
 
 ## Motivación
 
@@ -63,7 +63,7 @@ Scripts del corpus ZZU (rama `busqueda-datos`): `scripts/inventario_zzu.py` (inv
 
 ## Stack
 
-Software libre exclusivamente (presupuesto $0): **Python 3.11**, `wfdb`, **NumPy**, **SciPy**, **pandas**, **scikit-learn**, **Matplotlib**. El entorno se gestiona con [uv](https://docs.astral.sh/uv/):
+Software libre exclusivamente: **Python 3.11–3.12**, `wfdb`, **NumPy**, **SciPy**, **pandas**, **scikit-learn**, **Matplotlib**. El entorno se gestiona con [uv](https://docs.astral.sh/uv/):
 
 ```bash
 uv sync                      # crea .venv e instala dependencias desde uv.lock
@@ -73,9 +73,10 @@ uv run jupyter lab           # notebooks de exploración
 
 Las versiones exactas quedan fijadas en `uv.lock` (comprometido al repo). Para generar un `requirements.txt` si la cátedra lo exige: `uv export --format requirements-txt`.
 
-Entrenamiento Deep Learning (Etapa II-bis): Google Colab/Kaggle GPU gratuito
-(PyTorch + Optuna, ver [docs/plan_dl_zzu.md](docs/plan_dl_zzu.md)); el entorno
-`uv` local queda reservado al pipeline PDS y al empaquetado de datos.
+Entrenamiento Deep Learning (Etapa II-bis): instancia GPU PyTorch de Vast.ai
+(PyTorch + Optuna, ver [docs/plan_dl_zzu.md](docs/plan_dl_zzu.md) y el
+[runbook de Vast.ai](docs/runbooks/vastai_dl.md)). El entorno `uv` local queda
+reservado al pipeline PDS y al empaquetado de datos.
 
 ## Etapas del proyecto
 

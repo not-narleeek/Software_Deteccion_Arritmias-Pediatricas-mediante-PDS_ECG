@@ -129,16 +129,16 @@ ventanas de 10 s, no de implementación.
 
 Feedback D. Maureira (reunión 2026-10-12): (1) entrenar solo con ZZU pECG
 (dataset con más datos; evitar fallas por población); (2) DL + Optuna en
-Colab/instancia gratuita, dado el techo de SVM/RF (F1 macro 0,518) y el
+instancia GPU externa, dado el techo de SVM/RF (F1 macro 0,518) y el
 volumen >13.000 estudios. Plan completo con decisiones D1–D6, espacio Optuna,
 presupuesto de cómputo y riesgos: **[docs/plan_dl_zzu.md](plan_dl_zzu.md)**.
 
-- **F15** shards int16 de ventanas ZZU (≈8 GB, Drive) + splits 80/10/10 por
-  paciente + verificación bit-exacta — local CPU.
-- **F16** baseline ResNet-1D 12×5.000 en Colab T4 — gate: F1 macro val
+- **F15** shards int16 de ventanas ZZU (≈8 GB, fuera de git) + splits 80/10/10 por
+  paciente + verificación bit-exacta — local CPU; transferencia por SCP a Vast.ai.
+- **F16** baseline ResNet-1D 12×5.000 en Vast.ai PyTorch — gate: F1 macro val
   (ZZU, por paciente) **> 0,518** antes de seguir.
 - **F17** campaña Optuna única autorizada (60–100 trials, MedianPruner,
-  reanudable, journal en Drive).
+  con journal y checkpoints respaldados fuera de la instancia).
 - **F18** reentrenos 5 semillas + test ÚNICO con batería §8.2 + temperature
   scaling + validación externa Leipzig (domain shift, no KPI).
 - **F19** gate de decisión: KPI → enmienda del acta (opción b) o

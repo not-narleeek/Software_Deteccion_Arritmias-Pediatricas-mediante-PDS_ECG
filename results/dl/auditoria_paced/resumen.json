@@ -1,0 +1,25 @@
+{
+  "particiones": [
+    "train",
+    "val"
+  ],
+  "conteos": {
+    "train": {
+      "ventanas": 86,
+      "pacientes": 8,
+      "registros": 18
+    },
+    "val": {
+      "ventanas": 8,
+      "pacientes": 1,
+      "registros": 2
+    }
+  },
+  "pacientes_requieren_revision": [
+    "P02746",
+    "P04447",
+    "P05649"
+  ],
+  "criterio_revision": "100% ventanas sin espiculas o RMS >100 Hz mediano <5 uV",
+  "nota": "Las banderas son de auditoria; no corrigen etiquetas automaticamente."
+}

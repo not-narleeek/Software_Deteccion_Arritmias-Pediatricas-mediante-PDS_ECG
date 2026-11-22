@@ -1,0 +1,35 @@
+{
+  "features": [
+    "espiculas_n",
+    "hf_rms_mediana",
+    "hf_rms_max",
+    "hf_q995_mediana",
+    "hf_q995_max",
+    "slew_q999_mediana",
+    "slew_q999_max",
+    "sincronia_hf_q999"
+  ],
+  "transformacion": "log1p",
+  "media_train": [
+    0.05455534141286022,
+    0.006748423960551485,
+    0.04308945205204261,
+    0.03368743844244307,
+    0.1555139855908499,
+    0.2547634040312056,
+    0.6863134072837427,
+    0.03821818469217948
+  ],
+  "desv_train": [
+    0.23520269794536236,
+    0.016529360857943126,
+    0.15695496954946658,
+    0.050040186142740126,
+    0.39759039827073495,
+    0.132633611805453,
+    0.6013228955557983,
+    0.07269446574158113
+  ],
+  "incluye_test": false,
+  "split": "/home/carlos/Documents/06-Uni/tics2/Software_Deteccion_Arritmias-Pediatricas-mediante-PDS_ECG/results/dl/splits_f20_active.csv"
+}
