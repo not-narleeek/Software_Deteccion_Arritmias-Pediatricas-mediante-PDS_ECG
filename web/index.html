@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Detector de Arritmias Pediátricas · Portal de demostración</title>
-<meta name="description" content="Demostración web del proyecto de detección de arritmias pediátricas mediante PDS de señales ECG (TICS II, UDP). Uso académico; no es un dispositivo médico.">
+<meta name="description" content="Demostración web del proyecto de detección de arritmias pediátricas mediante PDS de señales ECG (TICS II, UDP): la problemática, la situación en Chile, la propuesta de valor y un analizador de ECG demostrativo. Uso académico; no es un dispositivo médico.">
 <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
@@ -17,6 +17,8 @@
       <span><strong>ECG Pediátrico</strong><small>UDP · TICS II</small></span>
     </a>
     <nav aria-label="Secciones">
+      <a href="#problema">El problema</a>
+      <a href="#propuesta">Propuesta</a>
       <a href="#como-funciona">Cómo funciona</a>
       <a href="#analizar">Analizar ECG</a>
       <a href="#guia">Guía de resultados</a>
@@ -34,6 +36,7 @@
       <div class="acciones">
         <a class="boton principal" href="#analizar">Iniciar análisis</a>
         <a class="boton secundario" href="#como-funciona">¿Cómo funciona?</a>
+        <a class="enlace" href="#problema">¿Por qué importa? → El problema</a>
       </div>
     </div>
   </section>
@@ -42,6 +45,93 @@
     <aside class="aviso" role="note">
       <strong>⚠️ Aviso importante:</strong> esta web es una <strong>demostración académica</strong>. No es un dispositivo médico certificado, no diagnostica y no reemplaza el criterio clínico profesional. Ante un paciente inestable, siga el protocolo de su institución.
     </aside>
+
+    <section id="problema" class="seccion">
+      <h2>Las arritmias pediátricas: un problema real y poco visible</h2>
+      <p class="muted">Una arritmia es una alteración de la frecuencia o el ritmo cardíaco. En los niños, el sistema eléctrico del corazón madura con la edad y los valores normales cambian entre un lactante y un adolescente, lo que complica la interpretación de un ECG pediátrico incluso para personal entrenado. Las arritmias pediátricas pueden aparecer con o sin cardiopatía congénita, y su frecuencia tiene una distribución bimodal, con picos en lactantes y adolescentes <a href="#ref-problema">[1]</a>.</p>
+
+      <h3>Magnitud</h3>
+      <div class="tarjetas">
+        <div class="tarjeta">
+          <p class="stat">55 <small>de cada 100.000</small></p>
+          <p>consultas en urgencias infantiles corresponden a arritmias (incidencia estimada en población pediátrica general) <a href="#ref-problema">[1]</a>.</p>
+        </div>
+        <div class="tarjeta">
+          <p class="stat">1 <small>de cada 250–1.000 niños</small></p>
+          <p>cursa con taquicardia supraventricular (TSV), la taquiarritmia más frecuente; la mitad tiene su primer episodio durante la lactancia <a href="#ref-problema">[1]</a>.</p>
+        </div>
+        <div class="tarjeta">
+          <p class="stat">1 <small>de cada 2.000 personas</small></p>
+          <p>porta un síndrome de QT largo congénito, la enfermedad genética arritmogénica más común <a href="#ref-problema">[1]</a>.</p>
+        </div>
+        <div class="tarjeta">
+          <p class="stat">2–3%</p>
+          <p>de los niños tamizados con ECG escolar en Japón presenta anormalidades cardiovasculares o arritmias, evidencia de que hay enfermedad oculta que un ECG puede pesquisar <a href="#ref-chile">[4]</a>.</p>
+        </div>
+      </div>
+
+      <h3>Consecuencias</h3>
+      <ul>
+        <li>En lactantes, las taquiarritmias pueden presentarse de forma inespecífica: taquipnea, dificultad para alimentarse, vómitos y agitación; según la severidad, progresan a palidez, cianosis, insuficiencia cardíaca y shock <a href="#ref-problema">[1]</a>.</li>
+        <li>En escolares y adolescentes: molestias torácicas, palpitaciones, disnea y síncope, y raramente, la primera manifestación es una muerte súbita <a href="#ref-problema">[1]</a>.</li>
+        <li>La muerte súbita del niño y el adolescente es rara pero devastadora; en los registros poblacionales la mayoría de estos casos queda <strong>sin causa aclarada incluso tras autopsia</strong> <a href="#ref-problema">[2]</a>.</li>
+      </ul>
+
+      <h3>Mortalidad</h3>
+      <ul>
+        <li>La mortalidad del síndrome de QT largo congénito <strong>sintomático sin tratamiento</strong> alcanza <strong>21% en el año posterior al primer síncope y 50% a 10 años</strong>; los pacientes tratados bajan a <strong>0,05% anual</strong>. Detectar a tiempo cambia el pronóstico <a href="#ref-problema">[1]</a>.</li>
+        <li>El QT largo se atribuye entre <strong>3.000 y 4.000 muertes súbitas por año en Estados Unidos</strong> <a href="#ref-problema">[1]</a>.</li>
+        <li>En el registro poblacional SDY (EE.UU.), la muerte súbita inesperada afecta a <strong>120 de cada 100.000 nacidos vivos</strong> en lactantes y <strong>1,9 de cada 100.000 niños</strong> (1–17 años) al año; internacionalmente, la muerte súbita cardíaca del joven se estima entre <strong>0,3 y 9,1 por 100.000 persona-años</strong>, un rango amplio que refleja subregistro y metodologías heterogéneas <a href="#ref-problema">[2]</a>.</li>
+        <li>Alrededor de <strong>25%</strong> de las muertes súbitas cardíacas en niños y adolescentes ocurre durante la práctica deportiva <a href="#ref-problema">[3]</a>.</li>
+      </ul>
+
+      <p class="mini" id="ref-problema">Fuentes: [1] <a href="https://revistachilenadeanestesia.cl/revchilanestv53n2-09/" rel="noopener">Cáceres D, Mena M, Eltit R. Arritmias en población pediátrica general: una revisión de la literatura. Rev Chilena de Anestesia 2024;53(2):135–150</a> · [2] <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC7394394/" rel="noopener">Burns KM et al. Epidemiology of Sudden Death in a Population-Based Study of Infants and Children. J Pediatr X 2020;2:100023</a> · [3] <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC3017912/" rel="noopener">Behr ER et al. Sudden cardiac death in children and adolescents (excluding Sudden Infant Death Syndrome)</a> · [4] <a href="https://www.scielo.cl/scielo.php?pid=S0370-41062018005000607&amp;script=sci_arttext" rel="noopener">González F et al. Evaluación Preparticipativa Cardiovascular Pediátrica. Rev Chil Pediatr 2018;89(4)</a></p>
+    </section>
+
+    <section id="chile" class="seccion">
+      <h2>¿Y en Chile?</h2>
+      <ul>
+        <li>Las cardiopatías congénitas afectan a <strong>5–10 de cada 1.000 nacidos vivos</strong> y representan cerca del <strong>20% de las muertes neonatales y de lactantes</strong>; su manejo está garantizado por el AUGE/GES en menores de 15 años <a href="#ref-chile">[5]</a>.</li>
+        <li>La evidencia nacional de muerte súbita cardiovascular es escasa: la revisión de certificados de defunción 2000–2010 identificó <strong>1.131 muertes súbitas cardiovasculares</strong> en una década; menos del 20% correspondió a personas de 15 años o menos, y en ese grupo etario 2% de las defunciones tuvo diagnósticos compatibles; <strong>no existen estudios nacionales que cuantifiquen la muerte súbita vinculada al deporte</strong> <a href="#ref-chile">[4]</a>.</li>
+        <li>Las sociedades científicas chilenas (SOCHIPE, SOCHICAR, SOCHMEDEP) recomiendan la evaluación preparticipativa cardiovascular y destacan dos datos clave: la historia y el examen físico solos detectan solo ~<strong>20%</strong> de los trastornos con riesgo de muerte súbita, mientras que ~<strong>60%</strong> de esos trastornos presenta anomalías detectables en un <strong>ECG de 12 derivaciones</strong> <a href="#ref-chile">[4]</a>.</li>
+      </ul>
+      <p><strong>En Chile la detección depende de la interpretación del ECG, recurso concentrado en centros especializados. Aumentar la capacidad de triaje ECG pediátrico en la red asistencial y en la formación clínica es una necesidad concreta que este proyecto busca aportar a explorar.</strong></p>
+      <p class="mini" id="ref-chile">Fuentes: [4] <a href="https://www.scielo.cl/scielo.php?pid=S0370-41062018005000607&amp;script=sci_arttext" rel="noopener">González F et al. Evaluación Preparticipativa Cardiovascular Pediátrica (SOCHIPE/SOCHMEDEP/SOCHICAR). Rev Chil Pediatr 2018;89(4)</a> · [5] <a href="https://diprece.minsal.cl/le-informamos/auge/acceso-guias-clinicas/guias-clinicas-desarrolladas-utilizando-manual-metodologico/cardiopatias-congenitas-en-menores-de-15-anos/descripcion-y-epidemiologia" rel="noopener">MINSAL/DIPRECE. Guía Clínica Cardiopatías congénitas operables en menores de 15 años, Descripción y Epidemiología</a></p>
+    </section>
+
+    <section id="propuesta" class="seccion">
+      <h2>Nuestra solución: análisis asistido de ECG pediátrico</h2>
+      <p class="muted">Este proyecto desarrolla software de procesamiento digital de señales (PDS) y clasificación de ritmo cardíaco pediátrico sobre ECG de 12 derivaciones, entrenado y evaluado con el corpus público <strong>ZZU pECG</strong> (niños hospitalizados de 0 a 14 años, 10 s @ 500 Hz, WFDB). El portal carga un registro WFDB, analiza un tramo de 10 segundos y entrega una <strong>sugerencia de ritmo con nivel de certeza y advertencias</strong>, para apoyar —no reemplazar— la evaluación del profesional de la salud.</p>
+
+      <h3>Propuesta de valor social</h3>
+      <div class="tarjetas">
+        <div class="tarjeta verde">
+          <h3>Detección más temprana, donde importa</h3>
+          <p>Un triaje ECG asistido ayuda a escalar antes los casos con sospecha de taquiarritmia o canalopatía; en el QT largo congénito, el tratamiento oportuno reduce la mortalidad desde 21% en el primer año post-síncope a 0,05% anual <a href="#ref-problema">[1]</a>.</p>
+        </div>
+        <div class="tarjeta verde">
+          <h3>Equidad territorial</h3>
+          <p>El software corre en hardware común y el demo funciona íntegro en el navegador: acerca una primera lectura asistida de ECG a hospitales y consultas lejos de los centros con cardiólogo pediátrico.</p>
+        </div>
+        <div class="tarjeta verde">
+          <h3>Privacidad del menor</h3>
+          <p>En la demo, la señal del paciente <strong>no sale del equipo</strong>: todo el análisis ocurre localmente en el navegador; nada se envía a servidores.</p>
+        </div>
+        <div class="tarjeta verde">
+          <h3>Formación y docencia</h3>
+          <p>Herramienta educativa para estudiantes y residentes: ECG pediátrico con criterios por edad, casos demo sintéticos (sinusal, SVT, VT, marcapasos) y guía de interpretación de resultados.</p>
+        </div>
+        <div class="tarjeta verde">
+          <h3>Ciencia abierta y reproducible</h3>
+          <p>Pipeline documentado paso a paso, código versionado y corpus público ZZU pECG (CC BY 4.0) como base de entrenamiento y evaluación.</p>
+        </div>
+        <div class="tarjeta ambar">
+          <h3>Alcance honesto</h3>
+          <p>Es una demostración académica, no un dispositivo médico ni un diagnóstico: cada salida reitera que la decisión clínica corresponde al profesional.</p>
+        </div>
+      </div>
+      <p class="mini">El modelo calibrado del proyecto (F22) se ejecuta fuera de este navegador; esta web usa un clasificador heurístico de demostración (ver «Modelo real» y «Limitaciones»).</p>
+    </section>
 
     <section id="como-funciona" class="seccion">
       <h2>Cómo funciona</h2>
