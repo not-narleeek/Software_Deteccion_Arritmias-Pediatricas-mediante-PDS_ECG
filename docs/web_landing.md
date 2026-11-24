@@ -1,6 +1,16 @@
 # Rediseño del landing — requerimientos de contenido y evidencia
 
-**Estado:** especificación lista para implementación (agente implementador: sección web del portal).
+**Estado:** implementada en `web/index.html` + `web/css/styles.css`. El texto de §3 se
+mantiene literal salvo en lo anotado abajo (comparado bloque por bloque, palabra a palabra):
+
+- **Nav:** además de «El problema» y «Propuesta», enlaza «Chile» y «Modelo real» (criterio 6.1:
+  todas las secciones en la nav); «Guía de resultados» se acorta a «Guía» para que los ocho
+  enlaces quepan en una fila. Por debajo de 1100 px la nav se pliega tras un botón «Menú».
+- **§3.3, «Contexto nacional»:** la cifra preliminar 2024 se cita con la fuente 8; el informe de
+  la fuente 6 no contiene cifras preliminares (verificado contra el PDF).
+- **§3.3, última viñeta:** se presenta como entradilla más dos tarjetas de cifra (~20% / ~60%);
+  se omite el conector «mientras que».
+
 **Alcance:** solo contenido nuevo de la página de inicio (`web/index.html` + `css/styles.css`
 si se requieren estilos). El analizador (`js/app.js`, `js/wfdb.js`), los registros demo y el
 resto de secciones no se modifican salvo la navegación.
@@ -109,8 +119,8 @@ con picos en lactantes y adolescentes [fuente 1].
 
 - **Contexto nacional:** las enfermedades del sistema circulatorio son la **primera causa
   de muerte en Chile**: explicaron el **23,1% de las defunciones en 2021** (31.729 de
-  137.629), por sobre los tumores (21,4%); las cifras preliminares de 2024 (DEIS)
-  confirman que siguen primero [fuente 6].
+  137.629), por sobre los tumores (21,4%) [fuente 6]; las cifras preliminares de 2024 (DEIS)
+  confirman que siguen primero [fuente 8].
 - **Vacío de tamizaje reconocido oficialmente:** el informe de vigilancia epidemiológica
   de MINSAL (2025) concluye que Chile «persiste la falta de métodos de tamizaje
   poblacional en la etapa preclínica, lo que limita las oportunidades de diagnóstico
