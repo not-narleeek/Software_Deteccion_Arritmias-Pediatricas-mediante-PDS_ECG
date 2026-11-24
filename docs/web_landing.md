@@ -107,9 +107,21 @@ con picos en lactantes y adolescentes [fuente 1].
 
 **H2: ¿Y en Chile?**
 
+- **Contexto nacional:** las enfermedades del sistema circulatorio son la **primera causa
+  de muerte en Chile**: explicaron el **23,1% de las defunciones en 2021** (31.729 de
+  137.629), por sobre los tumores (21,4%); las cifras preliminares de 2024 (DEIS)
+  confirman que siguen primero [fuente 6].
+- **Vacío de tamizaje reconocido oficialmente:** el informe de vigilancia epidemiológica
+  de MINSAL (2025) concluye que Chile «persiste la falta de métodos de tamizaje
+  poblacional en la etapa preclínica, lo que limita las oportunidades de diagnóstico
+  temprano, particularmente en enfermedades cardiovasculares» [fuente 6].
 - Las cardiopatías congénitas afectan a **5–10 de cada 1.000 nacidos vivos** y representan
   cerca del **20% de las muertes neonatales y de lactantes**; su manejo está garantizado
   por el AUGE/GES en menores de 15 años [fuente 5].
+- En la población infantil la mortalidad ha caído sostenidamente (análisis DEIS
+  2017–2024), y las **malformaciones congénitas** —grupo que incluye las cardiopatías—
+  son la **principal causa de muerte en menores de 1 año**; en los niños mayores ganan
+  peso el cáncer y las enfermedades neurológicas [fuente 7].
 - La evidencia nacional de muerte súbita cardiovascular es escasa: la revisión de
   certificados de defunción 2000–2010 identificó **1.131 muertes súbitas cardiovasculares**
   en una década; menos del 20% correspondió a personas de 15 años o menos, y en ese grupo
@@ -175,6 +187,9 @@ numerados al pie de la sección (lista `mini`) o superíndices; no inventar ni r
 | 3 | Muerte súbita y deporte | ~25% de los casos ocurren durante el deporte; mayoría con cardiopatía subyacente (miocardiopatía hipertrófica y anomalías coronarias las más comunes) | Behr ER et al. *Sudden cardiac death in children and adolescents (excluding Sudden Infant Death Syndrome).* [PMC3017912](https://pmc.ncbi.nlm.nih.gov/articles/PMC3017912/) |
 | 4 | Chile: muerte súbita cardiovascular | 1.131 MSCV en certificados de defunción 2000–2010; <20% en ≤15 años; 2% en ese grupo con diagnósticos compatibles; 75% varones; sin estudios de MS vinculada al deporte; historia+examen físico sensibilidad ~20%; ~60% de trastornos asociados a MS con anomalías ECG detectables; tamizaje escolar japonés detecta 2–3% | González F et al. *Evaluación Preparticipativa Cardiovascular Pediátrica* (SOCHIPE/SOCHMEDEP/SOCHICAR). Rev Chil Pediatr 2018;89(4). DOI [10.4067/S0370-41062018005000607](https://www.scielo.cl/scielo.php?pid=S0370-41062018005000607&script=sci_arttext) |
 | 5 | Chile: cardiopatías congénitas | 5–10 por 1.000 nacidos vivos; ~20% de muertes neonatales y de lactantes; GES operables <15 años | MINSAL/DIPRECE. *Guía Clínica Cardiopatías congénitas operables en menores de 15 años*, [Descripción y Epidemiología](https://diprece.minsal.cl/le-informamos/auge/acceso-guias-clinicas/guias-clinicas-desarrolladas-utilizando-manual-metodologico/cardiopatias-congenitas-en-menores-de-15-anos/descripcion-y-epidemiologia) |
+| 6 | Chile: ECV primera causa de muerte y vacío de tamizaje | sistema circulatorio: 23,1% de defunciones en 2021 (31.729 de 137.629); tumores 21,4%; el informe concluye que «persiste la falta de métodos de tamizaje poblacional en la etapa preclínica, lo que limita las oportunidades de diagnóstico temprano, particularmente en enfermedades cardiovasculares» | MINSAL, Depto. Epidemiología. *Informe de Vigilancia Epidemiológica de Enfermedades Cardiovasculares y Metabólicas en Chile: Incidencia, Mortalidad y Sobrevida.* 2025 (datos DEIS). [PDF oficial](https://epi.minsal.cl/wp-content/uploads/2026/09/Informe_de_vigilancia_cardiovascular_y_metabolica_2025.pdf) |
+| 7 | Chile: mortalidad pediátrica 2017–2024 | análisis DEIS: mortalidad pediátrica disminuida de forma sostenida; en <1 año las principales causas son malformaciones congénitas y prematuridad extrema; en niños mayores, cáncer y enfermedades neurológicas | Gallegos B, Henríquez J, Ortega E, Aravena J, Figueroa G. *Principales causas de mortalidad no traumática en menores de 16 años en Chile, 2017–2024.* Rev ANACEM 2025;19(2). DOI [10.70536/RevANACEM/V19N2-202546](https://revanacem.cl/index.php/Revista/article/view/46) |
+| 8 | Chile: defunciones 2024 (preliminar) | 125.300 decesos preliminares; enfermedades del sistema circulatorio se mantienen como primera causa, seguidas de tumores y respiratorias | DEIS, datos abiertos (análisis de [24horas/Data IE](https://www.24horas.cl/informe-especial/data/estas-son-las-10-principales-causas-de-muerte-en-chile-durante-2024-)); citar preferentemente como «cifras preliminares DEIS 2024» |
 
 Notas de honestidad para el copy:
 
@@ -185,6 +200,10 @@ Notas de honestidad para el copy:
 - Las cifras de QT largo y mortalidad provienen de la revisión chilena de 2024, que cita a
   su vez fuentes primarias: mantener la atribución «según la revisión chilena de 2024»
   implícita citando la fuente 1, nunca presentarlas como datos chilenos.
+- Antigüedad de los datos chilenos (etiquetar en el copy cuando aporte): contexto ECV
+  nacional = dato 2021 de un informe oficial 2025; MSCV/Donoso = serie 2000–2010 (el
+  statement lo señala como lo último disponible); defunciones 2024 = **preliminar**;
+  mortalidad pediátrica = serie 2017–2024. No mezclar años en una misma cifra.
 
 ## 5. Restricciones técnicas
 
