@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "model_version": "f22-seed14-v1",
+  "release_tag": "f22-seed14-v1",
+  "artifacts": [
+    {
+      "role": "morphology",
+      "file": "f22_morfologia_seed14.pt",
+      "bytes": 32269669,
+      "sha256": "2bd39fed1d73f2c339d894c47b9aa95859d7470fb227109577884861f69c5633",
+      "url": "https://github.com/not-narleeek/Software_Deteccion_Arritmias-Pediatricas-mediante-PDS_ECG/releases/download/f22-seed14-v1/f22_morfologia_seed14.pt"
+    },
+    {
+      "role": "paced_gate",
+      "file": "f20_gate_paced_seed14.pt",
+      "bytes": 32288701,
+      "sha256": "98599ed7376fa2abeeee23afadfab88824297cf64a19473738c1136bd6e9759b",
+      "url": "https://github.com/not-narleeek/Software_Deteccion_Arritmias-Pediatricas-mediante-PDS_ECG/releases/download/f22-seed14-v1/f20_gate_paced_seed14.pt"
+    }
+  ]
+}

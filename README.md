@@ -93,3 +93,11 @@ reservado al pipeline PDS y al empaquetado de datos.
 - No es un dispositivo médico certificado: uso limitado a investigación, educación y soporte diagnóstico no certificado.
 - Diagnóstica ritmos eléctricos, no patologías estructurales del corazón.
 - Validación retrospectiva sobre el dataset; sin captura de ECG en pacientes reales.
+
+## Modelo colaborativo F22
+
+El candidato F22 seed 14 dispone de un paquete aislado para descarga,
+verificación e inferencia en
+[`contrib/carlos/f22_seed14/`](contrib/carlos/f22_seed14/README.md). Los pesos se
+distribuyen como un GitHub Release y no forman parte del historial del
+repositorio.

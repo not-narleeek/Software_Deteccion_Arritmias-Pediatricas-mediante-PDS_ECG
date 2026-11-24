@@ -1,3 +1,52 @@
+# Paquete colaborativo F22 seed 14
+
+## Goal
+
+Permitir que el equipo descargue, verifique y ejecute el candidato F22 seed 14
+desde una carpeta aislada, sin depender de notebooks ni publicar checkpoints en
+el historial de Git.
+
+## Scope
+
+- Crear `contrib/carlos/f22_seed14/` con arquitectura, inferencia, CLI y pruebas.
+- Versionar configuración, normalizaciones y hashes de los dos checkpoints.
+- Documentar el uso sobre una ventana ECG de 12 derivaciones y 10 segundos.
+- Mantener los pesos en un GitHub Release separado.
+
+## Assumptions
+
+- El candidato seleccionado sigue siendo F22 seed 14.
+- La entrada física está expresada en mV, a 500 Hz y en el orden canónico de
+  derivaciones declarado en la configuración.
+- El test final continúa reservado; este paquete reproduce el candidato
+  seleccionado, pero no cambia sus métricas reportadas.
+
+## Steps
+
+1. Definir el contrato y manifiesto versionado del bundle F22.
+2. Extraer una copia estable de la arquitectura usada por los checkpoints.
+3. Implementar descarga con SHA-256 e inferencia de la cascada F22.
+4. Agregar CLI, validación, documentación y pruebas de humo.
+5. Validar sintaxis, configuración, pruebas disponibles y contenido del commit.
+
+## Validation
+
+- `python -m py_compile contrib/carlos/f22_seed14/*.py`
+- `python contrib/carlos/f22_seed14/validar_modelo.py --solo-manifiesto`
+- `uv run --with pytest pytest contrib/carlos/f22_seed14/tests`
+- `git diff --check`
+
+## Risks
+
+- Los checkpoints no estarán disponibles hasta publicar el Release
+  `f22-seed14-v1`; el manifiesto fallará de forma explícita si faltan.
+- La arquitectura está copiada para aislar la contribución; cualquier cambio
+  futuro debe conservar compatibilidad con los hashes y la versión del bundle.
+- El valor de confianza es una probabilidad del especialista que tomó la
+  decisión, no una garantía clínica ni una calibración prospectiva.
+
+---
+
 # Publicación segura de la rama `entrega-final-f22`
 
 ## Goal
