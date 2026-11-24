@@ -26,10 +26,9 @@ const fmt = (x, dec = 0) => Number.isFinite(x)
   : '—';
 const clamp01 = x => Math.min(1, Math.max(0, x));
 
-let estado = null; // { tipo: 'senal'|'rr', senal, fs, picos, rr, fuente }
+let estado = null; // { senal, fs, picos, rr, fuente, registro: {nombre, derivacion} }
 
 /* ---------- utilidades matemáticas ---------- */
-function gauss(t, mu, sigma, amp) { const z = (t - mu) / sigma; return amp * Math.exp(-0.5 * z * z); }
 function media(a) { let s = 0; for (const v of a) s += v; return a.length ? s / a.length : NaN; }
 function desv(a) { const m = media(a); let s = 0; for (const v of a) s += (v - m) * (v - m); return a.length > 1 ? Math.sqrt(s / (a.length - 1)) : NaN; }
 function rmssd(a) { let s = 0; for (let i = 1; i < a.length; i++) s += (a[i] - a[i - 1]) ** 2; return a.length > 1 ? Math.sqrt(s / (a.length - 1)) : NaN; }
@@ -37,39 +36,13 @@ function pnn50(a) { if (a.length < 2) return NaN; let c = 0; for (let i = 1; i <
 function mediana(a) { const s = Array.from(a).sort((x, y) => x - y); const m = s.length >> 1; return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2; }
 function percentil(a, p) { const s = Array.from(a).sort((x, y) => x - y); return s[Math.min(s.length - 1, Math.max(0, Math.round(p * (s.length - 1))))]; }
 
-/* ---------- síntesis de casos demo (10 s @ 500 Hz) ---------- */
-function sintetizarECG(tipo) {
-  const fs = 500, n = fs * 10;
-  const sig = new Float32Array(n);
-  let cfg;
-  switch (tipo) {
-    case 'sinusal': cfg = { rr: 545, jit: 18, p: 0.15, spike: 0,    r: 1.10, wR: 10, s: -0.22, wS: 10, t: 0.30,  muT: 200, wT: 45 }; break;
-    case 'svt':     cfg = { rr: 315, jit: 8,  p: 0,    spike: 0,    r: 0.95, wR: 11, s: -0.18, wS: 10, t: 0.18,  muT: 150, wT: 35 }; break;
-    case 'vt':      cfg = { rr: 333, jit: 10, p: 0,    spike: 0,    r: 1.70, wR: 55, s: -1.30, wS: 60, t: -0.45, muT: 280, wT: 70 }; break;
-    case 'paced':   cfg = { rr: 667, jit: 10, p: 0.10, spike: 0.60, r: 0.85, wR: 12, s: -0.18, wS: 10, t: 0.28,  muT: 210, wT: 45 }; break;
-    default: throw new Error('Caso demo desconocido: ' + tipo);
-  }
-  let t = 800;
-  while (t < 9200) {
-    const centro = Math.round((t * fs) / 1000);
-    const W = Math.round(0.35 * fs);
-    for (let k = -W; k <= W; k++) {
-      const i = centro + k;
-      if (i < 0 || i >= n) continue;
-      const tm = (k * 1000) / fs;
-      let v = 0;
-      if (cfg.p) v += gauss(tm, -80, 22, cfg.p);
-      if (cfg.spike) v += gauss(tm, -45, 2.5, cfg.spike);
-      v += gauss(tm, 0, cfg.wR, cfg.r);
-      if (cfg.s) v += gauss(tm, cfg.wR * 1.6, cfg.wS, cfg.s);
-      if (cfg.t) v += gauss(tm, cfg.muT, cfg.wT, cfg.t);
-      sig[i] += v;
-    }
-    t += cfg.rr + (Math.random() * 2 - 1) * cfg.jit;
-  }
-  for (let i = 0; i < n; i++) sig[i] += 0.018 * (Math.random() * 2 - 1) + 0.05 * Math.sin((2 * Math.PI * 0.4 * i) / fs);
-  return sig;
-}
+/* ---------- casos demo: registros WFDB en web/demo/ ---------- */
+const DEMOS = {
+  demo_sinusal: 'Niño sano (Sinusal)',
+  demo_svt: 'Taquicardia supraventricular (SVT)',
+  demo_vt: 'Taquicardia ventricular (VT)',
+  demo_paced: 'Ritmo de marcapasos (Paced)',
+};
 
 /* ---------- detección de picos R (umbral simple) ---------- */
 function detectarPicos(sig, fs) {
@@ -171,8 +144,6 @@ function clasificar(ctx) {
   const hr = ctx.fc;
   const regular = ctx.cv <= 0.06 ? 1 : ctx.cv <= 0.12 ? 0.5 : 0;
 
-  if (ctx.soloRR) adv.push('Archivo de solo intervalos RR: no se evaluó la morfología (VT y Paced requieren la señal completa).');
-
   /* Taquicardia supraventricular: rápida y regular */
   s.SVT += clamp01((hr - 145) / 35) + 0.2 * regular * (hr >= 130 ? 1 : 0);
 
@@ -269,35 +240,6 @@ function dibujarSenal(sig, fs, picos) {
   ctx.fillText('Señal ECG — ' + fmt(sig.length / fs, 1) + ' s @ ' + fs + ' Hz (mV)', 10, 16);
 }
 
-function dibujarTaquigrama(rr) {
-  const canvas = el('lienzo');
-  const w = canvas.clientWidth || 640, h = 240;
-  const ctx = prepararCanvas(canvas, w, h);
-  ctx.fillStyle = '#fff';
-  ctx.fillRect(0, 0, w, h);
-  const pad = 28;
-  const lo = Math.min(...rr), hi = Math.max(...rr);
-  const y = v => h - pad - ((v - lo) / Math.max(1, hi - lo)) * (h - 2 * pad);
-  ctx.strokeStyle = '#0e7490';
-  ctx.lineWidth = 2;
-  ctx.beginPath();
-  rr.forEach((v, i) => {
-    const x = pad + (i / Math.max(1, rr.length - 1)) * (w - 2 * pad);
-    if (i) ctx.lineTo(x, y(v)); else ctx.moveTo(x, y(v));
-  });
-  ctx.stroke();
-  ctx.fillStyle = '#b91c1c';
-  rr.forEach((v, i) => {
-    const x = pad + (i / Math.max(1, rr.length - 1)) * (w - 2 * pad);
-    ctx.beginPath();
-    ctx.arc(x, y(v), 2.5, 0, Math.PI * 2);
-    ctx.fill();
-  });
-  ctx.fillStyle = '#5c6b7a';
-  ctx.font = '12px system-ui';
-  ctx.fillText('Taquigrama RR (ms por latido) — ' + Math.round(lo) + '…' + Math.round(hi) + ' ms', pad, 16);
-}
-
 /* ---------- flujo de la interfaz ---------- */
 function prepararPanel() {
   el('panel-senal').hidden = false;
@@ -313,95 +255,77 @@ function limpiar() {
   el('archivo').value = '';
 }
 
-function cargarDemo(tipo) {
-  const fs = 500;
-  const senal = sintetizarECG(tipo);
+/* ---------- carga de registros WFDB ---------- */
+const MAX_SEG = 10; // segundos analizados (ventana del proyecto)
+
+function mostrarRegistro(registro, fuente) {
+  const lead = WFDB.elegirLead(registro.leads);
+  const fs = lead.fs;
+  const maxN = Math.round(MAX_SEG * fs);
+  let senal = lead.senal;
+  let aviso = '';
+  if (senal.length > maxN) {
+    senal = senal.subarray(0, maxN);
+    aviso = ' Se analizó solo el primer tramo de 10 segundos.';
+  } else if (senal.length < maxN) {
+    aviso = ' Registro más corto que 10 s: revise el resultado con cautela.';
+  }
   const picos = detectarPicos(senal, fs);
   const rr = rrDesdePicos(picos, fs);
-  const nombres = {
-    sinusal: 'Niño sano (Sinusal)',
-    svt: 'Taquicardia supraventricular (SVT)',
-    vt: 'Taquicardia ventricular (VT)',
-    paced: 'Ritmo de marcapasos (Paced)',
-  };
-  estado = { tipo: 'senal', senal, fs, picos, rr, fuente: 'Caso de demostración — ' + nombres[tipo] };
+  estado = { senal: Float32Array.from(senal), fs, picos, rr, fuente, registro: { nombre: registro.nombre, derivacion: lead.nombre } };
   prepararPanel();
-  dibujarSenal(senal, fs, picos);
-  el('info-senal').textContent = 'Señal demo de 10 s @ 500 Hz · ' + rr.length + ' intervalos RR detectados.';
+  dibujarSenal(estado.senal, fs, picos);
+  el('info-senal').textContent =
+    'Registro "' + registro.nombre + '" · derivación ' + lead.nombre +
+    ' · ' + fmt(senal.length / fs, 1) + ' s @ ' + fmt(fs, 0) + ' Hz · ' +
+    rr.length + ' intervalos RR detectados.' + aviso;
 }
 
-function parsearArchivo(texto, formato) {
-  const lineas = texto.split(/\r?\n/).map(x => x.trim()).filter(Boolean);
-  const esNum = x => /^[-+]?((\d+([.,]\d+)?)|([.,]\d+))([eE][-+]?\d+)?$/.test(x);
-  while (lineas.length && !esNum(lineas[0].split(/[;,\t\s]+/)[0])) lineas.shift(); // omite cabecera
-  const vals = [];
-  for (const ln of lineas) {
-    const c = ln.split(/[;,\t\s]+/)[0];
-    if (esNum(c)) vals.push(parseFloat(c.replace(',', '.')));
+async function cargarDemo(nombre) {
+  const base = 'demo/' + nombre + '/' + nombre;
+  try {
+    const textoHeader = await (await fetch(base + '.hea')).text();
+    const buffer = await (await fetch(base + '.dat')).arrayBuffer();
+    const registro = WFDB.leerRegistro(textoHeader, () => buffer);
+    mostrarRegistro(registro, 'Caso de demostración — ' + DEMOS[nombre]);
+  } catch (e) {
+    const nota = location.protocol === 'file:'
+      ? ' Nota: si abrió esta página como archivo local (file://), el navegador bloquea la lectura de los casos demo. Sirva la carpeta con: python -m http.server 8000 --directory web'
+      : '';
+    alert('No se pudo cargar el caso demo: ' + e.message + nota);
   }
-  if (vals.length < 10) throw new Error('no se encontraron suficientes valores numéricos (¿formato correcto?).');
-  if (formato === 'rr') {
-    const rr = vals.filter(v => v >= 200 && v <= 3000);
-    if (rr.length < 5) throw new Error('se esperaban al menos 5 intervalos RR entre 200 y 3000 ms.');
-    return { tipo: 'rr', rr };
-  }
-  const fs = parseInt(el('fs').value, 10) || 500;
-  if (vals.length < fs * 5) throw new Error('la señal debe cubrir al menos 5 segundos a ' + fs + ' Hz.');
-  let aviso = '';
-  let senal;
-  if (vals.length > fs * 10) {
-    senal = Float32Array.from(vals.slice(0, fs * 10));
-    aviso = 'Se analizó solo el primer tramo de 10 segundos.';
-  } else {
-    senal = Float32Array.from(vals);
-    if (vals.length < fs * 10) aviso = 'Señal más corta que 10 s: revise el resultado con cautela.';
-  }
-  return { tipo: 'senal', senal, aviso };
 }
 
-function leerArchivo(file) {
-  const lector = new FileReader();
-  lector.onload = () => {
-    try {
-      const formato = document.querySelector('input[name="formato"]:checked').value;
-      const datos = parsearArchivo(String(lector.result), formato);
-      if (datos.tipo === 'rr') {
-        estado = { tipo: 'rr', rr: datos.rr, fuente: 'Archivo: ' + file.name };
-        prepararPanel();
-        dibujarTaquigrama(datos.rr);
-        el('info-senal').textContent = datos.rr.length + ' intervalos RR leídos de "' + file.name + '".';
-      } else {
-        const fs = parseInt(el('fs').value, 10) || 500;
-        const picos = detectarPicos(datos.senal, fs);
-        const rr = rrDesdePicos(picos, fs);
-        estado = { tipo: 'senal', senal: datos.senal, fs, picos, rr, fuente: 'Archivo: ' + file.name };
-        prepararPanel();
-        dibujarSenal(datos.senal, fs, picos);
-        el('info-senal').textContent = 'Señal de ' + fmt(datos.senal.length / fs, 1) + ' s @ ' + fs + ' Hz · ' + rr.length + ' intervalos RR detectados.' + (datos.aviso ? ' ' + datos.aviso : '');
-      }
-    } catch (e) {
-      alert('No se pudo leer el archivo: ' + e.message);
+async function leerArchivos(archivos) {
+  const lista = Array.from(archivos || []);
+  const hea = lista.find(f => /\.hea$/i.test(f.name));
+  if (!hea) {
+    alert('Seleccione el archivo .hea del registro WFDB junto con su .dat (formato del proyecto, como ZZU pECG).');
+    return;
+  }
+  try {
+    const textoHeader = await hea.text();
+    const buffers = new Map();
+    for (const f of lista.filter(f => /\.dat$/i.test(f.name))) {
+      buffers.set(f.name.toLowerCase(), await f.arrayBuffer());
     }
-  };
-  lector.readAsText(file);
+    const registro = WFDB.leerRegistro(textoHeader, nombre => buffers.get(nombre.toLowerCase()) ?? null);
+    mostrarRegistro(registro, 'Registro WFDB: ' + hea.name.replace(/\.hea$/i, ''));
+  } catch (e) {
+    alert('No se pudo leer el registro: ' + e.message);
+  }
 }
 
 function analizar() {
   if (!estado) return;
   const edad = el('edad').value;
   const met = metricas(estado.rr);
-  let ctx;
-  if (estado.tipo === 'rr') {
-    ctx = { ...met, anchoQRS: null, espiculas: null, edad, soloRR: true };
-  } else {
-    ctx = {
-      ...met,
-      anchoQRS: anchoQRSmedio(estado.senal, estado.fs, estado.picos),
-      espiculas: hayEspiculas(estado.senal, estado.fs, estado.picos),
-      edad,
-      soloRR: false,
-    };
-  }
+  const ctx = {
+    ...met,
+    anchoQRS: anchoQRSmedio(estado.senal, estado.fs, estado.picos),
+    espiculas: hayEspiculas(estado.senal, estado.fs, estado.picos),
+    edad,
+  };
   const res = clasificar(ctx);
   mostrarResultado(res, ctx);
 }
@@ -490,21 +414,19 @@ function descargarReporte(res, ctx) {
 /* ---------- inicialización ---------- */
 document.addEventListener('DOMContentLoaded', () => {
   document.querySelectorAll('.chip[data-demo]').forEach(b => b.addEventListener('click', () => cargarDemo(b.dataset.demo)));
-  el('archivo').addEventListener('change', e => { if (e.target.files[0]) leerArchivo(e.target.files[0]); });
+  el('archivo').addEventListener('change', e => { if (e.target.files.length) leerArchivos(e.target.files); });
   const zona = el('zona');
   zona.addEventListener('dragover', e => { e.preventDefault(); zona.classList.add('activa'); });
   zona.addEventListener('dragleave', () => zona.classList.remove('activa'));
   zona.addEventListener('drop', e => {
     e.preventDefault();
     zona.classList.remove('activa');
-    const f = e.dataTransfer.files && e.dataTransfer.files[0];
-    if (f) leerArchivo(f);
+    if (e.dataTransfer.files && e.dataTransfer.files.length) leerArchivos(e.dataTransfer.files);
   });
   el('btn-analizar').addEventListener('click', analizar);
   el('btn-limpiar').addEventListener('click', limpiar);
   window.addEventListener('resize', () => {
     if (!estado) return;
-    if (estado.tipo === 'rr') dibujarTaquigrama(estado.rr);
-    else dibujarSenal(estado.senal, estado.fs, estado.picos);
+    dibujarSenal(estado.senal, estado.fs, estado.picos);
   });
 });
