@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "model_version": "f22-seed14-v1",
+  "sample_rate_hz": 500,
+  "window_samples": 5000,
+  "input_unit": "mV",
+  "lead_order": [
+    "I",
+    "II",
+    "III",
+    "aVR",
+    "aVL",
+    "aVF",
+    "V1",
+    "V2",
+    "V3",
+    "V4",
+    "V5",
+    "V6"
+  ],
+  "classes": ["Sinusal", "SVT", "VT", "Paced", "Otro"],
+  "morphology_classes": ["Sinusal", "SVT", "VT", "Otro"],
+  "morphology_checkpoint": "f22_morfologia_seed14.pt",
+  "paced_checkpoint": "f20_gate_paced_seed14.pt",
+  "ecg_normalization": "normalizacion_ecg.json",
+  "hf_normalization": "normalizacion_hf.json",
+  "cascade": {
+    "paced_class_index": 3,
+    "protect_vt": true,
+    "description": "Paced se aplica si F20 predice Paced y morfologia no predice VT"
+  }
+}

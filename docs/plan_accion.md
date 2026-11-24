@@ -102,6 +102,51 @@ su KPI no se cumple** (§11 del diseño).
   → "por clase primaria") y bitácora de cierre de AP-1/2/3.
 - Merge a `main` del estado validado (fin del rol de fallback de main).
 
+### Hitos F11–F14 — corpus combinado ZZU+Leipzig (rama `etapa2-corpus-combinado`, 13-sep)
+
+Serie que re-ejecuta Etapa II sobre el corpus ampliado (AP-13):
+- **F11** io.py corpus ZZU + índice combinado — VERDE (regresión F6 2.428
+  exacta; 66.759 ventanas: Leipzig 8.581 + ZZU 58.178).
+- **F12** detector sobre ZZU — VERDE (det_ok 100 %; fusión II+V1 en
+  9-deriv sin degradación: |ΔFC| 0,2 lpm).
+- **F13** features corpus — 41.900 ventanas primarias; separabilidad
+  fuerte (fc_norm F 5.017).
+- **F14** experimento SVM/RF GroupKFold-5 por paciente — **KPI 0,80/clase
+  NO alcanzado** tras 3 iteraciones (submuestreo 3×, features morfológicas
+  P/RP/PR/V1): mejor RF F1 macro 0,518 (Sinusal 0,95; SVT 0,35; VT 0,43;
+  Paced 0,34). Confusión dominante SVT↔Sinusal (EAT vs sinuso-taquicardia).
+  Transferencia ZZU→Leipzig F1 0,36; Leipzig→ZZU 0,10 (domain shift
+  cuantificado, evidencia para el FPS). Brier < 0,04 (KPI de calibración
+  cumplido). Estado completo: results/fase2_pipeline/experimento_corpus/.
+
+Consecuencia para el acta: el KPI 4 (F1 ≥ 0,80 por clase) requiere
+enmienda con el experto (alcance por clase primaria + nivel registro, o
+reposicionamiento como soporte diagnóstico con reporte de certeza) — la
+brecha es estructural del enfoque SVM/RF + features manuales sobre
+ventanas de 10 s, no de implementación.
+
+### Hitos F15–F19 — Etapa II-bis: Deep Learning sobre ZZU pECG (rama `dl-zzu`, 12-oct)
+
+Feedback D. Maureira (reunión 2026-10-12): (1) entrenar solo con ZZU pECG
+(dataset con más datos; evitar fallas por población); (2) DL + Optuna en
+instancia GPU externa, dado el techo de SVM/RF (F1 macro 0,518) y el
+volumen >13.000 estudios. Plan completo con decisiones D1–D6, espacio Optuna,
+presupuesto de cómputo y riesgos: **[docs/plan_dl_zzu.md](plan_dl_zzu.md)**.
+
+- **F15** shards int16 de ventanas ZZU (≈8 GB, fuera de git) + splits 80/10/10 por
+  paciente + verificación bit-exacta — local CPU; transferencia por SCP a Vast.ai.
+- **F16** baseline ResNet-1D 12×5.000 en Vast.ai PyTorch — gate: F1 macro val
+  (ZZU, por paciente) **> 0,518** antes de seguir.
+- **F17** campaña Optuna única autorizada (60–100 trials, MedianPruner,
+  con journal y checkpoints respaldados fuera de la instancia).
+- **F18** reentrenos 5 semillas + test ÚNICO con batería §8.2 + temperature
+  scaling + validación externa Leipzig (domain shift, no KPI).
+- **F19** gate de decisión: KPI → enmienda del acta (opción b) o
+  reposicionamiento screening (opción c); cierre AP-14.
+
+El pipeline PDS F6–F13 y la demo E5 no cambian: DL reemplaza solo el bloque
+clasificador F14.
+
 ## 3. Etapa III — informe final + defensa (nov–dic)
 
 1. **FPS (informe final):** consolidar resultados de Etapa II con limitaciones explícitas
@@ -129,6 +174,12 @@ su KPI no se cumple** (§11 del diseño).
 Margen: ~2 semanas de holgura antes del 20-dic para absorbimiento de retrasos (principal
 riesgo: RS4 respuesta tardía del experto → no bloquea F6–F8; solo F9-final y la enmienda
 del acta).
+
+**Replanificación 12-oct (post feedback D. Maureira):** F6–F14 cerraron con
+~4 semanas de adelanto (sep). El tramo 18-oct–06-nov pasa a F15–F18 (DL
+ZZU-only, calendario detallado en [docs/plan_dl_zzu.md](plan_dl_zzu.md) §6),
+F19 ocupa 10–14 nov y la Etapa III corre 17-nov→20-dic con la holgura
+original intacta.
 
 ## 5. Convenciones de trabajo en `desarrollo`
 

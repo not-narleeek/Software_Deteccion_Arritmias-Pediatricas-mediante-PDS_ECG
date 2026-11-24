@@ -188,9 +188,14 @@ def validacion_loro(
         probas.append(proba)
         reg_col.extend([r] * int(te.sum()))
         print(f'    fold {r}: n_test={int(te.sum())}', flush=True)
-    y_true = np.asarray(y_true)
-    y_pred = np.asarray(y_pred)
-    probas = np.vstack(probas)
+    return _resultado(y_true, y_pred, probas, reg_col)
+
+
+def _resultado(
+    y_true: np.ndarray, y_pred: np.ndarray, probas: np.ndarray, reg_col: list,
+) -> dict:
+    """Ensamblado común de métricas (§8.2) para cualquier esquema de folds."""
+    clases = np.unique(y_true)
     df_pred = pd.DataFrame(
         {'registro': reg_col, 'clase_real': y_true, 'clase_pred': y_pred}
     )
@@ -204,7 +209,6 @@ def validacion_loro(
             [brier_score_loss((y_true == c).astype(int), probas[:, j]) for j, c in enumerate(clases)]
         )
     )
-    # IC bootstrap por registro (percentil 95 %)
     rng = np.random.default_rng(42)
     regs_unicos = np.unique(reg_col)
     idx_por_reg = {r: np.flatnonzero(np.asarray(reg_col) == r) for r in regs_unicos}
@@ -216,16 +220,14 @@ def validacion_loro(
         macros.append(np.nanmean([v['f1'] for v in met.values()]))
     ic = {'f1_macro_p2.5': float(np.percentile(macros, 2.5)),
           'f1_macro_p97.5': float(np.percentile(macros, 97.5))}
+    voto = _voto_mayoritario(df_pred)
     return {
         'metricas_por_clase': metricas,
         'macro': macro,
         'brier_multiclase': brier,
         'matriz_confusion_ventanas': confusion_matrix(y_true, y_pred, labels=clases).tolist(),
         'matriz_confusion_registros': confusion_matrix(
-            _voto_mayoritario(df_pred)['clase_real'],
-            _voto_mayoritario(df_pred)['clase_pred'],
-            labels=clases,
-        ).tolist(),
+            voto['clase_real'], voto['clase_pred'], labels=clases).tolist(),
         'clases': clases.tolist(),
         'ic_bootstrap': ic,
         'predicciones': df_pred.assign(**{
@@ -234,6 +236,67 @@ def validacion_loro(
         'probas': probas,
         'y_true': y_true,
     }
+
+
+def submuestrear_mayoria(
+    X: np.ndarray, y: np.ndarray, grupos: np.ndarray, ratio: float = 3.0, seed: int = 42,
+) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+    """Tope a la clase mayoritaria en ratio × (segunda clase) (F14-bis).
+
+    El desbalance extremo de ZZU (95 % Sinusal) colapsaba SVM y RF hacia
+    la mayoría (Se SVT 4 %); el submuestreo se aplica SOLO al conjunto de
+    entrenamiento — el test se mantiene intacto para métricas honestas.
+    Mantiene grupos (pacientes) de las filas conservadas.
+    """
+    conteos = pd.Series(y).value_counts()
+    if len(conteos) < 2:
+        return X, y, grupos
+    mayor, segunda = conteos.index[0], conteos.index[1]
+    tope = int(ratio * conteos.iloc[1])
+    if conteos.iloc[0] <= tope:
+        return X, y, grupos
+    idx_mayor = np.flatnonzero(y == mayor)
+    rng = np.random.default_rng(seed)
+    conservar = rng.choice(idx_mayor, size=tope, replace=False)
+    mascara = np.ones(y.size, dtype=bool)
+    mascara[idx_mayor] = False
+    mascara[conservar] = True
+    return X[mascara], y[mascara], grupos[mascara]
+
+
+def validacion_grupos(
+    X: pd.DataFrame, y: pd.Series, grupos: pd.Series, k: int = 5,
+    spec: ExperimentSpec = ExperimentSpec(), equilibrar: float | None = None,
+) -> dict:
+    """Validación cruzada GroupKFold anidada por PACIENTE (corpus ZZU,
+    Etapa II/F14). Sustituye al LORO por registro cuando hay miles de
+    registros: k folds externos por paciente, selección de hiperparámetros
+    en folds internos agrupados (§8.1). Mismo ensamblado de métricas §8.2.
+
+    equilibrar: si se fija, submuestrea la clase mayoritaria del TRAIN de
+    cada fold a equilibrar × segunda clase (test intacto).
+    """
+    Xv = X.to_numpy(dtype=float)
+    yv = y.to_numpy()
+    gv = grupos.to_numpy()
+    clases = np.unique(yv)
+    y_true, y_pred, probas, reg_col = [], [], [], []
+    for i, (tr, te) in enumerate(GroupKFold(n_splits=k).split(Xv, yv, gv), 1):
+        X_tr, y_tr, g_tr = Xv[tr], yv[tr], gv[tr]
+        if equilibrar:
+            X_tr, y_tr, g_tr = submuestrear_mayoria(X_tr, y_tr, g_tr, equilibrar, seed=42 + i)
+            print(f'    fold {i}/{k}: train {len(yv[tr])} -> {len(y_tr)} tras '
+                  f'equilibrar x{equilibrar}', flush=True)
+        modelo = entrenar_calibrado(X_tr, y_tr, g_tr, spec)
+        proba = modelo.predict_proba(Xv[te])
+        pred = clases[np.argmax(proba, axis=1)]
+        y_true.extend(yv[te])
+        y_pred.extend(pred)
+        probas.append(proba)
+        reg_col.extend(gv[te].tolist())
+        print(f'    fold {i}/{k}: n_test={te.size}', flush=True)
+    return _resultado(
+        np.asarray(y_true), np.asarray(y_pred), np.vstack(probas), reg_col)
 
 
 def curvas_confiabilidad(y_true: np.ndarray, p_proba: np.ndarray) -> dict:

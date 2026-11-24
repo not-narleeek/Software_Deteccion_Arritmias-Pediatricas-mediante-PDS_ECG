@@ -1,0 +1,21 @@
+ventanas: 58178 en 7 shards
+por partición: {'train': 46958, 'val': 5649, 'test': 5571}
+clases por partición:
+particion  clase  
+test       Otro        2341
+           Paced         10
+           SVT          128
+           Sinusal     3017
+           VT            75
+train      Otro       20060
+           Paced         86
+           SVT         1245
+           Sinusal    25255
+           VT           312
+val        Otro        2452
+           Paced          8
+           SVT          128
+           Sinusal     3013
+           VT            48
+
+errores: ninguno

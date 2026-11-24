@@ -1,0 +1,124 @@
+{
+  "protocolo": "5-fold StratifiedGroupKFold por paciente; solo señal",
+  "n_registros": 588,
+  "n_pacientes": 531,
+  "f1_paced": 0.9756944444444444,
+  "precision_paced": 0.9964539007092199,
+  "sensibilidad_paced": 0.95578231292517,
+  "especificidad": 0.9965986394557823,
+  "auc_roc": 0.9824147346013234,
+  "matriz_confusion": [
+    [
+      293,
+      1
+    ],
+    [
+      13,
+      281
+    ]
+  ],
+  "folds": [
+    {
+      "fold": 1,
+      "registros": 118,
+      "pacientes": 105,
+      "f1": 0.9649122807017544,
+      "sensibilidad": 0.9322033898305084,
+      "auc_roc": 0.9810399310542948
+    },
+    {
+      "fold": 2,
+      "registros": 118,
+      "pacientes": 107,
+      "f1": 0.9739130434782609,
+      "sensibilidad": 0.9491525423728814,
+      "auc_roc": 0.9867854064923873
+    },
+    {
+      "fold": 3,
+      "registros": 117,
+      "pacientes": 106,
+      "f1": 0.9827586206896551,
+      "sensibilidad": 0.9661016949152542,
+      "auc_roc": 0.9815897136177675
+    },
+    {
+      "fold": 4,
+      "registros": 118,
+      "pacientes": 107,
+      "f1": 0.9739130434782609,
+      "sensibilidad": 0.9491525423728814,
+      "auc_roc": 0.9626544096523987
+    },
+    {
+      "fold": 5,
+      "registros": 117,
+      "pacientes": 106,
+      "f1": 0.9827586206896551,
+      "sensibilidad": 0.9827586206896551,
+      "auc_roc": 0.9973699590882524
+    }
+  ],
+  "test_zzu_consultado": false,
+  "transferencia_ptb_a_leipzig": {
+    "protocolo": "RF ajustado en todo PTB-XL seleccionado; umbral 0.5 fijo; transferencia sin ajuste a Leipzig",
+    "global": {
+      "ventanas": 616,
+      "positivas": 281,
+      "f1_paced": 0.8427184466019417,
+      "precision_paced": 0.9273504273504274,
+      "sensibilidad_paced": 0.7722419928825622,
+      "especificidad": 0.9492537313432836,
+      "auc_roc": 0.9326180485472991,
+      "matriz_confusion": [
+        [
+          318,
+          17
+        ],
+        [
+          64,
+          217
+        ]
+      ]
+    },
+    "pediatrico": {
+      "ventanas": 445,
+      "positivas": 200,
+      "f1_paced": 0.7932011331444759,
+      "precision_paced": 0.9150326797385621,
+      "sensibilidad_paced": 0.7,
+      "especificidad": 0.9469387755102041,
+      "auc_roc": 0.9263979591836735,
+      "matriz_confusion": [
+        [
+          232,
+          13
+        ],
+        [
+          60,
+          140
+        ]
+      ]
+    },
+    "adulto_chd": {
+      "ventanas": 171,
+      "positivas": 81,
+      "f1_paced": 0.9506172839506173,
+      "precision_paced": 0.9506172839506173,
+      "sensibilidad_paced": 0.9506172839506173,
+      "especificidad": 0.9555555555555556,
+      "auc_roc": 0.9664609053497942,
+      "matriz_confusion": [
+        [
+          86,
+          4
+        ],
+        [
+          4,
+          77
+        ]
+      ]
+    },
+    "test_zzu_consultado": false
+  }
+}

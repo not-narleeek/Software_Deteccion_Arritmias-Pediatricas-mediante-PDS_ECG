@@ -1,0 +1,22 @@
+{
+  "ptb_xl": {
+    "registros_paced": 294,
+    "pacientes_paced": 237,
+    "controles": 294,
+    "edad_min_paced": 26.0,
+    "pediatricos_paced": 0,
+    "senales_descargadas": 588
+  },
+  "leipzig": {
+    "registros_total": 39,
+    "registros_con_pacing": 34,
+    "pediatricos_con_pacing": 25,
+    "paced_beats": 13779,
+    "senales_descargadas": 34
+  },
+  "politica": {
+    "test_zzu_consultado": false,
+    "mezcla_automatica_con_zzu": false,
+    "uso_previsto": "preentrenamiento/ablacion externa solamente"
+  }
+}

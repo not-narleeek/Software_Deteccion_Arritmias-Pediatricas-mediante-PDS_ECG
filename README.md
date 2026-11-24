@@ -9,7 +9,7 @@ Proyecto académico de la asignatura **Proyectos en TICS II** (Facultad de Ingen
 | Código de proyecto | `TICS-II-2026-ECG-PED` |
 | Duración | 16 semanas (1 septiembre – 20 diciembre 2026) |
 | Experto asesor clínico | Diego Maureira |
-| Estado | Etapa I completa sobre corpus ampliado: PPS v0.1 (Leipzig) + E1-bis ZZU pECG ([docs/etapa1_zzu_pecg.md](docs/etapa1_zzu_pecg.md)); Etapa II en curso — F6–F8 verificados en Leipzig, F9 en pausa; pendiente validación del experto (AP-1/2/3) |
+| Estado | Etapa II cerrada sobre corpus ZZU pECG (F11–F14: mejor RF F1 macro 0,518; Brier 0,037 ✅). Etapa II-bis en curso tras feedback del experto (12-oct): Deep Learning ZZU-only + Optuna en Vast.ai — [docs/plan_dl_zzu.md](docs/plan_dl_zzu.md). Depuración ZZU-only (13-oct): Leipzig eliminado del proyecto (datos, scripts y results F1–F9). |
 
 ## Motivación
 
@@ -46,13 +46,11 @@ Diagnóstico de ritmo + porcentaje de certeza
 - Etiquetas por registro: enunciados ECG AHA/ACC/HRS 2007 + ICD-10 + índices de calidad (pSQI/basSQI/bSQI)
 - Tras QC del 100 % del corpus: **13.436 estudios aceptados** (754 excluidos con causa) — Sinusal 7.238 / Otro 5.767 / SVT 317 / VT 92 / Paced 22
 
-[Leipzig Heart Center ECG Database](https://physionet.org/content/leipzig-heart-center-ecg-database-arrhythmias-in-children-and-patients-with-congenital-heart-disease/) (PhysioNet, 2025) — desarrollo del método (F6–F8 verificados sobre ella), anotación de ritmo por segmento (`.atr`), aporte principal de clase Paced y validación externa por población:
+> Ningún dataset se encuentra en este repositorio (peso excesivo, excluidos vía `.gitignore` bajo `data/`). Descarga y verificación de ZZU pECG: checksums y URLs en [results/fase1_limpieza/inventario_zzu/fuente.txt](results/fase1_limpieza/inventario_zzu/fuente.txt) y metodología completa en [docs/metodologia_zzu_pecg.md](docs/metodologia_zzu_pecg.md).
+>
+> **Historial:** el dataset Leipzig Heart Center (PhysioNet, 2025) se usó como corpus de desarrollo en la Etapa I (F1–F9, method development y validación del detector). Eliminado del proyecto el 13-oct-2026 por decisión del equipo (ZZU-only); su evidencia histórica queda descrita en los docs de etapa y en el historial de git.
 
-- 29 registros pediátricos (`x001`–`x029`, 977 Hz) + 10 adultos (`x100`–`x109`) solo comparativos
-
-> Ningún dataset se encuentra en este repositorio (peso excesivo, excluidos vía `.gitignore` bajo `data/`). Descarga y verificación de ZZU pECG: checksums y URLs en [results/inventario_zzu/fuente.txt](results/inventario_zzu/fuente.txt) y metodología completa en [docs/metodologia_zzu_pecg.md](docs/metodologia_zzu_pecg.md); Leipzig desde PhysioNet.
-
-Scripts del corpus ZZU (rama `busqueda-datos`): `scripts/inventario_zzu.py` (inventario + mapeo AHA→clases), `scripts/analisis_zzu.py` (análisis exploratorio), `scripts/qc_zzu.py` (control de calidad 100 %). Evidencia en `results/inventario_zzu/`, `results/analisis_zzu/`, `results/qc_zzu/`.
+Scripts del corpus ZZU (rama `busqueda-datos`): `scripts/inventario_zzu.py` (inventario + mapeo AHA→clases), `scripts/analisis_zzu.py` (análisis exploratorio), `scripts/qc_zzu.py` (control de calidad 100 %). Evidencia en `results/fase1_limpieza/inventario_zzu/`, `results/fase1_limpieza/analisis_zzu/`, `results/fase1_limpieza/qc_zzu/`.
 
 ## Objetivos y métricas de éxito (KPI)
 
@@ -65,7 +63,7 @@ Scripts del corpus ZZU (rama `busqueda-datos`): `scripts/inventario_zzu.py` (inv
 
 ## Stack
 
-Software libre exclusivamente (presupuesto $0): **Python 3.11**, `wfdb`, **NumPy**, **SciPy**, **pandas**, **scikit-learn**, **Matplotlib**. El entorno se gestiona con [uv](https://docs.astral.sh/uv/):
+Software libre exclusivamente: **Python 3.11–3.12**, `wfdb`, **NumPy**, **SciPy**, **pandas**, **scikit-learn**, **Matplotlib**. El entorno se gestiona con [uv](https://docs.astral.sh/uv/):
 
 ```bash
 uv sync                      # crea .venv e instala dependencias desde uv.lock
@@ -74,6 +72,11 @@ uv run jupyter lab           # notebooks de exploración
 ```
 
 Las versiones exactas quedan fijadas en `uv.lock` (comprometido al repo). Para generar un `requirements.txt` si la cátedra lo exige: `uv export --format requirements-txt`.
+
+Entrenamiento Deep Learning (Etapa II-bis): instancia GPU PyTorch de Vast.ai
+(PyTorch + Optuna, ver [docs/plan_dl_zzu.md](docs/plan_dl_zzu.md) y el
+[runbook de Vast.ai](docs/runbooks/vastai_dl.md)). El entorno `uv` local queda
+reservado al pipeline PDS y al empaquetado de datos.
 
 ## Etapas del proyecto
 
@@ -90,3 +93,11 @@ Las versiones exactas quedan fijadas en `uv.lock` (comprometido al repo). Para g
 - No es un dispositivo médico certificado: uso limitado a investigación, educación y soporte diagnóstico no certificado.
 - Diagnóstica ritmos eléctricos, no patologías estructurales del corazón.
 - Validación retrospectiva sobre el dataset; sin captura de ECG en pacientes reales.
+
+## Modelo colaborativo F22
+
+El candidato F22 seed 14 dispone de un paquete aislado para descarga,
+verificación e inferencia en
+[`contrib/carlos/f22_seed14/`](contrib/carlos/f22_seed14/README.md). Los pesos se
+distribuyen como un GitHub Release y no forman parte del historial del
+repositorio.

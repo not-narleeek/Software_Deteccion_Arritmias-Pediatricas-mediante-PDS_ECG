@@ -1,0 +1,3 @@
+modelo,sensibilidad_Paced,especificidad_Paced,f1_Paced,soporte_Paced,sensibilidad_SVT,especificidad_SVT,f1_SVT,soporte_SVT,sensibilidad_Sinusal,especificidad_Sinusal,f1_Sinusal,soporte_Sinusal,sensibilidad_VT,especificidad_VT,f1_VT,soporte_VT,f1_macro,brier
+svm,0.25,0.999,0.321,104,0.448,0.951,0.36,1501,0.933,0.639,0.954,31285,0.549,0.974,0.314,435,0.487,0.039
+rf,0.25,0.999,0.344,104,0.559,0.925,0.354,1501,0.92,0.709,0.949,31285,0.533,0.987,0.425,435,0.518,0.037

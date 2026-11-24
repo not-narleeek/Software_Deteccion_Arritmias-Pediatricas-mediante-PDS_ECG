@@ -1,0 +1,22 @@
+corpus: 13436 registros | det_ok global: 100.0%
+
+== det_ok y FC por clase ==
+            n  det_ok    pct  fc_med  fc_p25  fc_p75
+clase                                               
+Otro     5767    5767  100.0    88.0    77.4   100.5
+Paced      22      22  100.0   121.2    91.0   139.5
+SVT       317     317  100.0   145.6   103.8   178.6
+Sinusal  7238    7236  100.0    95.0    74.4   121.4
+VT         92      92  100.0   149.1   131.2   169.5
+
+== det_ok por nº derivaciones ==
+         count    sum     mean
+n_deriv                       
+9         1641   1641  1.00000
+12       11795  11793  0.99983
+
+== degradación V1 vs V2 (n=396, 12-deriv) ==
+|ΔFC| mediana: 0.2 lpm | p90: 4.4
+razón latidos V1/V2 mediana: 1.000
+
+ACEPTACIÓN: det_ok≥95% global True | por clase True | FC SVT>Sinusal True

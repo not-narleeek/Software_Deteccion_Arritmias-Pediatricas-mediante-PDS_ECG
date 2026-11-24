@@ -77,7 +77,8 @@ def detectar_espiculas(x_crudo: np.ndarray, fs: int = FS, slew_k: float = 2.5) -
     x = np.asarray(x_crudo, dtype=np.float64)
     if x.ndim == 2:
         x = x[:, 1]  # derivación II
-    sos = signal.butter(3, [80.0, 250.0], btype='bandpass', fs=fs, output='sos')
+    f_hi = min(250.0, 0.95 * fs / 2)  # ZZU 500 Hz: Nyquist 250 -> 237.5
+    sos = signal.butter(3, [80.0, f_hi], btype='bandpass', fs=fs, output='sos')
     b = np.abs(signal.sosfiltfilt(sos, x))
     med = np.median(b)
     mad = np.median(np.abs(b - med)) * 1.4826
@@ -132,7 +133,7 @@ def detectar_espiculas_multiderivacion(
     return np.asarray(fusion, dtype=int)
 
 
-def documentar_respuesta(spec: FilterSpec = FilterSpec(), salida: str = 'results/figuras') -> None:
+def documentar_respuesta(spec: FilterSpec = FilterSpec(), salida: str = 'results/fase2_pipeline/figuras') -> None:
     """Genera módulo/fase vs frecuencia por filtro y tabla de ganancias
     en 0.5/40/49.5/50/50.5 Hz (RF2, §3.3)."""
     out = Path(salida)

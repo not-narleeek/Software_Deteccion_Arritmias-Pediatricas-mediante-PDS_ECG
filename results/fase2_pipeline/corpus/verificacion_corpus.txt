@@ -1,0 +1,11 @@
+ventanas ZZU: 58178
+por clase:
+clase
+Otro       24853
+Paced        104
+SVT         1501
+Sinusal    31285
+VT           435
+calidad_dudosa: 7892 ventanas
+
+errores: ninguno

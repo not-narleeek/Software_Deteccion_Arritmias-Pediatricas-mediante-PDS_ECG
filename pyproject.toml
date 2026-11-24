@@ -2,7 +2,7 @@
 name = "deteccion-arritmias-pediatricas-ecg"
 version = "0.1.0"
 description = "Software de Detección de Arritmias Pediátricas mediante Procesamiento Digital de Señales ECG — Proyectos TICS II, UDP"
-requires-python = ">=3.11,<3.12"
+requires-python = ">=3.11,<3.13"
 dependencies = [
     "wfdb>=4.1",
     "numpy>=1.26",

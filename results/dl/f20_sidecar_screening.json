@@ -1,0 +1,23 @@
+{
+  "estado": "ROJO",
+  "protocolo": "RF HF train -> val fija; umbral 0.5; sin test",
+  "f1_paced_binario_val": 0.0,
+  "precision": 0.0,
+  "sensibilidad": 0.0,
+  "especificidad": 0.9964545293387698,
+  "auc_roc": 0.28691721326006026,
+  "matriz_confusion": [
+    [
+      5621,
+      20
+    ],
+    [
+      8,
+      0
+    ]
+  ],
+  "paced_train": 86,
+  "paced_val": 8,
+  "test_consultado": false,
+  "decision": "revisar etiqueta P05649 antes de usar GPU"
+}

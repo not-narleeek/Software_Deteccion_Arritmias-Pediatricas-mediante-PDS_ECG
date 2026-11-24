@@ -1,6 +1,0 @@
-DECISION F8 (cláusula F3-1): grupo morfológico = wavelet
-Criterio: f1_macro CV agrupada por registro
-  grupo  fisher_medio  fisher_max  f1_macro_media  f1_macro_std
-    dct      0.016529    0.083490        0.580156      0.139763
-wavelet      0.034716    0.061263        0.643248      0.057505
-Fecha: 2026-09-09 (Etapa II, scripts/experimento_dct_wavelet.py)

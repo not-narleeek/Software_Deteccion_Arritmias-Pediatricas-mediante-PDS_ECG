@@ -20,7 +20,7 @@ Reglas (evidencia: docs/analisis_zzu_pecg.md §2.C/§3.1, muestra 874):
               pico_50hz_x > 20                       [interferencia severa]
   MARCAR calidad_dudosa (NO excluir): bsqi_min < 0.95 (confunde con arritmia).
 
-Salidas (results/qc_zzu/): qc_registros.csv (todo), excluidos.csv (con
+Salidas (results/fase1_limpieza/qc_zzu/): qc_registros.csv (todo), excluidos.csv (con
 causa), resumen.txt.
 
 Uso:  uv run python scripts/qc_zzu.py
@@ -37,8 +37,8 @@ import wfdb
 
 RAIZ = Path(__file__).resolve().parents[1]
 DATA = RAIZ / 'data' / 'zzu_pecg' / 'Child_ecg'
-REG = RAIZ / 'results' / 'inventario_zzu' / 'registros.csv'
-OUT = RAIZ / 'results' / 'qc_zzu'
+REG = RAIZ / 'results' / 'fase1_limpieza' / 'inventario_zzu' / 'registros.csv'
+OUT = RAIZ / 'results' / 'fase1_limpieza' / 'qc_zzu'
 
 FS = 500
 UMBRAL_II = 5.0
