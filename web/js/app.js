@@ -412,8 +412,12 @@ function descargarReporte(res, ctx) {
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
   a.download = 'reporte_ecg_demo.txt';
+  document.body.appendChild(a);
   a.click();
-  URL.revokeObjectURL(a.href);
+  a.remove();
+  // Revocar diferido: si se revoca inmediatamente después de click(),
+  // Firefox/Safari pueden cancelar la descarga antes de leer el blob.
+  setTimeout(() => URL.revokeObjectURL(a.href), 10000);
 }
 
 /* ---------- inicialización ---------- */
