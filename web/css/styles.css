@@ -17,15 +17,18 @@ body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica N
 .skip{position:absolute;left:-999px;top:0;background:#fff;padding:10px 16px;z-index:99;border-radius:0 0 8px 0}
 .skip:focus{left:0}
 
-/* Barra superior */
-.topbar{position:sticky;top:0;z-index:20;background:rgba(255,255,255,.92);backdrop-filter:blur(6px);border-bottom:1px solid var(--linea)}
-.barra{display:flex;align-items:center;justify-content:space-between;gap:16px;min-height:60px;flex-wrap:wrap}
-.marca{display:flex;align-items:center;gap:10px;color:var(--tinta);text-decoration:none}
-.marca .logo{font-size:1.5rem}
-.marca small{display:block;color:var(--muted);font-size:.75rem}
-.topbar nav{display:flex;gap:4px;flex-wrap:wrap}
-.topbar nav a{color:var(--tinta);text-decoration:none;padding:8px 10px;border-radius:8px;font-weight:600;font-size:.92rem}
+/* Barra superior: píldora blanca flotante; se superpone al héroe (margen inferior negativo) */
+.topbar{position:sticky;top:0;z-index:20;padding:10px 20px;margin-bottom:-84px}
+.topbar .contenedor{max-width:1200px;padding:0}
+.barra{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:64px;flex-wrap:nowrap;background:#fff;border-radius:999px;box-shadow:0 2px 6px rgba(16,32,46,.08),0 10px 30px rgba(16,32,46,.12);padding:0 12px 0 18px}
+.marca{display:flex;align-items:center;gap:10px;color:#0b1b3a;text-decoration:none;flex:none}
+.marca svg{width:36px;height:32px;flex:none}
+.marca-nombre{font-size:1.4rem;letter-spacing:-.01em;white-space:nowrap}
+.topbar nav{display:flex;gap:2px;flex-wrap:nowrap;min-width:0}
+.topbar nav::before{content:"";flex:none;width:1px;height:30px;background:var(--linea);margin:0 14px 0 16px}
+.topbar nav a{color:#0b1b3a;text-decoration:none;padding:9px 13px;border-radius:999px;font-weight:600;font-size:.95rem;white-space:nowrap}
 .topbar nav a:hover{background:var(--gris-bg)}
+.topbar nav a[aria-current]{background:#dceafb;color:#1d4fa8}
 /* Botón «Menú»: solo se muestra en pantallas angostas y con JavaScript (bloque «Responsive»); sin JS la navegación va siempre desplegada */
 .boton-menu{display:none;align-items:center;gap:8px;min-height:44px;padding:0 14px;border:2px solid var(--linea);border-radius:999px;background:#fff;color:var(--tinta);font:inherit;font-size:.95rem;font-weight:700;cursor:pointer}
 .boton-menu:hover,.menu-abierto .boton-menu{border-color:var(--primario);background:#eef8fb}
@@ -38,9 +41,13 @@ body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica N
 .menu-abierto .boton-menu-icono::after{transform:rotate(-45deg)}
 
 /* Héroe */
-.hero{background:linear-gradient(135deg,#0b5c73,#0e7490 70%,#14919b);color:#fff;padding:64px 0 56px}
+.hero{background:linear-gradient(135deg,#0b5c73,#0e7490 70%,#14919b);color:#fff;padding:140px 0 56px}
 .hero .etiqueta{margin:0 0 10px;font-size:.85rem;letter-spacing:.06em;text-transform:uppercase;color:#cfeef5;font-weight:700}
 .hero h1{margin:0 0 14px;font-size:clamp(1.7rem,4.5vw,2.6rem);line-height:1.15}
+/* Sobre el degradado del héroe los botones invierten sus colores para no perderse */
+.hero .boton.principal{background:#fff;color:var(--primario-osc)}
+.hero .boton.secundario{background:transparent;color:#fff;border-color:#fff}
+.hero .boton.secundario:hover{background:rgba(255,255,255,.14)}
 .hero .bajada{max-width:640px;font-size:1.08rem;color:#e7f6fa;margin:0 0 26px}
 .acciones{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
 .hero .enlace{color:#e7f6fa}
@@ -61,7 +68,7 @@ body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica N
 /* Secciones */
 .seccion{margin:44px 0}
 /* El topbar es sticky: al navegar por anclas, reserva su altura para no tapar el título */
-[id]{scroll-margin-top:84px}
+[id]{scroll-margin-top:96px}
 h2{font-size:1.5rem;margin:0 0 6px}
 h3{font-size:1.12rem;margin:0 0 12px}
 h4{margin:18px 0 8px;font-size:1rem}
@@ -164,14 +171,20 @@ footer{margin-top:56px;border-top:1px solid var(--linea);background:#fff}
 footer .contenedor{padding:22px 20px;color:var(--muted);font-size:.9rem;display:flex;gap:14px;flex-wrap:wrap;justify-content:space-between}
 
 /* Responsive */
-@media (max-width:1099px){
+@media (max-width:1159px){
   /* El menú de secciones se pliega tras el botón «Menú»; sin JavaScript queda desplegado y la barra deja de ser fija */
   .js .boton-menu{display:inline-flex}
-  .js .topbar nav{display:none;flex:0 0 100%;flex-direction:column;flex-wrap:nowrap;gap:2px;max-height:calc(100vh - 60px);overflow:auto;padding:6px 0 10px;border-top:1px solid var(--linea)}
+  .js .topbar nav{display:none;flex:1 0 100%;min-width:0;flex-direction:column;flex-wrap:nowrap;gap:2px;max-height:calc(100vh - 100px);overflow:auto;padding:6px 0 8px;border-top:1px solid var(--linea)}
   .js .topbar.menu-abierto nav{display:flex}
-  .js .topbar.menu-abierto{background:#fff}
+  .js .topbar.menu-abierto .barra{border-radius:28px}
+  .js .topbar nav::before{display:none}
+  .js .barra{flex-wrap:wrap;padding-bottom:6px}
+  .js .topbar.menu-abierto .barra{padding-bottom:10px}
   .js .topbar nav a{display:flex;align-items:center;min-height:44px;padding:11px 12px}
   html:not(.js) .topbar{position:static}
+  html:not(.js) .barra{border-radius:28px;padding-bottom:10px;flex-wrap:wrap}
+  html:not(.js) .topbar nav{flex:0 0 100%;flex-wrap:wrap}
+  html:not(.js) .topbar nav::before{display:none}
   /* Aquí el texto del héroe alcanza la zona clara del degradado, que no cumple contraste AA: se oscurece */
   .hero{background:linear-gradient(135deg,#0b5c73,#0e7490)}
 }

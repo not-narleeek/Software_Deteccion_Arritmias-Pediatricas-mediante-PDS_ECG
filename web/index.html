@@ -26,7 +26,20 @@
     barra.classList.remove('menu-abierto');
     boton.setAttribute('aria-expanded', 'false');
     boton.focus();
+  /* Sección activa: marca con aria-current el enlace de la sección que ocupa el borde superior de la pantalla */
   });
+
+  /* Sección activa: marca con aria-current el enlace de la sección que ocupa el borde superior de la pantalla */
+  const marcarActiva = () => {
+    const enlaces = [...document.querySelectorAll('.topbar nav a')];
+    let activa = null;
+    for (const a of enlaces) if (document.querySelector(a.getAttribute('href')).getBoundingClientRect().top <= 120) activa = a;
+    if (scrollY + innerHeight >= document.documentElement.scrollHeight - 2) activa = enlaces[enlaces.length - 1];
+    for (const a of enlaces) if (a === activa) a.setAttribute('aria-current', 'true'); else a.removeAttribute('aria-current');
+  };
+  let pendiente = false;
+  addEventListener('scroll', () => { if (!pendiente) { pendiente = true; requestAnimationFrame(() => { marcarActiva(); pendiente = false; }); } }, { passive: true });
+  addEventListener('load', marcarActiva);
 </script>
 </head>
 <body>
@@ -35,8 +48,11 @@
 <header class="topbar">
   <div class="contenedor barra">
     <a class="marca" href="#inicio">
-      <span class="logo" aria-hidden="true">🫀</span>
-      <span><strong>ECG Pediátrico</strong><small>UDP · TICS II</small></span>
+      <svg viewBox="0 0 48 42" aria-hidden="true" focusable="false">
+        <path d="M24 39C24 39 4 26.5 4 13.5 4 5.8 9.8 1.5 15.6 1.5 19.8 1.5 22.9 4 24 6.8 25.1 4 28.2 1.5 32.4 1.5 38.2 1.5 44 5.8 44 13.5 44 26.5 24 39 24 39Z" fill="#fff" stroke="#1d4fa8" stroke-width="2.4" stroke-linejoin="round"/>
+        <path d="M0 21h13l4-7 4.5 16 4.5-20 3 11h19" fill="none" stroke="#1d4fa8" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <span class="marca-nombre">Pedia<strong>ECG</strong></span>
     </a>
     <button class="boton-menu" type="button" aria-expanded="false" aria-controls="nav-secciones">
       <span class="boton-menu-icono" aria-hidden="true"></span>Menú

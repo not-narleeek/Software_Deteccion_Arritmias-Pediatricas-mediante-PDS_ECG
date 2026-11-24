@@ -73,6 +73,10 @@ tabla de fuentes (§4): ninguna cifra va sin su referencia enlazada, y cada cita
 `[n]` salta a la entrada correspondiente de la lista de fuentes de su sección.
 Para cambiar una cifra o añadir una, editar primero ese documento.
 
-La barra superior enlaza las ocho secciones. Por debajo de 1100 px la
-navegación se pliega tras el botón «Menú»; sin JavaScript queda siempre
-desplegada y la barra deja de ser fija.
+La barra superior es una píldora blanca flotante (logo + «PediaECG», separador y
+enlaces) que enlaza las ocho secciones y resalta la sección visible. Por debajo
+de 1160 px la navegación se pliega tras el botón «Menú»; sin JavaScript queda
+siempre desplegada y la barra deja de ser fija. El logo es un SVG inline en
+`index.html` (corazón con trazo ECG, `#1d4fa8`), redibujado a partir de la
+imagen de referencia: si existe el archivo original del logo, conviene
+reemplazarlo.
