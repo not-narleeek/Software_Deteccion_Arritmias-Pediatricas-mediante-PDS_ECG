@@ -55,7 +55,9 @@ function detectarPicos(sig, fs) {
     sm[i] = acc / Math.min(i + 1, K);
   }
   const p95 = percentil(sm, 0.95), med = mediana(sm);
-  const thr = med + 0.4 * (p95 - med);
+  // El umbral adaptativo p95 puede quedar a nivel de onda T / espícula (los QRS angostos
+  // ocupan <5 % de las muestras); nunca baja de la mitad del nivel pico (p99).
+  const thr = Math.max(med + 0.4 * (p95 - med), 0.5 * percentil(sm, 0.99));
   const minDist = Math.round(0.2 * fs); // 200 ms → máx 300 lpm
   const picos = [];
   for (let i = 1; i < sm.length - 1; i++) {
@@ -163,6 +165,9 @@ function clasificar(ctx) {
     s.SVT += 0.5;
     adv.push('FC sobre el rango esperado para la edad indicada (' + rango.lo + '–' + rango.hi + ' lpm): ' + fmt(hr, 0) + ' lpm (taquicardia).');
   }
+
+  /* QRS ancho (≥120 ms): la SVT se define por complejos estrechos; descuenta SVT */
+  if (ctx.anchoQRS != null && ctx.anchoQRS >= 120) s.SVT *= 0.35;
 
   /* Irregularidad marcada: fuera del alcance del modelo */
   if (ctx.cv > 0.12) {
