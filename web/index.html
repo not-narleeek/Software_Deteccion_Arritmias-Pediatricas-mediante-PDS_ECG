@@ -1,33 +1,6 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Detector de Arritmias Pediátricas · Portal de demostración</title>
 <meta name="description" content="Demostración web del proyecto de detección de arritmias pediátricas mediante PDS de señales ECG (TICS II, UDP): la problemática, la situación en Chile, la propuesta de valor y un analizador de ECG demostrativo. Uso académico; no es un dispositivo médico.">
-<link rel="stylesheet" href="css/styles.css">
-<script>
-  /* Menú de secciones plegable en pantallas angostas (bloque «Responsive» de css/styles.css).
-     Sin JavaScript el menú queda siempre desplegado. */
-  document.documentElement.classList.add('js');
-  document.addEventListener('click', e => {
-    const barra = document.querySelector('.topbar'), boton = barra.querySelector('.boton-menu');
-    const en = sel => e.target instanceof Element && !!e.target.closest(sel);
-    let abierto = barra.classList.contains('menu-abierto');
-    if (en('.boton-menu')) abierto = !abierto;                                      // el botón alterna
-    else if (abierto && (en('.topbar nav a') || !en('.topbar'))) abierto = false;   // sección elegida o clic fuera: se cierra
-    else return;
-    barra.classList.toggle('menu-abierto', abierto);
-    boton.setAttribute('aria-expanded', String(abierto));
-  });
-  document.addEventListener('keydown', e => {
-    const barra = document.querySelector('.topbar'), boton = barra.querySelector('.boton-menu');
-    if (e.key !== 'Escape' || !boton.offsetParent || !barra.classList.contains('menu-abierto')) return;
-    barra.classList.remove('menu-abierto');
-    boton.setAttribute('aria-expanded', 'false');
-    boton.focus();
   /* Sección activa: marca con aria-current el enlace de la sección que ocupa el borde superior de la pantalla */
-  });
 
   /* Sección activa: marca con aria-current el enlace de la sección que ocupa el borde superior de la pantalla */
   const marcarActiva = () => {
@@ -40,24 +13,9 @@
   let pendiente = false;
   addEventListener('scroll', () => { if (!pendiente) { pendiente = true; requestAnimationFrame(() => { marcarActiva(); pendiente = false; }); } }, { passive: true });
   addEventListener('load', marcarActiva);
-</script>
-</head>
 <body>
 <a class="skip" href="#analizar">Saltar al analizador</a>
-
-<header class="topbar">
-  <div class="contenedor barra">
     <a class="marca" href="#inicio">
-      <svg viewBox="0 0 48 42" aria-hidden="true" focusable="false">
-        <path d="M24 39C24 39 4 26.5 4 13.5 4 5.8 9.8 1.5 15.6 1.5 19.8 1.5 22.9 4 24 6.8 25.1 4 28.2 1.5 32.4 1.5 38.2 1.5 44 5.8 44 13.5 44 26.5 24 39 24 39Z" fill="#fff" stroke="#1d4fa8" stroke-width="2.4" stroke-linejoin="round"/>
-        <path d="M0 21h13l4-7 4.5 16 4.5-20 3 11h19" fill="none" stroke="#1d4fa8" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
-      </svg>
-      <span class="marca-nombre">Pedia<strong>ECG</strong></span>
-    </a>
-    <button class="boton-menu" type="button" aria-expanded="false" aria-controls="nav-secciones">
-      <span class="boton-menu-icono" aria-hidden="true"></span>Menú
-    </button>
-    <nav id="nav-secciones" aria-label="Secciones">
       <a href="#problema">El problema</a>
       <a href="#chile">Chile</a>
       <a href="#propuesta">Propuesta</a>
@@ -66,11 +24,6 @@
       <a href="#guia">Guía</a>
       <a href="#modelo">Modelo real</a>
       <a href="#limitaciones">Limitaciones</a>
-    </nav>
-  </div>
-</header>
-
-<main id="inicio">
   <section class="hero">
     <div class="contenedor">
       <p class="etiqueta">Proyecto TICS-II-2026-ECG-PED · Universidad Diego Portales</p>
@@ -80,15 +33,11 @@
         <a class="boton principal" href="#analizar">Iniciar análisis</a>
         <a class="boton secundario" href="#como-funciona">¿Cómo funciona?</a>
         <a class="enlace" href="#problema">¿Por qué importa? → El problema</a>
-      </div>
-    </div>
   </section>
-
   <div class="contenedor">
     <aside class="aviso" role="note">
       <strong>⚠️ Aviso importante:</strong> esta web es una <strong>demostración académica</strong>. No es un dispositivo médico certificado, no diagnostica y no reemplaza el criterio clínico profesional. Ante un paciente inestable, siga el protocolo de su institución.
     </aside>
-
     <section id="problema" class="seccion">
       <h2>Las arritmias pediátricas: un problema real y poco visible</h2>
       <p class="muted prosa">Una arritmia es una alteración de la frecuencia o el ritmo cardíaco. En los niños, el sistema eléctrico del corazón madura con la edad y los valores normales cambian entre un lactante y un adolescente, lo que complica la interpretación de un ECG pediátrico incluso para personal entrenado. Las arritmias pediátricas pueden aparecer con o sin cardiopatía congénita, y su frecuencia tiene una distribución bimodal, con picos en lactantes y adolescentes&#160;<a href="#ref-problema-1">[1]</a>.</p>
@@ -240,14 +189,11 @@
               <button class="chip" data-demo="demo_svt">🟡 Taquicardia (SVT)</button>
               <button class="chip" data-demo="demo_vt">🔴 Taquicardia ventricular (VT)</button>
               <button class="chip" data-demo="demo_paced">🟣 Marcapasos (Paced)</button>
-            </div>
             <label for="archivo" style="margin-top:18px">… o cargue su registro WFDB (.hea + .dat)</label>
             <div id="zona" class="zona">
               Arrastre aquí el registro (.hea y .dat) o <label class="enlace" for="archivo">selecciónelos</label>
               <input type="file" id="archivo" accept=".hea,.dat" multiple hidden>
-            </div>
             <p class="mini" style="margin-top:10px">Formato <strong>WFDB</strong>: el estándar de PhysioNet usado por el proyecto (corpus ZZU pECG). Un registro se compone del encabezado <code>.hea</code> y las muestras <code>.dat</code>; no se aceptan CSV. Todo se procesa en este navegador.</p>
-          </div>
           <div class="col">
             <label for="edad">Edad del paciente (opcional)</label>
             <select id="edad">
@@ -260,9 +206,6 @@
             </select>
             <p class="mini" style="margin-top:14px">La edad ajusta los rangos de frecuencia cardíaca considerados normales en pediatría. La frecuencia de muestreo se lee del encabezado <code>.hea</code> y se analiza la derivación II del registro (o la primera disponible).</p>
           </div>
-        </div>
-      </div>
-
       <div class="panel" id="panel-senal" hidden>
         <h3>Paso 2 · Revise y analice</h3>
         <p class="mini" id="info-senal"></p>
@@ -271,11 +214,8 @@
           <button class="boton principal" id="btn-analizar">Analizar señal</button>
           <button class="boton secundario" id="btn-limpiar">Limpiar</button>
         </div>
-      </div>
-
       <div class="panel" id="resultado" hidden aria-live="polite"></div>
     </section>
-
     <section id="guia" class="seccion">
       <h2>Guía de resultados</h2>
       <p class="muted">Qué significa cada clase sugerida por el sistema.</p>
@@ -300,9 +240,7 @@
           <h3>⚪ Otro</h3>
           <p>El tramo no calza con las clases anteriores: puede tratarse de bradicardia marcada, ritmo irregular u otro patrón. Revise la calidad de la señal y considere derivar la evaluación.</p>
         </div>
-      </div>
     </section>
-
     <section id="modelo" class="seccion">
       <h2>Modelo real del proyecto (F22)</h2>
       <p class="muted">Esta web ejecuta un análisis heurístico de demostración en su navegador. La clasificación calibrada del proyecto (candidato F22 seed 14: red morfológica + especialista Paced) se ejecuta en Python sobre registros WFDB o matrices NumPy de 10 s a 500 Hz:</p>
@@ -339,16 +277,6 @@ python contrib/carlos/f22_seed14/predecir_ecg.py \
       </ul>
     </section>
   </div>
-</main>
-
-<footer>
-  <div class="contenedor">
-    <span>Proyecto <strong>TICS-II-2026-ECG-PED</strong> · Proyectos en TICS II · Facultad de Ingeniería, Universidad Diego Portales</span>
-    <span>Datos: ZZU pECG (Scientific Data 12:867, 2025 · CC BY 4.0) · Demo sin certificación médica</span>
-  </div>
-</footer>
 
 <script src="js/wfdb.js"></script>
 <script src="js/app.js"></script>
-</body>
-</html>

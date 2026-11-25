@@ -36,3 +36,10 @@ results/dl/f19_datasets/*_features_hf.csv
 /Presentacion-Final-Resultados-Claros-v3.pptx
 /Presentación_Salud_del_Proyecto_F25-Oct_06.pdf
 /tics2-entrega-v4.zip
+
+# Portal web (Next.js)
+web/node_modules/
+web/.next/
+web/dev.log
+web/server.log
+web/*.tsbuildinfo
