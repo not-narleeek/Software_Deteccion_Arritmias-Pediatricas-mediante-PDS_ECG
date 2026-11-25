@@ -1,7 +1,6 @@
 <title>Detector de Arritmias Pediátricas · Portal de demostración</title>
 <meta name="description" content="Demostración web del proyecto de detección de arritmias pediátricas mediante PDS de señales ECG (TICS II, UDP): la problemática, la situación en Chile, la propuesta de valor y un analizador de ECG demostrativo. Uso académico; no es un dispositivo médico.">
   /* Sección activa: marca con aria-current el enlace de la sección que ocupa el borde superior de la pantalla */
-
   /* Sección activa: marca con aria-current el enlace de la sección que ocupa el borde superior de la pantalla */
   const marcarActiva = () => {
     const enlaces = [...document.querySelectorAll('.topbar nav a')];
@@ -41,7 +40,6 @@
     <section id="problema" class="seccion">
       <h2>Las arritmias pediátricas: un problema real y poco visible</h2>
       <p class="muted prosa">Una arritmia es una alteración de la frecuencia o el ritmo cardíaco. En los niños, el sistema eléctrico del corazón madura con la edad y los valores normales cambian entre un lactante y un adolescente, lo que complica la interpretación de un ECG pediátrico incluso para personal entrenado. Las arritmias pediátricas pueden aparecer con o sin cardiopatía congénita, y su frecuencia tiene una distribución bimodal, con picos en lactantes y adolescentes&#160;<a href="#ref-problema-1">[1]</a>.</p>
-
       <h3>Magnitud</h3>
       <div class="tarjetas">
         <div class="tarjeta">
@@ -60,8 +58,6 @@
           <p class="stat">2–3%</p>
           <p>de los niños tamizados con ECG escolar en Japón presenta anormalidades cardiovasculares o arritmias, evidencia de que hay enfermedad oculta que un ECG puede pesquisar&#160;<a href="#ref-problema-4">[4]</a>.</p>
         </div>
-      </div>
-
       <div class="dos-columnas">
         <div>
           <h3>Consecuencias</h3>
@@ -70,7 +66,6 @@
             <li>En escolares y adolescentes: molestias torácicas, palpitaciones, disnea y síncope, y raramente, la primera manifestación es una muerte súbita&#160;<a href="#ref-problema-1">[1]</a>.</li>
             <li>La muerte súbita del niño y el adolescente es rara pero devastadora; en los registros poblacionales la mayoría de estos casos queda <strong>sin causa aclarada incluso tras autopsia</strong>&#160;<a href="#ref-problema-2">[2]</a>.</li>
           </ul>
-        </div>
         <div>
           <h3>Mortalidad</h3>
           <ul>
@@ -80,8 +75,6 @@
             <li>Alrededor de <strong>25%</strong> de las muertes súbitas cardíacas en niños y adolescentes ocurre durante la práctica deportiva&#160;<a href="#ref-problema-3">[3]</a>.</li>
           </ul>
         </div>
-      </div>
-
       <div class="bloque-fuentes">
         <p class="mini"><strong>Fuentes</strong></p>
         <ol class="fuentes" role="list">
@@ -101,8 +94,6 @@
         <li>Las cardiopatías congénitas afectan a <strong>5–10 de cada 1.000 nacidos vivos</strong> y representan cerca del <strong>20% de las muertes neonatales y de lactantes</strong>; su manejo está garantizado por el AUGE/GES en menores de 15 años&#160;<a href="#ref-chile-5">[5]</a>.</li>
         <li>En la población infantil la mortalidad ha caído sostenidamente (análisis DEIS 2017–2024), y las <strong>malformaciones congénitas</strong> —grupo que incluye las cardiopatías— son la <strong>principal causa de muerte en menores de 1 año</strong>; en los niños mayores ganan peso el cáncer y las enfermedades neurológicas&#160;<a href="#ref-chile-7">[7]</a>.</li>
         <li>La evidencia nacional de muerte súbita cardiovascular es escasa: la revisión de certificados de defunción 2000–2010 identificó <strong>1.131 muertes súbitas cardiovasculares</strong> en una década; menos del 20% correspondió a personas de 15 años o menos, y en ese grupo etario 2% de las defunciones tuvo diagnósticos compatibles; <strong>no existen estudios nacionales que cuantifiquen la muerte súbita vinculada al deporte</strong>&#160;<a href="#ref-chile-4">[4]</a>.</li>
-      </ul>
-
       <p class="prosa">Las sociedades científicas chilenas (SOCHIPE, SOCHICAR, SOCHMEDEP) recomiendan la evaluación preparticipativa cardiovascular y destacan dos datos clave:</p>
       <div class="tarjetas">
         <div class="tarjeta">
@@ -113,10 +104,7 @@
           <p class="stat">~60%</p>
           <p>de esos trastornos presenta anomalías detectables en un <strong>ECG de 12 derivaciones</strong>&#160;<a href="#ref-chile-4">[4]</a>.</p>
         </div>
-      </div>
-
       <p class="destacado">En Chile la detección depende de la interpretación del ECG, recurso concentrado en centros especializados. Aumentar la capacidad de triaje ECG pediátrico en la red asistencial y en la formación clínica es una necesidad concreta que este proyecto busca aportar a explorar.</p>
-
       <div class="bloque-fuentes">
         <p class="mini"><strong>Fuentes</strong></p>
         <ol class="fuentes" role="list" start="4">
@@ -126,9 +114,7 @@
           <li id="ref-chile-7"><span class="ref-num">[7]</span> Gallegos B et al. <a href="https://revanacem.cl/index.php/Revista/article/view/46" rel="noopener">Principales causas de mortalidad no traumática en menores de 16 años en Chile, 2017–2024</a>. Rev ANACEM 2025;19(2). DOI 10.70536/RevANACEM/V19N2-202546.</li>
           <li id="ref-chile-8"><span class="ref-num">[8]</span> DEIS, cifras preliminares de defunciones 2024, análisis de <a href="https://www.24horas.cl/informe-especial/data/estas-son-las-10-principales-causas-de-muerte-en-chile-durante-2024-" rel="noopener">Data IE, 24horas</a>: «Sistema circulatorio, tumores y otros: las 10 principales causas de muerte en Chile durante 2024», 6 de enero de 2025.</li>
         </ol>
-      </div>
     </section>
-
     <section id="propuesta" class="seccion">
       <h2>Nuestra solución: análisis asistido de ECG pediátrico</h2>
       <p class="muted prosa">Este proyecto desarrolla software de procesamiento digital de señales (PDS) y clasificación de ritmo cardíaco pediátrico sobre ECG de 12 derivaciones, entrenado y evaluado con el corpus público <strong>ZZU pECG</strong> (niños hospitalizados de 0 a 14 años, 10 s @ 500 Hz, WFDB). El portal carga un registro WFDB, analiza un tramo de 10 segundos y entrega una <strong>sugerencia de ritmo con nivel de certeza y advertencias</strong>, para apoyar —no reemplazar— la evaluación del profesional de la salud.</p>
@@ -138,7 +124,6 @@
         <div class="tarjeta verde">
           <h4>Detección más temprana, donde importa</h4>
           <p>Un triaje ECG asistido ayuda a escalar antes los casos con sospecha de taquiarritmia o canalopatía; en el QT largo congénito, el tratamiento oportuno reduce la mortalidad desde 21% en el primer año post-síncope a 0,05% anual&#160;<a href="#ref-problema-1">[1]</a>.</p>
-        </div>
         <div class="tarjeta verde">
           <h4>Equidad territorial</h4>
           <p>El software corre en hardware común y el demo funciona íntegro en el navegador: acerca una primera lectura asistida de ECG a hospitales y consultas lejos de los centros con cardiólogo pediátrico.</p>
@@ -162,7 +147,6 @@
       </div>
       <p class="mini">El modelo calibrado del proyecto (F22) se ejecuta fuera de este navegador; esta web usa un clasificador heurístico de demostración (ver <a href="#modelo">«Modelo real»</a> y <a href="#limitaciones">«Limitaciones»</a>).</p>
     </section>
-
     <section id="como-funciona" class="seccion">
       <h2>Cómo funciona</h2>
       <p class="muted">El mismo flujo del software del proyecto (filtrado → detección de latidos → características → clasificación), resumido en 4 pasos.</p>
@@ -276,7 +260,5 @@ python contrib/carlos/f22_seed14/predecir_ecg.py \
         <li>Ritmos irregulares (p. ej., fibrilación auricular) están <strong>fuera del alcance</strong> del modelo y se reportan como «Otro».</li>
       </ul>
     </section>
-  </div>
-
 <script src="js/wfdb.js"></script>
 <script src="js/app.js"></script>
