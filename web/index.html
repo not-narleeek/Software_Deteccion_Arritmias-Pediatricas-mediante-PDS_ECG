@@ -85,7 +85,6 @@
         </ol>
       </div>
     </section>
-
     <section id="chile" class="seccion">
       <h2>¿Y en Chile?</h2>
       <ul class="prosa prosa--columnas">
@@ -118,7 +117,6 @@
     <section id="propuesta" class="seccion">
       <h2>Nuestra solución: análisis asistido de ECG pediátrico</h2>
       <p class="muted prosa">Este proyecto desarrolla software de procesamiento digital de señales (PDS) y clasificación de ritmo cardíaco pediátrico sobre ECG de 12 derivaciones, entrenado y evaluado con el corpus público <strong>ZZU pECG</strong> (niños hospitalizados de 0 a 14 años, 10 s @ 500 Hz, WFDB). El portal carga un registro WFDB, analiza un tramo de 10 segundos y entrega una <strong>sugerencia de ritmo con nivel de certeza y advertencias</strong>, para apoyar —no reemplazar— la evaluación del profesional de la salud.</p>
-
       <h3>Propuesta de valor social</h3>
       <div class="tarjetas tarjetas--3">
         <div class="tarjeta verde">
@@ -144,7 +142,6 @@
           <h4>Alcance honesto</h4>
           <p>Es una demostración académica, no un dispositivo médico ni un diagnóstico: cada salida reitera que la decisión clínica corresponde al profesional.</p>
         </div>
-      </div>
       <p class="mini">El modelo calibrado del proyecto (F22) se ejecuta fuera de este navegador; esta web usa un clasificador heurístico de demostración (ver <a href="#modelo">«Modelo real»</a> y <a href="#limitaciones">«Limitaciones»</a>).</p>
     </section>
     <section id="como-funciona" class="seccion">
@@ -157,12 +154,10 @@
         <li><span class="num">4</span><h3>Revise el resultado</h3><p>Se sugiere un ritmo con <strong>certeza y advertencias</strong>. La decisión clínica siempre corresponde al profesional.</p></li>
       </ol>
     </section>
-
     <section id="analizar" class="seccion">
       <h2>Analizar un ECG</h2>
       <p class="muted">Tres pasos. Nada se envía a un servidor: todo se procesa en este navegador.</p>
       <noscript><div class="aviso"><strong>Se requiere JavaScript</strong> para usar el analizador de esta página.</div></noscript>
-
       <div class="panel">
         <h3>Paso 1 · Seleccione la señal</h3>
         <div class="fila">
@@ -189,7 +184,6 @@
               <option value="adolescente">Más de 12 años</option>
             </select>
             <p class="mini" style="margin-top:14px">La edad ajusta los rangos de frecuencia cardíaca considerados normales en pediatría. La frecuencia de muestreo se lee del encabezado <code>.hea</code> y se analiza la derivación II del registro (o la primera disponible).</p>
-          </div>
       <div class="panel" id="panel-senal" hidden>
         <h3>Paso 2 · Revise y analice</h3>
         <p class="mini" id="info-senal"></p>
@@ -197,7 +191,6 @@
         <div class="acciones">
           <button class="boton principal" id="btn-analizar">Analizar señal</button>
           <button class="boton secundario" id="btn-limpiar">Limpiar</button>
-        </div>
       <div class="panel" id="resultado" hidden aria-live="polite"></div>
     </section>
     <section id="guia" class="seccion">
@@ -247,7 +240,6 @@ python contrib/carlos/f22_seed14/predecir_ecg.py \
       </table>
       <p class="mini">Métricas de validación; el conjunto de prueba final permanece reservado.</p>
     </section>
-
     <section id="limitaciones" class="seccion">
       <h2>Limitaciones y alcance</h2>
       <ul class="lista-limitaciones">
@@ -258,7 +250,6 @@ python contrib/carlos/f22_seed14/predecir_ecg.py \
         <li>Opera sobre ECG superficiales de 12 (o 9) derivaciones; diagnostica ritmos eléctricos, no patologías estructurales del corazón.</li>
         <li>La certeza mostrada en esta demo es <strong>heurística</strong>; el modelo F22 requiere ejecución fuera de línea en Python.</li>
         <li>Ritmos irregulares (p. ej., fibrilación auricular) están <strong>fuera del alcance</strong> del modelo y se reportan como «Otro».</li>
-      </ul>
     </section>
 <script src="js/wfdb.js"></script>
 <script src="js/app.js"></script>
