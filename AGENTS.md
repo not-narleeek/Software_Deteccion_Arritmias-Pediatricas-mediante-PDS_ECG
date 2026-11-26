@@ -35,8 +35,7 @@ uv run jupyter lab                       # notebooks
 | `ops/` | Operación GPU: `checks/` (preflight/validación por fase), `scripts/`, `supervisor/` |
 | `docs/` | Documentación viva — ver abajo |
 | `notebooks/` | Drivers de Colab (`05_dl_colab.ipynb`, …) |
-| `web/` | Portal de demo estático (HTML/CSS/JS puro, sin dependencias ni build); acepta registros **WFDB** (`.hea` + `.dat`) y ejecuta el análisis en el navegador |
-| `web/demo/` | Registros WFDB de demostración (sintéticos, 12 derivaciones, 10 s @ 500 Hz) — regenerar con `uv run python scripts/generar_demo_wfdb.py` |
+|`web/`|Portal de demo en **Next.js 16** (React 19 + Tailwind + shadcn/ui, gestor **bun**); acepta registros **WFDB** (`.hea` + `.dat`) y ejecuta el análisis en el navegador. Desarrollo: `bun run dev` (puerto 3000); producción: `bun run build && bun run start`|
 | `contrib/` | Paquetes aislados de inferencia para el equipo |
 | `data/` | Corpus ZZU (~12 GB) — **nunca en git**, solo local (`.gitignore`) |
 
@@ -74,12 +73,12 @@ uv run jupyter lab                       # notebooks
    fija nombre, tamaño y SHA-256 de los checkpoints del Release
    `f22-seed14-v1`. No editar arquitectura, hashes ni normalizaciones sin
    versionar el bundle; los pesos **nunca** van al historial de git.
-7. **`web/` sin dependencias**: HTML/CSS/JS puro; el lector WFDB propio
-   (`web/js/wfdb.js`, semántica idéntica a wfdb-python) acepta registros
-   `.hea` + `.dat`, nunca CSV. Todo el análisis corre en el navegador. Su
-   clasificación es **heurística y académica** — no presentarla nunca como el
-   modelo F22 ni como dispositivo médico. Servir con
-   `python -m http.server 8000 --directory web`.
+7. **`web/` = app Next.js**: desarrollo con `bun run dev` (puerto 3000) desde
+   `web/`; el lector WFDB propio (`web/src/lib/ecg/wfdb.ts`, semántica
+   idéntica a wfdb-python) acepta registros `.hea` + `.dat`, nunca CSV. Todo
+   el análisis corre en el navegador. Su clasificación es **heurística y
+   académica** — no presentarla nunca como el modelo F22 ni como dispositivo
+   médico. `node_modules/` y `.next/` nunca al historial de git.
 
 ## Verificación (mínimo antes de considerar algo listo)
 
