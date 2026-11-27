@@ -20,11 +20,6 @@ const jetbrainsMono = JetBrains_Mono({
   subsets: ["latin"],
 });
 
-const jetbrainsMono = JetBrains_Mono({
-  variable: "--font-jetbrains",
-  subsets: ["latin"],
-});
-
 export const metadata: Metadata = {
   title: "Detector de Arritmias Pediátricas · Portal de demostración",
   description:

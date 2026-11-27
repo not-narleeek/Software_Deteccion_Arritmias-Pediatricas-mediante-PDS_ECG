@@ -1,16 +1,7 @@
-import {
-  Activity,
-  BrainCircuit,
-  Database,
-  FileText,
-  Github,
-  GraduationCap,
-  Play,
-  Server,
-  Grid2x2,
-} from "lucide-react";
+import { Github, Play } from "lucide-react";
 
 import { EcgMockup } from "./ecg-mockup";
+import { PillBadge } from "./sections";
 
 const REPO_URL =
   "https://github.com/not-narleeek/Software_Deteccion_Arritmias-Pediatricas-mediante-PDS_ECG";
@@ -21,16 +12,6 @@ const NAV_ITEMS = [
   { href: "#guia", label: "Guía" },
   { href: "#modelo", label: "Modelo F22" },
   { href: "#limitaciones", label: "Limitaciones" },
-];
-
-const PARTNERS = [
-  { name: "UDP Ingeniería", icon: GraduationCap },
-  { name: "ZZU pECG", icon: Database },
-  { name: "PhysioNet", icon: Activity },
-  { name: "WFDB", icon: FileText },
-  { name: "scikit-learn", icon: BrainCircuit },
-  { name: "NumPy", icon: Grid2x2 },
-  { name: "Vast.ai", icon: Server },
 ];
 
 export function SiteHeaderEcg() {
@@ -90,55 +71,6 @@ export function SiteHeaderEcg() {
   );
 }
 
-function PartnerLogo({
-  name,
-  icon: Icon,
-  dim,
-}: {
-  name: string;
-  icon: typeof Activity;
-  dim?: boolean;
-}) {
-  return (
-    <span
-      className={`flex shrink-0 items-center gap-2 text-white transition-opacity ${
-        dim ? "opacity-60" : "opacity-90"
-      } hover:opacity-100`}
-    >
-      <Icon className="h-[18px] w-[18px]" strokeWidth={2.4} aria-hidden="true" />
-      <span className="text-[17px] font-bold tracking-tight">{name}</span>
-    </span>
-  );
-}
-
-function LogoMarquee() {
-  return (
-    <div
-      className="overflow-hidden"
-      style={{
-        maskImage:
-          "linear-gradient(to right, transparent, black 8%, black 92%, transparent)",
-        WebkitMaskImage:
-          "linear-gradient(to right, transparent, black 8%, black 92%, transparent)",
-      }}
-    >
-      <div className="animate-marquee flex w-max items-center gap-16 pr-16">
-        {[0, 1].map((copy) => (
-          <div
-            key={copy}
-            className="flex items-center gap-16"
-            aria-hidden={copy === 1}
-          >
-            {PARTNERS.map((p, i) => (
-              <PartnerLogo key={`${p.name}-${copy}`} {...p} dim={i % 3 === 1} />
-            ))}
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
-
 function Cloud({
   className,
   style,
@@ -173,32 +105,26 @@ const HERO_CLOUDS: {
   flip?: boolean;
 }[] = [
   {
-    className: "left-[1.5%] top-[9%] w-[210px] opacity-50 sm:w-[240px]",
+    className: "left-[2%] top-[7%] w-[220px] opacity-40 sm:w-[250px]",
     duration: "34s",
     delay: "-6s",
   },
   {
-    className: "right-[2%] top-[6%] w-[180px] opacity-45 sm:w-[210px]",
+    className: "right-[3%] top-[5%] w-[190px] opacity-35 sm:w-[220px]",
     duration: "28s",
     delay: "-14s",
     flip: true,
   },
   {
-    className: "left-[30%] top-[5%] hidden w-[130px] opacity-30 md:block",
+    className: "left-[31%] top-[4%] hidden w-[130px] opacity-25 md:block",
     duration: "40s",
     delay: "-22s",
     flip: true,
   },
   {
-    className: "right-[20%] top-[24%] w-[150px] opacity-25",
+    className: "right-[16%] top-[20%] w-[140px] opacity-20",
     duration: "26s",
     delay: "-9s",
-  },
-  {
-    className: "left-[12%] top-[33%] w-[160px] opacity-30",
-    duration: "31s",
-    delay: "-18s",
-    flip: true,
   },
 ];
 
@@ -245,13 +171,14 @@ export function HeroEcg() {
       <SiteHeaderEcg />
 
       {/* copia del hero */}
-      <div className="px-6 pt-14 text-center lg:pt-16">
-        <h1 className="mx-auto mt-7 max-w-3xl font-display text-[46px] leading-[1.02] tracking-[0.005em] text-white sm:text-[58px] lg:text-[64px]">
+      <div className="px-6 pt-12 text-center lg:pt-14">
+        <PillBadge tone="dark" label="Demo académica · UDP 2026" />
+        <h1 className="mx-auto mt-6 max-w-4xl font-display text-[52px] leading-[1.0] tracking-[0.005em] text-white sm:text-[68px] lg:text-[76px]">
           Detección de arritmias
           <br />
           en pacientes pediátricos
         </h1>
-        <p className="mx-auto mt-5 max-w-lg text-[13.5px] leading-relaxed text-white/80 lg:text-sm">
+        <p className="mx-auto mt-6 max-w-2xl text-[15px] leading-relaxed text-white/85 lg:text-base">
           Cargue una señal de 10 segundos y reciba una{" "}
           <strong className="font-semibold text-white">
             sugerencia de ritmo con porcentaje de certeza
@@ -259,26 +186,41 @@ export function HeroEcg() {
           , pensada para apoyar —no reemplazar— la evaluación del profesional de
           la salud.
         </p>
-        <div className="mt-7 flex flex-wrap items-center justify-center gap-3">
+        <div className="mt-9 flex flex-wrap items-center justify-center gap-3.5">
           <a
             href="#analizar"
-            className="flex h-10 items-center whitespace-nowrap rounded-lg bg-neutral-950 px-5 text-[13px] font-semibold text-white transition-colors hover:bg-neutral-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+            className="flex h-12 items-center whitespace-nowrap rounded-lg bg-neutral-950 px-6 text-[14px] font-semibold text-white transition-colors hover:bg-neutral-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
           >
             Analizar un ECG
           </a>
           <a
             href="#pipeline"
-            className="group flex h-10 items-center gap-2.5 whitespace-nowrap rounded-lg px-3 text-[13px] font-medium text-white/90 transition-colors hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+            className="group flex h-12 items-center gap-2.5 whitespace-nowrap rounded-lg px-3 text-[14px] font-medium text-white/90 transition-colors hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
           >
-            <span className="flex h-6 w-6 items-center justify-center rounded-full border border-white/40 bg-white/10 transition-colors group-hover:bg-white/25">
+            <span className="flex h-7 w-7 items-center justify-center rounded-full border border-white/40 bg-white/10 transition-colors group-hover:bg-white/25">
               <Play
-                className="ml-px h-2.5 w-2.5 fill-white text-white"
+                className="ml-px h-3 w-3 fill-white text-white"
                 aria-hidden="true"
               />
             </span>
             Ver cómo funciona
           </a>
         </div>
+        <ul
+          className="mt-6 flex flex-wrap items-center justify-center gap-2.5"
+          aria-label="Características de la demo"
+        >
+          {["Corre en el navegador", "Sin registro", "WFDB · 10 s · 500 Hz"].map(
+            (c) => (
+              <li
+                key={c}
+                className="rounded-full border border-white/20 bg-white/10 px-3.5 py-1.5 text-[12.5px] font-medium text-white/85"
+              >
+                {c}
+              </li>
+            ),
+          )}
+        </ul>
       </div>
 
       {/* mockup del producto sobrepuesto a la pradera */}
@@ -300,10 +242,6 @@ export function HeroEcg() {
             className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-b from-transparent to-black/15"
             aria-hidden="true"
           />
-          {/* logos del ecosistema */}
-          <div className="absolute inset-x-0 bottom-7 z-10">
-            <LogoMarquee />
-          </div>
         </div>
       </div>
     </section>

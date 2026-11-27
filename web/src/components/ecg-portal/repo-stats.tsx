@@ -66,18 +66,23 @@ export function RepoStats() {
       href={REPO_URL}
       target="_blank"
       rel="noreferrer"
-      className="flex flex-wrap items-center gap-x-6 gap-y-3 rounded-xl border border-border/70 bg-white px-5 py-4 transition-shadow hover:shadow-md"
+      className="flex flex-wrap items-center gap-x-4 gap-y-3 rounded-xl border border-border/70 bg-white px-5 py-4 transition-colors hover:border-brand/40 hover:shadow-sm"
     >
-      <span className="flex items-center gap-2.5 text-sm font-semibold">
-        <Github className="h-5 w-5" aria-hidden />
-        not-narleeek / Software_Deteccion_Arritmias-Pediatricas-mediante-PDS_ECG
+      <span className="flex min-w-0 items-center gap-2.5">
+        <Github className="h-5 w-5 shrink-0 text-neutral-900" aria-hidden />
+        <span className="truncate font-mono text-[13px] font-medium text-neutral-700">
+          not-narleeek / Software_Deteccion_Arritmias-Pediatricas-mediante-PDS_ECG
+        </span>
       </span>
       {items.length ? (
-        <span className="flex flex-wrap items-center gap-x-5 gap-y-1 text-xs text-muted-foreground">
-          {items.map((it) => {
+        <span className="ml-auto flex flex-wrap items-center gap-y-2 text-xs text-muted-foreground">
+          {items.map((it, i) => {
             const Icono = it.icono;
             return (
-              <span key={it.texto} className="flex items-center gap-1.5">
+              <span
+                key={it.texto}
+                className={`flex items-center gap-1.5 px-3 ${i > 0 ? "border-l border-border/70" : ""}`}
+              >
                 <Icono className="h-3.5 w-3.5" aria-hidden />
                 {it.texto}
               </span>
@@ -85,7 +90,7 @@ export function RepoStats() {
           })}
         </span>
       ) : (
-        <span className="text-xs text-muted-foreground">
+        <span className="ml-auto text-xs text-muted-foreground">
           Ver código, issues y releases en GitHub
         </span>
       )}

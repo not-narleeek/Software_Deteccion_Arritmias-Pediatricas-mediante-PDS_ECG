@@ -165,27 +165,6 @@
   background-size: 16px 16px;
 }
 
-/* logo marquee */
-@keyframes marquee {
-  from {
-    transform: translateX(0);
-  }
-  to {
-    transform: translateX(-50%);
-  }
-}
-.animate-marquee {
-  animation: marquee 38s linear infinite;
-}
-.animate-marquee:hover {
-  animation-play-state: paused;
-}
-@media (prefers-reduced-motion: reduce) {
-  .animate-marquee {
-    animation: none;
-  }
-}
-
 /* nubes del hero: deriva lenta de ida y vuelta */
 @keyframes cloud-drift {
   from {

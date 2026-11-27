@@ -35,7 +35,7 @@ function trazoEcg(complejos: number): string {
 export function EcgMockup() {
   return (
     <div
-      className="relative mx-auto w-full max-w-[880px]"
+      className="relative mx-auto w-full max-w-[1188px]"
       style={{ aspectRatio: "880 / 216" }}
       role="img"
       aria-label="Aplicación del proyecto mostrando la señal ECG de la derivación II con picos R detectados y clasificación Sinusal con 94 por ciento de certeza"
@@ -43,7 +43,10 @@ export function EcgMockup() {
       <div
         className="absolute left-0 top-0 h-[216px] w-[880px] origin-top-left rounded-xl bg-white text-neutral-800 shadow-[0_32px_80px_-12px_rgba(9,14,43,0.45)] ring-1 ring-black/10"
         style={{
-          transform: "scale(min(1, calc((100vw - 40px) / 880)))",
+          /* tan(atan2(longitud, 880px)) da el cociente como número puro:
+             (100vw - 40px) / 880, con tope 1.35 en pantallas grandes. */
+          transform:
+            "scale(min(1.35, tan(atan2(calc(100vw - 40px), 880px))))",
         }}
       >
         {/* barra superior */}
@@ -85,7 +88,7 @@ export function EcgMockup() {
         <div className="flex h-[176px]">
           {/* barra lateral */}
           <div className="w-[150px] shrink-0 border-r border-neutral-100 p-2.5">
-            <div className="flex h-7 items-center justify-between rounded-md border border-neutral-200 px-2 text-[10px] text-neutral-400">
+            <div className="flex h-6 items-center justify-between rounded-md border border-neutral-200 px-2 text-[10px] text-neutral-400">
               <span className="flex items-center gap-1.5">
                 <Search className="h-3 w-3" />
                 Buscar...
@@ -94,17 +97,17 @@ export function EcgMockup() {
                 K
               </span>
             </div>
-            <p className="mt-3 px-1 text-[8px] font-semibold uppercase tracking-[0.16em] text-neutral-400">
+            <p className="mt-2 px-1 text-[8px] font-semibold uppercase tracking-[0.16em] text-neutral-400">
               Estudio
             </p>
-            <div className="mt-1.5 flex flex-col gap-0.5">
+            <div className="mt-1 flex flex-col gap-0.5">
               {SIDEBAR_ITEMS.map((item) => (
                 <span
                   key={item.label}
                   className={
                     item.active
-                      ? "flex items-center gap-2 rounded-md bg-brand/10 px-2 py-1.5 text-[10.5px] font-semibold text-brand"
-                      : "flex items-center gap-2 rounded-md px-2 py-1.5 text-[10.5px] font-medium text-neutral-500"
+                      ? "flex items-center gap-2 rounded-md bg-brand/10 px-2 py-1 text-[10.5px] font-semibold text-brand"
+                      : "flex items-center gap-2 rounded-md px-2 py-1 text-[10.5px] font-medium text-neutral-500"
                   }
                 >
                   <item.icon className="h-3.5 w-3.5" />
@@ -112,6 +115,16 @@ export function EcgMockup() {
                 </span>
               ))}
             </div>
+            <p className="mt-2.5 px-1 text-[8px] font-semibold uppercase tracking-[0.16em] text-neutral-400">
+              Recientes
+            </p>
+            <span className="mt-1 flex items-center justify-between rounded-md px-2 py-1 text-[10px] font-medium text-neutral-500">
+              041-C
+              <span className="flex items-center gap-1 text-[8.5px] text-neutral-400">
+                <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+                Sinusal
+              </span>
+            </span>
           </div>
 
           {/* lienzo de la señal */}
@@ -122,7 +135,7 @@ export function EcgMockup() {
               <span className="text-[12px] font-semibold text-neutral-900">
                 Registro 042-A · 10 s
               </span>
-              <span className="rounded border border-pink-300 bg-pink-50 px-1 py-px text-[7.5px] font-bold tracking-[0.08em] text-pink-500">
+              <span className="rounded border border-brand/30 bg-pds-soft px-1 py-px text-[7.5px] font-bold tracking-[0.08em] text-brand">
                 500 Hz
               </span>
               <span className="ml-auto flex items-center gap-3">
@@ -139,17 +152,17 @@ export function EcgMockup() {
               </span>
             </div>
 
-            {/* chip RR */}
-            <span className="absolute left-[24%] top-[52px] z-10 flex items-center gap-1 rounded-full border border-neutral-200/80 bg-white px-2 py-0.5 text-[9px] font-semibold text-neutral-600 shadow-sm">
+            {/* chip RR anclado al segundo complejo */}
+            <span className="absolute left-[196px] top-[44px] z-10 flex items-center gap-1 rounded-full border border-neutral-200/80 bg-white px-2 py-0.5 text-[9px] font-semibold text-neutral-600 shadow-sm">
               <span className="h-1.5 w-1.5 rounded-full bg-brand" />
               RR 505 ms
             </span>
 
-            {/* señal ECG */}
+            {/* señal ECG — termina donde comienza el panel dockeado */}
             <svg
               viewBox="0 0 640 130"
               preserveAspectRatio="none"
-              className="absolute inset-x-3 bottom-3 top-[38px] h-[calc(100%-52px)] w-[calc(100%-24px)]"
+              className="absolute bottom-3 left-3 right-[204px] top-[38px]"
               aria-hidden="true"
             >
               <defs>
@@ -179,9 +192,18 @@ export function EcgMockup() {
                 strokeLinejoin="round"
                 strokeLinecap="round"
               />
-              {/* marcadores de picos R */}
+              {/* marcadores de picos R con guía punteada a la línea base */}
               {[60, 220, 380, 540].map((x) => (
                 <g key={x}>
+                  <line
+                    x1={x}
+                    y1="24"
+                    x2={x}
+                    y2="70"
+                    stroke="rgba(18,22,38,0.18)"
+                    strokeDasharray="2 4"
+                    strokeWidth="1"
+                  />
                   <circle cx={x} cy="16" r="3.2" fill="white" stroke="var(--brand)" strokeWidth="1.6" />
                 </g>
               ))}
