@@ -5,10 +5,10 @@ import {
   GuiaResultados,
   Limitaciones,
   ModeloF22,
-  PipelineProyecto,
   RecursosProyecto,
   FooterEcg,
 } from "@/components/ecg-portal/sections";
+import { PipelineSection } from "@/components/pipeline/pipeline-section";
 import { HeartPulse } from "lucide-react";
 
 /* ============================================================
@@ -16,7 +16,7 @@ import { HeartPulse } from "lucide-react";
    mediante PDS de señales ECG (TICS II · UDP).
    Contenido adaptado del repositorio del proyecto con la
    visual de la landing de referencia: hero azul con serif,
-   mockup sobre pradera, badges pill y tarjetas sobre pasto.
+   mockup sobre praderas, badges pill y tarjetas sobre pasto.
    Análisis heurístico 100 % en el navegador.
    ============================================================ */
 
@@ -25,7 +25,7 @@ export default function Home() {
     <div className="flex min-h-screen flex-col bg-white">
       <main className="flex-1">
         <HeroEcg />
-        <PipelineProyecto />
+        <PipelineSection />
         <ComoFunciona />
 
         <section id="analizar" className="scroll-mt-16 bg-brand">
