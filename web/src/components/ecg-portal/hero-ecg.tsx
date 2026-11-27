@@ -5,7 +5,6 @@ import {
   FileText,
   Github,
   GraduationCap,
-  HeartPulse,
   Play,
   Server,
   Grid2x2,
@@ -37,31 +36,31 @@ const PARTNERS = [
 export function SiteHeaderEcg() {
   return (
     <header className="relative z-30">
-      <div className="flex h-14 items-center px-5 lg:px-8">
+      <div className="flex h-16 items-center px-5 lg:px-8">
         <a
           href="#inicio"
           className="flex items-center gap-2 text-white"
           aria-label="ECG Pediátrico · inicio"
         >
-          <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-white p-1 shadow-[0_4px_12px_-2px_rgba(9,14,43,0.35)]">
+          <span className="flex h-12 w-12 items-center justify-center">
             <img
-              src="/images/logo-proyecto.svg"
+              src="/images/logo-proyecto-blanco.svg"
               alt=""
               className="h-full w-full"
               aria-hidden="true"
             />
           </span>
-          <span className="text-[17px] font-bold tracking-tight">
+          <span className="text-[19px] font-bold tracking-tight">
             ECG Pediátrico
           </span>
         </a>
         <nav aria-label="Principal" className="ml-10 hidden md:block">
-          <ul className="flex items-center gap-7">
+          <ul className="flex items-center gap-8">
             {NAV_ITEMS.map((item) => (
               <li key={item.href}>
                 <a
                   href={item.href}
-                  className="text-[10.5px] font-semibold uppercase tracking-[0.12em] text-white/85 transition-colors hover:text-white focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white"
+                  className="text-[12.5px] font-semibold uppercase tracking-[0.08em] text-white/85 transition-colors hover:text-white focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white"
                 >
                   {item.label}
                 </a>
@@ -74,14 +73,14 @@ export function SiteHeaderEcg() {
             href={REPO_URL}
             target="_blank"
             rel="noreferrer"
-            className="flex h-8 items-center gap-1.5 whitespace-nowrap rounded-lg border border-white/25 bg-white/10 px-4 text-[12.5px] font-medium text-white transition-colors hover:bg-white/20 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+            className="flex h-9 items-center gap-2 whitespace-nowrap rounded-lg border border-white/25 bg-white/10 px-4 text-[13.5px] font-medium text-white transition-colors hover:bg-white/20 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
           >
-            <Github className="h-3.5 w-3.5" aria-hidden="true" />
+            <Github className="h-4 w-4" aria-hidden="true" />
             GitHub
           </a>
           <a
             href="#analizar"
-            className="flex h-8 items-center whitespace-nowrap rounded-lg bg-white px-4 text-[12.5px] font-semibold text-neutral-900 transition-colors hover:bg-neutral-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+            className="flex h-9 items-center whitespace-nowrap rounded-lg bg-white px-4 text-[13.5px] font-semibold text-neutral-900 transition-colors hover:bg-neutral-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
           >
             Analizar ahora
           </a>
@@ -247,18 +246,6 @@ export function HeroEcg() {
 
       {/* copia del hero */}
       <div className="px-6 pt-14 text-center lg:pt-16">
-        <span className="inline-flex min-h-7 max-w-[92vw] items-center gap-2 rounded-full border border-white/15 bg-brand-deep/70 py-0.5 pl-1.5 pr-3.5">
-          <span className="flex h-[18px] w-[18px] shrink-0 items-center justify-center rounded-full bg-white">
-            <HeartPulse
-              className="h-2.5 w-2.5 text-brand"
-              strokeWidth={3}
-              aria-hidden="true"
-            />
-          </span>
-          <span className="text-[10px] font-bold uppercase leading-snug tracking-[0.14em] text-white">
-            Pipeline PDS · Corpus ZZU pECG · 13.436 estudios
-          </span>
-        </span>
         <h1 className="mx-auto mt-7 max-w-3xl font-display text-[46px] leading-[1.02] tracking-[0.005em] text-white sm:text-[58px] lg:text-[64px]">
           Detección de arritmias
           <br />
