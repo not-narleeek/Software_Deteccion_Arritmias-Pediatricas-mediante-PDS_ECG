@@ -8,7 +8,7 @@ import {
   RecursosProyecto,
   FooterEcg,
 } from "@/components/ecg-portal/sections";
-import { PipelineSection } from "@/components/pipeline/pipeline-section";
+import { PipelineSection } from "@/components/ecg-portal/pipeline/pipeline-section";
 import { HeartPulse } from "lucide-react";
 
 /* ============================================================
