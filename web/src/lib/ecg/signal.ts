@@ -230,6 +230,22 @@ export interface ResultadoClasificacion {
   clase: Clase;
   probs: Record<Clase, number>;
   advertencias: string[];
+  /** Puntajes brutos por clase antes de la normalización. */
+  puntajes: Record<Clase, number>;
+  /** Desglose auditable: cada regla aplicada y su efecto sobre los puntajes. */
+  pasos: PasoAuditoria[];
+}
+
+/** Un paso del desglose auditable del diagnóstico. */
+export interface PasoAuditoria {
+  /** Magnitud evaluada (p. ej. «FC media»). */
+  criterio: string;
+  /** Valor observado, formateado para el reporte. */
+  valor: string;
+  /** Regla del clasificador que se aplica a ese valor. */
+  regla: string;
+  /** Efecto sobre los puntajes (p. ej. «SVT +0,42 · Sinusal ×0,40»). */
+  efecto: string;
 }
 
 export function clasificar(ctx: ContextoClasificacion): ResultadoClasificacion {
@@ -238,6 +254,16 @@ export function clasificar(ctx: ContextoClasificacion): ResultadoClasificacion {
     return {
       clase: "Otro",
       probs: { Sinusal: p, SVT: p, VT: p, Paced: p, Otro: p },
+      puntajes: { Sinusal: p, SVT: p, VT: p, Paced: p, Otro: p },
+      pasos: [
+        {
+          criterio: "Latidos detectados",
+          valor: `${ctx.n} intervalos RR`,
+          regla:
+            "Se requieren al menos 3 intervalos RR válidos para clasificar el ritmo.",
+          efecto: "Sin puntaje: «Otro» con certeza uniforme de 20 %.",
+        },
+      ],
       advertencias: [
         "No se detectaron suficientes latidos en el tramo: revise la calidad o el formato de la señal.",
       ],
@@ -245,6 +271,13 @@ export function clasificar(ctx: ContextoClasificacion): ResultadoClasificacion {
   }
   const rango = RANGO_EDAD[ctx.edad] || RANGO_EDAD.desconocida;
   const adv: string[] = [];
+  const pasos: PasoAuditoria[] = [];
+  const paso = (
+    criterio: string,
+    valor: string,
+    regla: string,
+    efecto: string,
+  ) => pasos.push({ criterio, valor, regla, efecto });
   const s: Record<Clase, number> = {
     Sinusal: 0.06,
     SVT: 0.06,
@@ -252,39 +285,107 @@ export function clasificar(ctx: ContextoClasificacion): ResultadoClasificacion {
     Paced: 0.03,
     Otro: 0.06,
   };
+  paso(
+    "Puntaje base",
+    "—",
+    "Inicialización del clasificador heurístico.",
+    `Sinusal +${fmt(0.06, 2)} · SVT +${fmt(0.06, 2)} · VT +${fmt(0.05, 2)} · Paced +${fmt(0.03, 2)} · Otro +${fmt(0.06, 2)}`,
+  );
   const hr = ctx.fc;
   const regular = ctx.cv <= 0.06 ? 1 : ctx.cv <= 0.12 ? 0.5 : 0;
+  const descRegular =
+    ctx.cv <= 0.06 ? "regular" : ctx.cv <= 0.12 ? "moderadamente irregular" : "irregular";
 
   /* Taquicardia supraventricular: rápida y regular */
-  s.SVT += clamp01((hr - 145) / 35) + 0.2 * regular * (hr >= 130 ? 1 : 0);
+  const dSvtHr = clamp01((hr - 145) / 35);
+  const dSvtReg = 0.2 * regular * (hr >= 130 ? 1 : 0);
+  s.SVT += dSvtHr + dSvtReg;
+  if (dSvtHr > 0) {
+    paso(
+      "FC media",
+      `${fmt(hr, 0)} lpm`,
+      "FC sobre 145 lpm suma evidencia de taquicardia supraventricular (SVT), proporcional al exceso.",
+      `SVT +${fmt(dSvtHr, 2)}`,
+    );
+  }
+  if (dSvtReg > 0) {
+    paso(
+      "Regularidad del ritmo (CV de RR)",
+      `${fmt(ctx.cv, 3)} (${descRegular})`,
+      "FC ≥ 130 lpm con intervalos RR regulares refuerza la hipótesis de SVT.",
+      `SVT +${fmt(dSvtReg, 2)}`,
+    );
+  }
 
   /* VT: complejos anchos y frecuencia elevada */
   if (ctx.anchoQRS != null) {
-    s.VT += clamp01((ctx.anchoQRS - 115) / 50) * 2.2 * (hr >= 100 ? 1 : 0.3);
+    const dVt = clamp01((ctx.anchoQRS - 115) / 50) * 2.2 * (hr >= 100 ? 1 : 0.3);
+    s.VT += dVt;
+    if (dVt > 0) {
+      paso(
+        "Ancho QRS medio",
+        `${fmt(ctx.anchoQRS, 0)} ms`,
+        `QRS sobre 115 ms suma evidencia de taquicardia ventricular (VT)${hr >= 100 ? "" : ", atenuada por FC bajo 100 lpm"}.`,
+        `VT +${fmt(dVt, 2)}`,
+      );
+    }
   }
 
   /* Sinusal vs Otro según rango esperado para la edad */
   if (hr >= rango.lo && hr <= rango.hi) {
-    s.Sinusal += 0.8 * regular + 0.3 * clamp01((rango.hi - hr) / 50);
+    const dSin = 0.8 * regular + 0.3 * clamp01((rango.hi - hr) / 50);
+    s.Sinusal += dSin;
+    paso(
+      "FC vs. rango esperado (edad)",
+      `${fmt(hr, 0)} lpm · rango ${rango.lo}–${rango.hi} lpm`,
+      `FC dentro del rango esperado para «${rango.label}» suma a ritmo sinusal (más si el RR es regular y la FC se acerca al límite inferior).`,
+      `Sinusal +${fmt(dSin, 2)}`,
+    );
   } else if (hr < rango.lo) {
     s.Otro += 0.7;
     adv.push(
       `FC bajo el rango esperado para la edad indicada (${rango.lo}–${rango.hi} lpm): ${fmt(hr, 0)} lpm (bradicardia relativa).`,
+    );
+    paso(
+      "FC vs. rango esperado (edad)",
+      `${fmt(hr, 0)} lpm · rango ${rango.lo}–${rango.hi} lpm`,
+      `FC bajo el rango esperado para «${rango.label}» (bradicardia relativa) suma a «Otro».`,
+      `Otro +${fmt(0.7, 2)}`,
     );
   } else if (hr <= rango.hi + 15) {
     s.Otro += 0.5;
     adv.push(
       `FC sobre el rango esperado para la edad indicada (${rango.lo}–${rango.hi} lpm): ${fmt(hr, 0)} lpm.`,
     );
+    paso(
+      "FC vs. rango esperado (edad)",
+      `${fmt(hr, 0)} lpm · rango ${rango.lo}–${rango.hi} lpm`,
+      `FC levemente sobre el rango esperado para «${rango.label}» suma a «Otro».`,
+      `Otro +${fmt(0.5, 2)}`,
+    );
   } else {
     s.SVT += 0.5;
     adv.push(
       `FC sobre el rango esperado para la edad indicada (${rango.lo}–${rango.hi} lpm): ${fmt(hr, 0)} lpm (taquicardia).`,
     );
+    paso(
+      "FC vs. rango esperado (edad)",
+      `${fmt(hr, 0)} lpm · rango ${rango.lo}–${rango.hi} lpm`,
+      `FC muy sobre el rango esperado para «${rango.label}» (taquicardia) suma a SVT.`,
+      `SVT +${fmt(0.5, 2)}`,
+    );
   }
 
   /* QRS ancho (≥120 ms): la SVT se define por complejos estrechos; descuenta SVT */
-  if (ctx.anchoQRS != null && ctx.anchoQRS >= 120) s.SVT *= 0.35;
+  if (ctx.anchoQRS != null && ctx.anchoQRS >= 120) {
+    s.SVT *= 0.35;
+    paso(
+      "Ancho QRS medio",
+      `${fmt(ctx.anchoQRS, 0)} ms`,
+      "QRS ancho (≥ 120 ms) descuenta SVT: la SVT se define por complejos estrechos.",
+      "SVT ×0,35",
+    );
+  }
 
   /* Irregularidad marcada: fuera del alcance del modelo */
   if (ctx.cv > 0.12) {
@@ -292,10 +393,22 @@ export function clasificar(ctx: ContextoClasificacion): ResultadoClasificacion {
     adv.push(
       "Ritmo irregular (variabilidad de RR alta): los ritmos irregulares están fuera del alcance del modelo.",
     );
+    paso(
+      "Regularidad del ritmo (CV de RR)",
+      `${fmt(ctx.cv, 3)} (irregular)`,
+      "CV > 0,12 (ritmo irregular) suma a «Otro»: los ritmos irregulares están fuera del alcance del modelo.",
+      `Otro +${fmt(0.7, 2)}`,
+    );
   }
   if (ctx.n < 6) {
     adv.push(
       `Pocos latidos en el tramo (${ctx.n} intervalos RR): resultado poco confiable.`,
+    );
+    paso(
+      "Latidos detectados",
+      `${ctx.n} intervalos RR`,
+      "Menos de 6 intervalos RR: resultado poco confiable (solo advertencia).",
+      "Sin cambio de puntaje.",
     );
   }
 
@@ -305,12 +418,31 @@ export function clasificar(ctx: ContextoClasificacion): ResultadoClasificacion {
     s.Sinusal *= 0.4;
     s.SVT *= 0.5;
     s.VT *= 0.5;
+    paso(
+      "Espículas de marcapasos",
+      "Detectadas antes de cada QRS",
+      "Espículas de estimulación detectadas: evidencia fuerte de ritmo estimulado (Paced); atenúa el resto de las hipótesis.",
+      `Paced +${fmt(2, 2)} · Sinusal ×0,40 · SVT ×0,50 · VT ×0,50`,
+    );
+  } else {
+    paso(
+      "Espículas de marcapasos",
+      ctx.espiculas === false ? "No detectadas" : "No evaluable",
+      "Sin evidencia de estimulación electrónica en el tramo.",
+      "Sin cambio de puntaje.",
+    );
   }
 
   let tot = 0;
   for (const k of CLASES) tot += s[k];
   const probs = {} as Record<Clase, number>;
   for (const k of CLASES) probs[k] = s[k] / tot;
+  paso(
+    "Normalización",
+    `Puntaje total ${fmt(tot, 2)}`,
+    "Probabilidad de cada clase = puntaje bruto ÷ suma de los puntajes brutos.",
+    "—",
+  );
   let clase: Clase = "Otro";
   let mejor = 0;
   for (const k of CLASES) {
@@ -330,43 +462,5 @@ export function clasificar(ctx: ContextoClasificacion): ResultadoClasificacion {
     adv.push("Diferencia débil entre clases: repita con otra ventana o revise la calidad de la señal.");
   }
 
-  return { clase, probs, advertencias: adv };
-}
-
-/* ---------- reporte de texto descargable ---------- */
-export function generarReporte(
-  res: ResultadoClasificacion,
-  ctx: ContextoClasificacion,
-  fuente: string,
-  edadClave: ClaveEdad,
-  fechaStr: string,
-): string {
-  const rango = RANGO_EDAD[edadClave] || RANGO_EDAD.desconocida;
-  const lineas: string[] = [
-    "REPORTE DE ANÁLISIS — PORTAL DE DEMOSTRACIÓN (académico, no certificado)",
-    "Proyecto TICS-II-2026-ECG-PED · Universidad Diego Portales",
-    `Fecha: ${fechaStr}`,
-    `Fuente: ${fuente}`,
-    `Edad indicada: ${rango.label} (rango Sinusal ${rango.lo}–${rango.hi} lpm)`,
-    "",
-    "RESULTADO",
-    `  Ritmo sugerido: ${res.clase}`,
-    `  Certeza estimada: ${Math.round(res.probs[res.clase] * 100)} %`,
-    ...CLASES.map((k) => `  P(${k}): ${Math.round(res.probs[k] * 100)} %`),
-    "",
-    "MEDIDAS",
-    `  FC media: ${fmt(ctx.fc, 0)} lpm`,
-    `  RR medio: ${fmt(ctx.rrMedio, 0)} ms`,
-    `  SDNN: ${fmt(ctx.sdnn, 0)} ms | RMSSD: ${fmt(ctx.rmssd, 0)} ms | pNN50: ${fmt(ctx.pnn50, 0)} %`,
-    `  Ancho QRS: ${ctx.anchoQRS != null ? fmt(ctx.anchoQRS, 0) + " ms" : "No evaluable"}`,
-    `  Espículas de marcapasos: ${ctx.espiculas === true ? "Detectadas" : ctx.espiculas === false ? "No detectadas" : "No evaluable"}`,
-    "",
-    "ADVERTENCIAS",
-    ...(res.advertencias.length
-      ? res.advertencias.map((a) => `  - ${a}`)
-      : ["  - Ninguna"]),
-    "",
-    "AVISO: Esta demo no es un dispositivo médico. No diagnostica ni reemplaza el juicio profesional.",
-  ];
-  return lineas.join("\n");
+  return { clase, probs, puntajes: s, pasos, advertencias: adv };
 }

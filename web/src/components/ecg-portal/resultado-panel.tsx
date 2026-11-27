@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   TriangleAlert,
@@ -12,17 +13,20 @@ import {
   COLOR_CLASE,
   CLASES_BARRA,
   fmt,
-  generarReporte,
   type Clase,
   type ClaveEdad,
   type ContextoClasificacion,
   type ResultadoClasificacion,
 } from "@/lib/ecg/signal";
+import {
+  generarReportePdf,
+  type MetadatosRegistro,
+} from "@/lib/ecg/reporte-pdf";
 
 /* ============================================================
    Panel de resultado dentro de la vista «Reporte» de la app:
    ritmo sugerido, certeza, probabilidades por clase, medidas
-   del tramo, advertencias y reporte TXT.
+   del tramo, advertencias y reporte PDF descargable.
    ============================================================ */
 
 const SELLO: Record<
@@ -41,32 +45,46 @@ interface Props {
   ctx: ContextoClasificacion;
   fuente: string;
   edadClave: ClaveEdad;
+  /** Metadatos del registro para el PDF; nulos si no hay registro cargado. */
+  registro: MetadatosRegistro | null;
+  /** Señal y picos para incluir el trazo en el PDF. */
+  senal?: ArrayLike<number>;
+  picos?: number[];
   onOtro: () => void;
 }
 
-export function ResultadoPanel({ res, ctx, fuente, edadClave, onOtro }: Props) {
+export function ResultadoPanel({
+  res,
+  ctx,
+  fuente,
+  edadClave,
+  registro,
+  senal,
+  picos,
+  onOtro,
+}: Props) {
   const c = COLOR_CLASE[res.clase];
   const sello = SELLO[res.clase];
   const certeza = Math.round(res.probs[res.clase] * 100);
+  const [generando, setGenerando] = useState(false);
 
   const descargarReporte = () => {
-    const contenido = generarReporte(
+    if (!registro || generando) return;
+    setGenerando(true);
+    generarReportePdf({
       res,
       ctx,
       fuente,
       edadClave,
-      new Date().toLocaleString("es-CL"),
-    );
-    const blob = new Blob([contenido], { type: "text/plain;charset=utf-8" });
-    const a = document.createElement("a");
-    a.href = URL.createObjectURL(blob);
-    a.download = "reporte_ecg_demo.txt";
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-    // Revocar diferido: si se revoca inmediatamente después de click(),
-    // Firefox/Safari pueden cancelar la descarga antes de leer el blob.
-    setTimeout(() => URL.revokeObjectURL(a.href), 10000);
+      registro,
+      senal,
+      picos,
+      fechaStr: new Date().toLocaleString("es-CL"),
+    })
+      .catch((e: unknown) => {
+        console.error("No se pudo generar el reporte PDF:", e);
+      })
+      .finally(() => setGenerando(false));
   };
 
   const regularidad =
@@ -181,18 +199,20 @@ export function ResultadoPanel({ res, ctx, fuente, edadClave, onOtro }: Props) {
       </div>
 
       <p className="text-xs leading-relaxed text-neutral-400">
-        Las probabilidades provienen del clasificador calibrado del proyecto
-        (F22). Confirme siempre con la evaluación clínica.
+        Las probabilidades provienen del clasificador heurístico de
+        demostración del portal; no corresponden al modelo F22 del proyecto.
+        Confirme siempre con la evaluación clínica.
       </p>
 
       <div className="flex flex-wrap gap-2.5">
         <Button
           variant="outline"
           onClick={descargarReporte}
+          disabled={generando || !registro}
           className="h-8 border-neutral-200 text-[12px]"
         >
           <Download className="mr-1.5 h-3.5 w-3.5" aria-hidden />
-          Descargar reporte
+          {generando ? "Generando PDF…" : "Descargar reporte PDF"}
         </Button>
         <Button
           variant="secondary"

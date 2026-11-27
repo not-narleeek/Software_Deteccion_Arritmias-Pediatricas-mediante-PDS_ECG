@@ -31,7 +31,6 @@ import {
   hayEspiculas,
   metricas,
   clasificar,
-  generarReporte,
   COLOR_CLASE,
   CLASES_BARRA,
   RANGO_EDAD,
@@ -40,6 +39,10 @@ import {
   type ContextoClasificacion,
   type ResultadoClasificacion,
 } from "@/lib/ecg/signal";
+import {
+  generarReportePdf,
+  type MetadatosRegistro,
+} from "@/lib/ecg/reporte-pdf";
 import { DEMOS, generarDemoWfdb, type TipoDemo } from "@/lib/ecg/demos";
 import { EcgCanvas } from "./ecg-canvas";
 import { ResultadoPanel } from "./resultado-panel";
@@ -245,33 +248,48 @@ export function EcgAnalyzer() {
     if (r) setResultado(r);
   };
 
-  const descargarReporteDe = (r: {
+  const [generandoPdf, setGenerandoPdf] = useState(false);
+
+  const metadatosRegistro = (estadoActual: EstadoSenal): MetadatosRegistro => ({
+    nombre: estadoActual.registroNombre,
+    derivacion: estadoActual.derivacion,
+    fs: estadoActual.fs,
+    duracionS: estadoActual.senal.length / estadoActual.fs,
+    nPicos: estadoActual.picos.length,
+    nRR: estadoActual.rr.length,
+  });
+
+  const descargarReporteDe = async (r: {
     res: ResultadoClasificacion;
     ctx: ContextoClasificacion;
   }) => {
-    if (!estado) return;
-    const contenido = generarReporte(
-      r.res,
-      r.ctx,
-      estado.fuente,
-      edad,
-      new Date().toLocaleString("es-CL"),
-    );
-    const blob = new Blob([contenido], { type: "text/plain;charset=utf-8" });
-    const a = document.createElement("a");
-    a.href = URL.createObjectURL(blob);
-    a.download = "reporte_ecg_demo.txt";
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-    setTimeout(() => URL.revokeObjectURL(a.href), 10000);
+    if (!estado || generandoPdf) return;
+    setGenerandoPdf(true);
+    try {
+      await generarReportePdf({
+        res: r.res,
+        ctx: r.ctx,
+        fuente: estado.fuente,
+        edadClave: edad,
+        registro: metadatosRegistro(estado),
+        senal: estado.senal,
+        picos: estado.picos,
+        fechaStr: new Date().toLocaleString("es-CL"),
+      });
+    } catch (e) {
+      setError(
+        `No se pudo generar el reporte PDF: ${e instanceof Error ? e.message : String(e)}`,
+      );
+    } finally {
+      setGenerandoPdf(false);
+    }
   };
 
   const exportar = () => {
     const r = resultado ?? computar();
     if (!r) return;
     if (!resultado) setResultado(r);
-    descargarReporteDe(r);
+    void descargarReporteDe(r);
   };
 
   const irAReporte = () => {
@@ -650,9 +668,10 @@ export function EcgAnalyzer() {
                     <button
                       type="button"
                       onClick={exportar}
-                      className="flex h-8 items-center rounded-md bg-neutral-900 px-3 text-[11.5px] font-medium text-white transition-colors hover:bg-neutral-700"
+                      disabled={generandoPdf}
+                      className="flex h-8 items-center rounded-md bg-neutral-900 px-3 text-[11.5px] font-medium text-white transition-colors hover:bg-neutral-700 disabled:opacity-50"
                     >
-                      Exportar
+                      {generandoPdf ? "Generando PDF…" : "Exportar PDF"}
                     </button>
                     <button
                       type="button"
@@ -825,6 +844,9 @@ export function EcgAnalyzer() {
                     ctx={resultado.ctx}
                     fuente={estado?.fuente ?? "—"}
                     edadClave={edad}
+                    registro={estado ? metadatosRegistro(estado) : null}
+                    senal={estado?.senal}
+                    picos={estado?.picos}
                     onOtro={limpiar}
                   />
                 </div>
