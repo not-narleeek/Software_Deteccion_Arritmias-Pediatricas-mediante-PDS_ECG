@@ -5,10 +5,10 @@ import {
   GuiaResultados,
   Limitaciones,
   ModeloF22,
-  PipelineProyecto,
   RecursosProyecto,
   FooterEcg,
 } from "@/components/ecg-portal/sections";
+import { PipelineSection } from "@/components/ecg-portal/pipeline/pipeline-section";
 import { HeartPulse } from "lucide-react";
 
 /* ============================================================
@@ -25,7 +25,7 @@ export default function Home() {
     <div className="flex min-h-screen flex-col bg-white">
       <main className="flex-1">
         <HeroEcg />
-        <PipelineProyecto />
+        <PipelineSection />
         <ComoFunciona />
 
         <section id="analizar" className="scroll-mt-16 bg-brand">
