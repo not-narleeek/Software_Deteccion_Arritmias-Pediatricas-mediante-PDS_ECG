@@ -142,16 +142,18 @@
 
 /* ---- Gredible landing utilities ---- */
 
-/* meadow sky blend: forces the top edge of a photo into the exact brand blue */
+/* cielo del hero: foto continua fundida al azul de marca.
+   Sólido hasta pasada la copy/CTAs, desvanecido ancho detrás del
+   mockup (queda oculto tras la tarjeta) y foto limpia al pie. */
 .blend-sky {
   background: linear-gradient(
     to bottom,
     var(--brand) 0%,
-    var(--brand) 4%,
-    color-mix(in oklab, var(--brand) 72%, transparent) 12%,
-    color-mix(in oklab, var(--brand) 34%, transparent) 22%,
-    color-mix(in oklab, var(--brand) 10%, transparent) 33%,
-    transparent 44%
+    var(--brand) 46%,
+    color-mix(in oklab, var(--brand) 78%, transparent) 56%,
+    color-mix(in oklab, var(--brand) 42%, transparent) 66%,
+    color-mix(in oklab, var(--brand) 12%, transparent) 76%,
+    transparent 88%
   );
 }
 
@@ -163,25 +165,6 @@
 .bg-dots-dark {
   background-image: radial-gradient(rgba(18, 22, 38, 0.06) 1px, transparent 1.4px);
   background-size: 16px 16px;
-}
-
-/* nubes del hero: deriva lenta de ida y vuelta */
-@keyframes cloud-drift {
-  from {
-    transform: translateX(-16px);
-  }
-  to {
-    transform: translateX(16px);
-  }
-}
-.animate-cloud-drift {
-  animation: cloud-drift 30s ease-in-out infinite alternate;
-  will-change: transform;
-}
-@media (prefers-reduced-motion: reduce) {
-  .animate-cloud-drift {
-    animation: none;
-  }
 }
 
 /* ============================================================

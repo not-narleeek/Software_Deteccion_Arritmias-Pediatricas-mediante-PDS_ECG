@@ -71,103 +71,20 @@ export function SiteHeaderEcg() {
   );
 }
 
-function Cloud({
-  className,
-  style,
-}: {
-  className?: string;
-  style?: React.CSSProperties;
-}) {
-  return (
-    <svg
-      viewBox="0 0 240 130"
-      fill="none"
-      aria-hidden="true"
-      focusable="false"
-      className={className}
-      style={style}
-    >
-      <g fill="#ffffff" filter="url(#ecg-cloud-soft)">
-        <ellipse cx="120" cy="90" rx="82" ry="22" />
-        <ellipse cx="72" cy="64" rx="36" ry="26" />
-        <ellipse cx="116" cy="48" rx="46" ry="34" />
-        <ellipse cx="164" cy="66" rx="34" ry="24" />
-        <ellipse cx="142" cy="78" rx="44" ry="26" />
-      </g>
-    </svg>
-  );
-}
-
-const HERO_CLOUDS: {
-  className: string;
-  duration: string;
-  delay: string;
-  flip?: boolean;
-}[] = [
-  {
-    className: "left-[2%] top-[7%] w-[220px] opacity-40 sm:w-[250px]",
-    duration: "34s",
-    delay: "-6s",
-  },
-  {
-    className: "right-[3%] top-[5%] w-[190px] opacity-35 sm:w-[220px]",
-    duration: "28s",
-    delay: "-14s",
-    flip: true,
-  },
-  {
-    className: "left-[31%] top-[4%] hidden w-[130px] opacity-25 md:block",
-    duration: "40s",
-    delay: "-22s",
-    flip: true,
-  },
-  {
-    className: "right-[16%] top-[20%] w-[140px] opacity-20",
-    duration: "26s",
-    delay: "-9s",
-  },
-];
-
-function HeroClouds() {
-  return (
-    <div
-      className="pointer-events-none absolute inset-0 -z-10 overflow-hidden"
-      aria-hidden="true"
-    >
-      {/* filtro de desenfoque compartido por todas las nubes */}
-      <svg width="0" height="0" aria-hidden="true" focusable="false">
-        <defs>
-          <filter
-            id="ecg-cloud-soft"
-            x="-30%"
-            y="-30%"
-            width="160%"
-            height="160%"
-          >
-            <feGaussianBlur stdDeviation="4" />
-          </filter>
-        </defs>
-      </svg>
-      {HERO_CLOUDS.map((cloud, i) => (
-        <Cloud
-          key={i}
-          className={`absolute animate-cloud-drift ${
-            cloud.flip ? "-scale-x-100 " : ""
-          }${cloud.className}`}
-          style={{
-            animationDuration: cloud.duration,
-            animationDelay: cloud.delay,
-          }}
-        />
-      ))}
-    </div>
-  );
-}
-
 export function HeroEcg() {
   return (
-    <section id="inicio" className="relative isolate bg-brand">
-      <HeroClouds />
+    <section id="inicio" className="relative isolate overflow-hidden bg-brand">
+      {/* foto de cielo continua como fondo del hero, fundida al azul de marca */}
+      <div className="absolute inset-0 -z-10" aria-hidden="true">
+        <img
+          src="/images/sky-hero.jpg"
+          alt=""
+          className="h-full w-full object-cover"
+          style={{ objectPosition: "center bottom" }}
+        />
+        <div className="blend-sky absolute inset-0" />
+      </div>
+
       <SiteHeaderEcg />
 
       {/* copia del hero */}
@@ -223,27 +140,13 @@ export function HeroEcg() {
         </ul>
       </div>
 
-      {/* mockup del producto sobrepuesto a la pradera */}
+      {/* mockup del producto sobrepuesto al cielo */}
       <div className="relative z-20 mt-12 px-5">
         <EcgMockup />
       </div>
 
-      {/* franja de pradera con logos */}
-      <div className="relative z-10 -mt-[104px]">
-        <div className="relative h-[340px] overflow-hidden lg:h-[400px]">
-          <img
-            src="/images/grass-hero.png"
-            alt="Colinas de pasto verde con flores rosadas"
-            className="absolute inset-0 h-full w-full object-cover"
-            style={{ objectPosition: "center 62%" }}
-          />
-          <div className="blend-sky absolute inset-0" aria-hidden="true" />
-          <div
-            className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-b from-transparent to-black/15"
-            aria-hidden="true"
-          />
-        </div>
-      </div>
+      {/* respiro bajo el mockup: deja ver la capa de nubes */}
+      <div className="h-[236px] lg:h-[296px]" />
     </section>
   );
 }
