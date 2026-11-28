@@ -52,14 +52,17 @@ const PASO_MS = 3400; // avance automático de «Recorrer»
 
 function VisualSvg({
   label,
+  viewBox = "0 0 640 312",
   children,
 }: {
   label: string;
+  /** recorte del área útil: elimina el margen muerto del 640×312 */
+  viewBox?: string;
   children: React.ReactNode;
 }) {
   return (
     <svg
-      viewBox="0 0 640 312"
+      viewBox={viewBox}
       role="img"
       aria-label={label}
       className="h-full w-full"
@@ -139,12 +142,65 @@ function Callout({
 
 /* ---------- 01 · Adquisición ---------- */
 
+/** Guía punteada horizontal en un nivel de amplitud v (mV) dentro del Box. */
+function GuiaNivel({
+  caja,
+  v,
+  etiqueta,
+  etiquetaX,
+  etiquetaDebajo,
+}: {
+  caja: Box;
+  v: number;
+  etiqueta?: string;
+  /** x alternativa para la etiqueta (p. ej. el margen izquierdo del gráfico) */
+  etiquetaX?: number;
+  /** dibuja la etiqueta bajo la línea en vez de sobre ella */
+  etiquetaDebajo?: boolean;
+}) {
+  const [, y] = mapPoint({ t: 0, v }, caja);
+  const yTxt = y + (etiquetaDebajo ? 11 : -4);
+  return (
+    <g aria-hidden="true">
+      <line
+        x1={caja.x}
+        y1={y}
+        x2={caja.x + caja.w}
+        y2={y}
+        stroke={GRIS}
+        strokeOpacity={0.45}
+        strokeWidth={1}
+        strokeDasharray="1.5 4"
+        strokeLinecap="round"
+      />
+      {etiqueta && (
+        <text
+          x={etiquetaX ?? caja.x + 3}
+          y={yTxt}
+          className="font-mono"
+          fontSize={8.5}
+          fill={GRIS}
+          fillOpacity={0.85}
+          stroke="#ffffff"
+          strokeWidth={3}
+          strokeOpacity={0.92}
+          style={{ paintOrder: "stroke" }}
+        >
+          {etiqueta}
+        </text>
+      )}
+    </g>
+  );
+}
+
 function VisualAdquisicion() {
   const p1 = mapPoint({ t: 1.85, v: muestra(1.85, true) }, LIENZO);
   const p2 = mapPoint({ t: 7.3, v: muestra(7.3, true) }, LIENZO);
   return (
-    <VisualSvg label={`Trazo ECG crudo de 10 segundos con ruido de red de 50 Hz y deriva de la línea base marcados; ${LATIDOS} latidos en total`}>
+    <VisualSvg label={`Trazo ECG crudo de 10 segundos con ruido de red de 50 Hz y deriva de la línea base marcados; ${LATIDOS} latidos en total`} viewBox="0 28 640 266">
       <EjeTiempo />
+      <GuiaNivel caja={LIENZO} v={1} etiqueta="1 mV" />
+      <GuiaNivel caja={LIENZO} v={0} etiqueta="0 mV" />
       <path d={buildPath(RAW, LIENZO)} fill="none" stroke={GRIS} strokeWidth={1.4} />
       <Callout x={p1[0]} yCaja={38} yLinea={p1[1] - 8} texto="Ruido de red · 50 Hz" ancho={150} />
       <Callout x={p2[0]} yCaja={226} yLinea={p2[1] + 8} texto="Deriva línea base" ancho={128} />
@@ -155,24 +211,26 @@ function VisualAdquisicion() {
 /* ---------- 02 · Preprocesado: ANTES / DESPUÉS apilados ---------- */
 
 function VisualPreprocesado() {
-  const bandaArriba: Box = { x: 128, y: 44, w: 486, h: 84 };
-  const bandaAbajo: Box = { x: 128, y: 194, w: 486, h: 84 };
+  const bandaArriba: Box = { x: 118, y: 30, w: 506, h: 112 };
+  const bandaAbajo: Box = { x: 118, y: 188, w: 506, h: 112 };
   return (
-    <VisualSvg label="Comparación antes y después del filtrado: señal cruda con ruido arriba y señal limpia en azul abajo">
+    <VisualSvg label="Comparación antes y después del filtrado: señal cruda con ruido arriba y señal limpia en azul abajo" viewBox="0 22 640 284">
       <text x={40} y={80} className="font-mono" fontSize={11} fontWeight={700} fill={TINTA}>
         ANTES
       </text>
       <text x={40} y={96} className="font-mono" fontSize={9.5} fill={GRIS}>
         señal cruda
       </text>
+      <GuiaNivel caja={bandaArriba} v={0} etiqueta="0 mV" etiquetaX={40} />
       <path d={buildPath(RAW, bandaArriba)} fill="none" stroke={GRIS} strokeWidth={1.2} />
-      <line x1={320} y1={142} x2={320} y2={182} stroke={NEUTRO} strokeDasharray="3 4" />
-      <text x={40} y={230} className="font-mono" fontSize={11} fontWeight={700} fill={TINTA}>
+      <line x1={320} y1={146} x2={320} y2={184} stroke={NEUTRO} strokeDasharray="3 4" />
+      <text x={40} y={238} className="font-mono" fontSize={11} fontWeight={700} fill={TINTA}>
         DESPUÉS
       </text>
-      <text x={40} y={246} className="font-mono" fontSize={9.5} fill={GRIS}>
+      <text x={40} y={254} className="font-mono" fontSize={9.5} fill={GRIS}>
         filtrada
       </text>
+      <GuiaNivel caja={bandaAbajo} v={0} etiqueta="0 mV" etiquetaX={40} etiquetaDebajo />
       <path d={buildPath(CLEAN, bandaAbajo)} fill="none" stroke={PDS} strokeWidth={1.3} />
     </VisualSvg>
   );
@@ -181,7 +239,7 @@ function VisualPreprocesado() {
 /* ---------- 03 · Detección: fila de puntos + guías + corchetes RR ---------- */
 
 function VisualDeteccion() {
-  const cajaSenal: Box = { x: 150, y: 118, w: 340, h: 150 };
+  const cajaSenal: Box = { x: 56, y: 112, w: 528, h: 172 };
   const picos = R_PEAKS.map((t) => mapPoint({ t, v: AMPLITUD_R }, cajaSenal));
   const filaY = 64; // fila horizontal de puntos
   const corchetes: Array<[number, number, number]> = [
@@ -189,7 +247,7 @@ function VisualDeteccion() {
     [5, 6, 52],
   ];
   return (
-    <VisualSvg label={`Trazo limpio con los ${LATIDOS} picos R marcados con puntos sobre una fila guía, líneas punteadas hacia cada latido y corchetes con intervalos RR en milisegundos`}>
+    <VisualSvg label={`Trazo limpio con los ${LATIDOS} picos R marcados con puntos sobre una fila guía, líneas punteadas hacia cada latido y corchetes con intervalos RR en milisegundos`} viewBox="0 20 640 286">
       {/* guías verticales desde la fila de puntos hasta la base */}
       {picos.map(([cx]) => (
         <line
@@ -234,6 +292,8 @@ function VisualDeteccion() {
         </g>
       ))}
       {/* trazo filtrado */}
+      <GuiaNivel caja={cajaSenal} v={AMPLITUD_R * 0.6} etiqueta="umbral adaptativo" />
+      <GuiaNivel caja={cajaSenal} v={0} />
       <path d={buildPath(CLEAN, cajaSenal)} fill="none" stroke={PDS} strokeWidth={1.4} />
       {/* puntos sobre cada pico R */}
       {picos.map(([cx]) => (
@@ -246,25 +306,26 @@ function VisualDeteccion() {
 /* ---------- 04 · Características: ventana 512 ms + espectro DCT ---------- */
 
 function VisualCaracteristicas() {
-  const cajaSenal: Box = { x: 40, y: 56, w: 290, h: 224 };
+  const cajaSenal: Box = { x: 24, y: 52, w: 372, h: 240 };
   const tR = R_PEAKS[6];
   const xIni = mapPoint({ t: tR - 0.25, v: 0 }, cajaSenal)[0];
   const xFin = mapPoint({ t: tR + 0.262, v: 0 }, cajaSenal)[0];
-  const baseY = 168;
+  const baseY = 184;
   return (
-    <VisualSvg label="Trazo con una ventana fija de 512 ms resaltada alrededor de un latido y, a la derecha, el espectro de 24 coeficientes DCT como barras">
-      <text x={(xIni + xFin) / 2} y={36} textAnchor="middle" className="font-mono" fontSize={10} fill={PDS}>
+    <VisualSvg label="Trazo con una ventana fija de 512 ms resaltada alrededor de un latido y, a la derecha, el espectro de 24 coeficientes DCT como barras" viewBox="0 26 640 270">
+      <text x={(xIni + xFin) / 2} y={40} textAnchor="middle" className="font-mono" fontSize={10} fill={PDS}>
         ventana fija · 512 ms
       </text>
-      <text x={490} y={36} textAnchor="middle" className="font-mono" fontSize={10} fill={GRIS}>
+      <text x={516} y={40} textAnchor="middle" className="font-mono" fontSize={10} fill={GRIS}>
         coef. DCT (24) → F22
       </text>
+      <GuiaNivel caja={cajaSenal} v={0} />
       <path d={buildPath(CLEAN, cajaSenal)} fill="none" stroke={PDS} strokeWidth={1.3} />
       <rect
         x={xIni}
-        y={56}
+        y={52}
         width={xFin - xIni}
-        height={224}
+        height={240}
         fill={PDS}
         fillOpacity={0.05}
         stroke={PDS}
@@ -272,15 +333,15 @@ function VisualCaracteristicas() {
         strokeDasharray="4 4"
         strokeWidth={1.2}
       />
-      <line x1={360} y1={baseY} x2={622} y2={baseY} stroke={NEUTRO} aria-hidden="true" />
+      <line x1={404} y1={baseY} x2={628} y2={baseY} stroke={NEUTRO} aria-hidden="true" />
       {DCT.map((c, i) => {
-        const h = Math.abs(c) * 125;
+        const h = Math.abs(c) * 140;
         return (
           <rect
             key={i}
-            x={372 + i * 9.4}
+            x={416 + i * 9}
             y={c > 0 ? baseY - h : baseY}
-            width={6.5}
+            width={7}
             height={h}
             rx={1.5}
             fill={c > 0 ? PDS : GRIS}
@@ -350,7 +411,7 @@ function VisualDiagnostico() {
   const ang = Math.PI * (1 - DIAGNOSTICO.certeza);
   const aguja = r - 22;
   return (
-    <VisualSvg label={`Medidor semicircular de certeza al ${pct} % a favor del ritmo sugerido: ${DIAGNOSTICO.ritmo}`}>
+    <VisualSvg label={`Medidor semicircular de certeza al ${pct} % a favor del ritmo sugerido: ${DIAGNOSTICO.ritmo}`} viewBox="0 56 640 256">
       <path d={arco} fill="none" stroke="#e8ecf4" strokeWidth={22} strokeLinecap="round" pathLength={100} />
       <path
         d={arco}
@@ -364,7 +425,7 @@ function VisualDiagnostico() {
       <text x={cx - r} y={cy + 22} textAnchor="middle" className="font-mono" fontSize={9} fill={GRIS}>
         0
       </text>
-      <text x={cx} y={cy - r - 10} textAnchor="middle" className="font-mono" fontSize={9} fill={GRIS}>
+      <text x={cx} y={cy - r - 26} textAnchor="middle" className="font-mono" fontSize={9} fill={GRIS}>
         50
       </text>
       <text x={cx + r} y={cy + 22} textAnchor="middle" className="font-mono" fontSize={9} fill={GRIS}>
@@ -548,8 +609,9 @@ export function PipelineSection() {
 
   return (
     <section id="pipeline" className="scroll-mt-16 bg-white">
-      <div className="mx-auto max-w-7xl px-6 pb-24 pt-20 lg:px-8">
-        {/* Cabecera */}
+      <div className="mx-auto max-w-[1680px] px-6 pb-20 pt-16 lg:px-8">
+        {/* Cabecera: ancho de lectura; KPI y demo van a todo el ancho */}
+        <div className="mx-auto max-w-7xl">
         <span className="inline-flex h-7 items-center gap-2 rounded-full bg-neutral-100 pl-1.5 pr-3.5">
           <span className="flex h-[18px] w-[18px] items-center justify-center rounded-full bg-neutral-950">
             <HeartPulse
@@ -562,7 +624,7 @@ export function PipelineSection() {
             Pipeline PDS
           </span>
         </span>
-        <div className="mt-8 flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
+        <div className="mt-6 flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
           <h2 className="font-display text-[38px] leading-[1.04] tracking-[0.005em] text-neutral-900 sm:text-[44px]">
             De la señal al diagnóstico,
             <br />
@@ -574,26 +636,33 @@ export function PipelineSection() {
             verlo en secuencia automática.
           </p>
         </div>
+        </div>
 
-        {/* Barra KPI */}
-        <div className="mt-10 grid grid-cols-2 gap-3 lg:grid-cols-4">
-          {KPIS.map((k) => (
-            <div
-              key={k.valor}
-              className="rounded-2xl border border-neutral-200/80 bg-white p-4 sm:p-5"
-            >
-              <p className="font-mono text-[15px] font-bold text-pds-dark sm:text-[19px]">
-                {k.valor}
-              </p>
-              <p className="mt-1 font-mono text-[10.5px] leading-snug text-neutral-500">
-                {k.etiqueta}
-              </p>
-            </div>
-          ))}
+        {/* Barra KPI: banda reglada con numerales serif, sin tarjetas sueltas */}
+        <div className="mt-8 overflow-hidden rounded-2xl border border-neutral-200/80 bg-white">
+          <div className="grid grid-cols-2 lg:grid-cols-4">
+            {KPIS.map((k, i) => (
+              <div
+                key={k.valor}
+                className={`border-neutral-200/80 p-4 sm:p-5 ${
+                  i % 2 === 1 ? "border-l" : ""
+                } ${i >= 2 ? "border-t lg:border-t-0" : ""} ${
+                  i > 0 ? "lg:border-l" : ""
+                }`}
+              >
+                <p className="font-display text-[23px] leading-none tracking-[0.005em] text-pds-dark sm:text-[25px]">
+                  {k.valor}
+                </p>
+                <p className="mt-2.5 font-mono text-[10.5px] leading-snug text-neutral-500">
+                  {k.etiqueta}
+                </p>
+              </div>
+            ))}
+          </div>
         </div>
 
         {/* Navegador de etapas */}
-        <div className="mt-12 overflow-hidden rounded-3xl border border-neutral-200/80 bg-white shadow-[0_28px_70px_-30px_rgba(15,23,42,0.28)]">
+        <div className="mt-10 overflow-hidden rounded-3xl border border-neutral-200/80 bg-white shadow-[0_24px_60px_-32px_rgba(15,23,42,0.25)]">
           {/* Barra superior */}
           <div className="flex items-center justify-between gap-4 bg-pds px-5 py-3.5 sm:px-6">
             <span className="whitespace-nowrap font-mono text-[10.5px] font-semibold uppercase tracking-[0.2em] text-white">
@@ -635,89 +704,134 @@ export function PipelineSection() {
           </div>
 
           {/* Contenido de la etapa activa */}
-          <div aria-live="polite" className="px-4 py-6 sm:px-6">
-            <p className="font-mono text-[11px] font-semibold uppercase tracking-[0.18em] text-pds">
-              Etapa {num(etapa)} · {actual.kicker}
-            </p>
-            <h3 className="mt-2.5 font-display text-[30px] leading-[1.05] tracking-[0.005em] text-neutral-900 sm:text-[34px]">
-              {actual.titulo}
-            </h3>
-            <p className="mt-3 max-w-[680px] font-mono text-[13px] leading-relaxed text-neutral-700">
-              {actual.descripcion}
-            </p>
-
-            <div className="mt-6 grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,4fr)_minmax(0,1fr)]">
-              {/* ENTRADA */}
-              <aside className="rounded-2xl bg-pds-soft p-5">
-                <h4 className="font-mono text-[10px] font-bold uppercase tracking-[0.18em] text-pds-dark">
-                  Entrada
-                </h4>
-                <ul className="mt-3.5 flex flex-col gap-2.5">
-                  {actual.entrada.map((it) => (
-                    <li
-                      key={it}
-                      className="flex items-start gap-2 font-mono text-[12px] leading-relaxed text-neutral-700"
-                    >
-                      <span
-                        className="mt-[7px] h-1.5 w-1.5 shrink-0 rounded-full bg-pds"
-                        aria-hidden="true"
-                      />
-                      {it}
-                    </li>
-                  ))}
-                </ul>
-              </aside>
-
-              {/* PROCESO */}
-              <div className="relative rounded-2xl border border-neutral-200/80 bg-white p-4 pt-7">
-                <span className="absolute -top-[10px] left-5 rounded-full bg-neutral-950 px-2.5 py-[3px] font-mono text-[9px] font-bold uppercase tracking-[0.18em] text-white">
-                  Proceso
+          <div aria-live="polite" className="px-4 py-6 sm:px-6 sm:py-7">
+            <div
+              key={etapa}
+              className="min-h-[872px] animate-in fade-in slide-in-from-bottom-2 [animation-duration:320ms] motion-reduce:animate-none lg:min-h-[704px]"
+            >
+              {/* Cabecera: numeral serif + kicker + título */}
+              <div className="flex items-start gap-4 sm:gap-5">
+                <span
+                  aria-hidden="true"
+                  className="mt-1 font-display text-[48px] leading-[0.8] text-pds sm:text-[60px]"
+                >
+                  {num(etapa)}
                 </span>
-                <div className="h-[320px]">
-                  <Visual />
-                </div>
-                <div className="mt-4 flex flex-wrap gap-2">
-                  {actual.chips.map((c) => (
-                    <span
-                      key={c.texto}
-                      className={`rounded-full px-2.5 py-1 font-mono text-[10.5px] tracking-[0.02em] ${
-                        c.clave
-                          ? "bg-neutral-950 font-bold text-white"
-                          : "bg-neutral-100 text-neutral-600"
-                      }`}
-                    >
-                      {c.texto}
-                    </span>
-                  ))}
+                <div className="border-l border-neutral-200/80 pl-4 sm:pl-5">
+                  <p className="font-mono text-[11px] font-semibold uppercase tracking-[0.18em] text-pds">
+                    {actual.kicker}
+                  </p>
+                  <h3 className="mt-2 font-display text-[26px] leading-[1.05] tracking-[0.005em] text-neutral-900 sm:text-[30px]">
+                    {actual.titulo}
+                  </h3>
                 </div>
               </div>
+              {/* alto fijo: reserva las 3 líneas máximas para que el flujo
+                  ENTRADA → PROCESO → SALIDA arranque siempre a la misma altura */}
+              <p className="mt-3 min-h-[64px] max-w-[680px] font-mono text-[13px] leading-relaxed text-neutral-700">
+                {actual.descripcion}
+              </p>
 
-              {/* SALIDA */}
-              <aside className="rounded-2xl border border-pds/40 bg-white p-5">
-                <h4 className="font-mono text-[10px] font-bold uppercase tracking-[0.18em] text-pds-dark">
-                  Salida
-                </h4>
-                <ul className="mt-3.5 flex flex-col gap-2.5">
-                  {actual.salida.map((it) => (
-                    <li
-                      key={it}
-                      className="flex items-start gap-2 font-mono text-[12px] leading-relaxed text-neutral-700"
-                    >
-                      <Check
-                        className="mt-[3px] h-3.5 w-3.5 shrink-0 text-pds"
-                        strokeWidth={2.5}
-                        aria-hidden="true"
-                      />
-                      {it}
-                    </li>
-                  ))}
-                </ul>
-              </aside>
+              {/* Flujo ENTRADA → PROCESO → SALIDA */}
+              <div className="mt-5 flex flex-col gap-4 lg:flex-row lg:items-start lg:gap-3">
+                {/* ENTRADA */}
+                <aside className="rounded-2xl bg-pds-soft p-4 sm:p-5 lg:w-[196px] lg:shrink-0">
+                  <h4 className="flex items-center gap-2 font-mono text-[10px] font-bold uppercase tracking-[0.18em] text-pds-dark">
+                    <span
+                      className="h-1.5 w-1.5 rounded-full bg-pds"
+                      aria-hidden="true"
+                    />
+                    Entrada
+                  </h4>
+                  <ul className="mt-3 flex flex-col gap-2.5">
+                    {actual.entrada.map((it) => (
+                      <li
+                        key={it}
+                        className="flex items-start gap-2 font-mono text-[12px] leading-relaxed text-neutral-700"
+                      >
+                        <span
+                          className="mt-[7px] h-1.5 w-1.5 shrink-0 rounded-full bg-pds"
+                          aria-hidden="true"
+                        />
+                        {it}
+                      </li>
+                    ))}
+                  </ul>
+                </aside>
+
+                <span
+                  aria-hidden="true"
+                  className="hidden h-7 w-7 shrink-0 items-center justify-center rounded-full border border-pds/35 text-pds lg:mt-[14px] lg:flex"
+                >
+                  <ArrowRight className="h-3.5 w-3.5" />
+                </span>
+
+                {/* PROCESO */}
+                <div className="min-w-0 flex-1 rounded-2xl border border-neutral-200/80 bg-white p-4 sm:p-5">
+                  <h4 className="flex items-center gap-2 font-mono text-[10px] font-bold uppercase tracking-[0.18em] text-neutral-900">
+                    <span
+                      className="h-1.5 w-1.5 rounded-full bg-neutral-950"
+                      aria-hidden="true"
+                    />
+                    Proceso
+                  </h4>
+                  <div className="mt-3 h-[220px] sm:h-[320px] lg:h-[370px]">
+                    <Visual />
+                  </div>
+                  <div className="mt-4 flex flex-wrap gap-2">
+                    {actual.chips.map((c) => (
+                      <span
+                        key={c.texto}
+                        className={`rounded-full px-2.5 py-1 font-mono text-[10.5px] tracking-[0.02em] ${
+                          c.clave
+                            ? "bg-neutral-950 font-bold text-white"
+                            : "bg-neutral-100 text-neutral-600"
+                        }`}
+                      >
+                        {c.texto}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+
+                <span
+                  aria-hidden="true"
+                  className="hidden h-7 w-7 shrink-0 items-center justify-center rounded-full border border-pds/35 text-pds lg:mt-[14px] lg:flex"
+                >
+                  <ArrowRight className="h-3.5 w-3.5" />
+                </span>
+
+                {/* SALIDA */}
+                <aside className="rounded-2xl border border-pds/40 bg-white p-4 sm:p-5 lg:w-[196px] lg:shrink-0">
+                  <h4 className="flex items-center gap-2 font-mono text-[10px] font-bold uppercase tracking-[0.18em] text-pds-dark">
+                    <span
+                      className="h-1.5 w-1.5 rounded-full bg-pds"
+                      aria-hidden="true"
+                    />
+                    Salida
+                  </h4>
+                  <ul className="mt-3 flex flex-col gap-2.5">
+                    {actual.salida.map((it) => (
+                      <li
+                        key={it}
+                        className="flex items-start gap-2 font-mono text-[12px] leading-relaxed text-neutral-700"
+                      >
+                        <Check
+                          className="mt-[3px] h-3.5 w-3.5 shrink-0 text-pds"
+                          strokeWidth={2.5}
+                          aria-hidden="true"
+                        />
+                        {it}
+                      </li>
+                    ))}
+                  </ul>
+                </aside>
+              </div>
             </div>
           </div>
 
-          {/* Navegación inferior: flecha · puntos · recorrer + flecha */}
-          <div className="flex items-center justify-between border-t border-neutral-200/80 px-4 py-4 sm:px-6">
+          {/* Navegación inferior: flecha · progreso · recorrer + flecha */}
+          <div className="flex items-center gap-4 border-t border-neutral-200/80 px-4 py-4 sm:px-6">
             <button
               type="button"
               onClick={() => setEtapa(Math.max(0, etapa - 1))}
@@ -728,16 +842,19 @@ export function PipelineSection() {
               <ArrowLeft className="h-4 w-4" aria-hidden="true" />
             </button>
 
-            <div className="flex items-center gap-1.5" aria-hidden="true">
-              {ETAPAS.map((e, i) => (
-                <span
-                  key={e.corto}
-                  className={`h-1.5 rounded-full transition-all duration-300 ${
-                    i === etapa ? "w-5 bg-pds" : "w-1.5 bg-neutral-300"
-                  }`}
-                />
-              ))}
+            {/* progreso de la secuencia; responde al modo «Recorrer» */}
+            <div
+              className="relative h-1 min-w-0 flex-1 overflow-hidden rounded-full bg-neutral-100"
+              aria-hidden="true"
+            >
+              <div
+                className="h-full rounded-full bg-pds transition-[width] duration-500 ease-out"
+                style={{ width: `${((etapa + 1) / ETAPAS.length) * 100}%` }}
+              />
             </div>
+            <span className="hidden whitespace-nowrap font-mono text-[10px] uppercase tracking-[0.16em] text-neutral-400 lg:block">
+              {actual.corto}
+            </span>
 
             <div className="flex items-center gap-3">
               <button
