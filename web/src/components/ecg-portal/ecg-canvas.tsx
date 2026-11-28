@@ -41,7 +41,12 @@ export function EcgCanvas({ senal, fs, picos, altura = 250 }: Props) {
     const dibujar = () => {
       const w = contenedor.clientWidth || 640;
       const h = altura;
-      const dpr = window.devicePixelRatio || 1;
+      /* bajo CSS zoom el contenedor se dibuja en px de layout y se
+         escala visualmente: multiplicar el DPR por el zoom activo
+         para que el trazo salga nítido. */
+      const zoomActivo =
+        parseFloat(getComputedStyle(contenedor).zoom || "1") || 1;
+      const dpr = (window.devicePixelRatio || 1) * zoomActivo;
       const targetW = Math.round(w * dpr);
       const targetH = Math.round(h * dpr);
       if (canvas.width !== targetW || canvas.height !== targetH) {

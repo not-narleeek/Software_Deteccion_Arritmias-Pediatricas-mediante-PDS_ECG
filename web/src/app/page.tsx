@@ -58,7 +58,7 @@ export default function Home() {
                 Se requiere JavaScript para usar el analizador de esta página.
               </p>
             </noscript>
-            <div className="mt-10 rounded-2xl bg-white p-2 shadow-[0_32px_80px_-24px_rgba(9,14,43,0.55)] ring-1 ring-black/10 sm:p-3">
+            <div className="mt-10 flex min-h-[480px] flex-col rounded-2xl bg-white p-2 shadow-[0_32px_80px_-24px_rgba(9,14,43,0.55)] ring-1 ring-black/10 sm:p-3">
               <EcgAnalyzer />
             </div>
           </div>

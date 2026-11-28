@@ -388,10 +388,10 @@ export function EcgAnalyzer() {
   );
 
   return (
-    <div className="space-y-3">
+    <div className="ecg-app-zoom flex flex-1 flex-col gap-3">
       <div
         ref={ventanaRef}
-        className="scroll-mt-24 overflow-hidden rounded-xl bg-white text-neutral-800 ring-1 ring-black/10"
+        className="flex min-h-0 flex-1 flex-col scroll-mt-24 overflow-hidden rounded-xl bg-white text-neutral-800 ring-1 ring-black/10"
       >
         {/* barra superior */}
         <div className="flex h-12 items-center gap-2.5 border-b border-neutral-100 bg-white px-3 sm:gap-3 sm:px-4">
@@ -452,7 +452,7 @@ export function EcgAnalyzer() {
           </span>
         </div>
 
-        <div className="flex min-h-[460px] flex-col md:flex-row">
+        <div className="flex min-h-0 flex-1 flex-col md:flex-row">
           {/* barra lateral (escritorio) */}
           <aside className="hidden w-[178px] shrink-0 flex-col border-r border-neutral-100 bg-white p-2.5 md:flex">
             {campoBusqueda(busquedaRef, true)}
@@ -472,9 +472,15 @@ export function EcgAnalyzer() {
             <p className="mt-1.5 px-1 text-[9px] leading-snug text-neutral-400">
               La edad ajusta los rangos de FC normales en pediatría al clasificar.
             </p>
-            <div className="mt-auto flex items-center gap-1.5 rounded-md bg-neutral-50 px-2 py-1.5 text-[9px] font-medium text-neutral-400">
-              <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-emerald-500" aria-hidden="true" />
-              Procesamiento 100 % local
+            <div className="mt-auto flex flex-col gap-1.5">
+              <div className="flex items-center gap-1.5 rounded-md bg-neutral-50 px-2 py-1.5 text-[9px] font-medium text-neutral-400">
+                <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-emerald-500" aria-hidden="true" />
+                Procesamiento 100 % local
+              </div>
+              <p className="px-1 text-[8.5px] leading-snug text-neutral-400">
+                Demo académica — no es un dispositivo médico ni reemplaza la evaluación
+                de un profesional de la salud.
+              </p>
             </div>
           </aside>
 

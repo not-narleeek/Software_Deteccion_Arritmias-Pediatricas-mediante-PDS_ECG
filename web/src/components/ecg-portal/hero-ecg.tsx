@@ -8,7 +8,7 @@ const REPO_URL =
 
 const NAV_ITEMS = [
   { href: "#pipeline", label: "Pipeline" },
-  { href: "#analizar", label: "Analizar ECG" },
+  { href: "/analizador", label: "Analizar ECG" },
   { href: "#guia", label: "Guía" },
   { href: "#modelo", label: "Modelo F22" },
   { href: "#limitaciones", label: "Limitaciones" },
@@ -105,7 +105,7 @@ export function HeroEcg() {
         </p>
         <div className="mt-9 flex flex-wrap items-center justify-center gap-3.5">
           <a
-            href="#analizar"
+            href="/analizador"
             className="flex h-12 items-center whitespace-nowrap rounded-lg bg-neutral-950 px-6 text-[14px] font-semibold text-white transition-colors hover:bg-neutral-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
           >
             Analizar un ECG

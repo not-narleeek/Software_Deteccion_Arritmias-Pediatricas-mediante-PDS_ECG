@@ -167,6 +167,13 @@
   background-size: 16px 16px;
 }
 
+/* Densidad del analizador: la interfaz se diseñó a ~1280 px, así que
+   escala suavemente con el viewport (hasta 1.35x) para no verse
+   pequeño en monitores grandes. Misma proporción en toda la app. */
+.ecg-app-zoom {
+  zoom: clamp(1, tan(atan2(100vw, 1280px)), 1.35);
+}
+
 /* ============================================================
    Portal ECG pediátrico
    ============================================================ */
